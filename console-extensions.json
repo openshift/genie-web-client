@@ -3,16 +3,16 @@
     "type": "console.page/route",
     "properties": {
       "exact": true,
-      "path": "/example",
-      "component": { "$codeRef": "ExamplePage" }
+      "path": "/genie",
+      "component": { "$codeRef": "GeniePage" }
     }
   },
   {
     "type": "console.navigation/href",
     "properties": {
-      "id": "example",
-      "name": "%plugin__console-plugin-template~Plugin Example%",
-      "href": "/example",
+      "id": "genie",
+      "name": "Genie Web Client",
+      "href": "/genie",
       "perspective": "admin",
       "section": "home"
     }
