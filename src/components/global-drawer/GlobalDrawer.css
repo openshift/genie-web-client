@@ -1,6 +1,19 @@
-.global-drawer-container {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
+.global-drawer-container .pf-v6-c-drawer {
+  margin: 1.5rem;
+  height: calc(100vh - 3rem);
+  
+  --pf-v6-c-drawer__panel--PaddingBlockStart: 1.5rem;
+  --pf-v6-c-drawer__panel--PaddingBlockEnd: 1.5rem;
+  --pf-v6-c-drawer__head--PaddingBlockStart: 0;
+  --pf-v6-c-drawer__head--PaddingBlockEnd: 0;
+  --pf-v6-c-drawer__head--PaddingInlineStart: 1.5rem;
+  --pf-v6-c-drawer__head--PaddingInlineEnd: 1.5rem;
+  --pf-v6-c-drawer__panel__body--PaddingBlockStart: 0;
+  --pf-v6-c-drawer__panel__body--PaddingBlockEnd: 0;
+  --pf-v6-c-drawer__panel__body--PaddingInlineStart: 1.5rem;
+  --pf-v6-c-drawer__panel__body--PaddingInlineEnd: 1.5rem;
 
+  & .pf-v6-c-drawer__panel {
+    border-radius: 2rem; /* custom */
+  }
+}
