@@ -14,6 +14,7 @@ export default function GeniePage() {
         <Content component="p">
           <span className="genie-web-client__nice">
             {t('genie')}
+            testing
           </span>
         </Content>
       </PageSection>
