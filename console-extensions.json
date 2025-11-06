@@ -1,6 +1,6 @@
 [
   {
-    "type": "console.page/route",
+    "type": "console.page/route/standalone",
     "properties": {
       "exact": true,
       "path": "/genie",
