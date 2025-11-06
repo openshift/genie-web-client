@@ -14,6 +14,7 @@ import './GlobalDrawer.css';
 interface GlobalDrawerProps {
   isOpen: boolean;
   heading: React.ReactNode;
+  icon: React.ReactNode;
   children: React.ReactNode;
   position: 'left' | 'right';
   onClose: () => void;
@@ -22,6 +23,7 @@ interface GlobalDrawerProps {
 export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
   isOpen,
   heading,
+  icon,
   children,
   position,
   onClose,
@@ -33,7 +35,10 @@ export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
   const panelContent = (
     <DrawerPanelContent>
       <DrawerHead>
-        <span>{heading}</span>
+        <div className="global-drawer-heading">
+          <span className="global-drawer-heading__icon">{icon}</span>
+          <span className="global-drawer-heading__text">{heading}</span>
+        </div>
         <DrawerActions>
           <DrawerCloseButton onClick={onClose} />
         </DrawerActions>
@@ -43,7 +48,7 @@ export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
   );
 
   return (
-    <Backdrop onClick={onClose}>
+    <Backdrop>
       <div className="global-drawer-container">
         <Drawer isExpanded={isOpen} position={position}>
           <DrawerContent panelContent={panelContent} />

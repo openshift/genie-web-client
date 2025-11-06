@@ -5,6 +5,7 @@ import { GlobalDrawer } from './GlobalDrawer';
 interface DrawerState {
   isOpen: boolean;
   heading: React.ReactNode;
+  icon: React.ReactNode;
   children: React.ReactNode;
   position: 'left' | 'right';
   onClose?: () => void;
@@ -18,6 +19,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
   const [drawerState, setDrawerState] = React.useState<DrawerState>({
     isOpen: false,
     heading: null,
+    icon: null,
     children: null,
     position: 'right',
   });
@@ -26,6 +28,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
     setDrawerState({
       isOpen: true,
       heading: config.heading,
+      icon: config.icon,
       children: config.children,
       position: config.position || 'right',
       onClose: config.onClose,
@@ -55,6 +58,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
       <GlobalDrawer
         isOpen={drawerState.isOpen}
         heading={drawerState.heading}
+        icon={drawerState.icon}
         position={drawerState.position}
         onClose={closeDrawer}
       >

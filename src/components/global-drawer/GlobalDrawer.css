@@ -17,3 +17,18 @@
     border-radius: 2rem; /* custom */
   }
 }
+
+.global-drawer-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  & .global-drawer-heading__icon {
+    display: flex;
+    align-items: center;
+  }
+
+  & .global-drawer-heading__text {
+    flex: 1;
+  }
+}

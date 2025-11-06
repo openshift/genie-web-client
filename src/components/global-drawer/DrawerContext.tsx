@@ -2,6 +2,7 @@ import * as React from 'react';
 
 export interface DrawerConfig {
   heading: React.ReactNode;
+  icon: React.ReactNode;
   children: React.ReactNode;
   position?: 'left' | 'right';
   onClose?: () => void;
