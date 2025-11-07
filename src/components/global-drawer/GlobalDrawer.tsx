@@ -33,7 +33,7 @@ export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
   }
 
   const panelContent = (
-    <DrawerPanelContent>
+    <DrawerPanelContent onClick={(e) => e.stopPropagation()}>
       <DrawerHead>
         <div className="global-drawer-heading">
           <span className="global-drawer-heading__icon">{icon}</span>
@@ -48,7 +48,7 @@ export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
   );
 
   return (
-    <Backdrop>
+    <Backdrop onClick={onClose}>
       <div className="global-drawer-container">
         <Drawer isExpanded={isOpen} position={position}>
           <DrawerContent panelContent={panelContent} />
