@@ -1,0 +1,35 @@
+.global-drawer-container .pf-v6-c-drawer {
+  --global-drawer-margin: var(--pf-v5-global--spacer--lg, 1.5rem);
+  margin: var(--global-drawer-margin);
+  height: calc(100vh - calc(var(--global-drawer-margin) * 2));
+  
+  --pf-v6-c-drawer__panel--PaddingBlockStart: var(--pf-v5-global--spacer--lg, 1.5rem);
+  --pf-v6-c-drawer__panel--PaddingBlockEnd: var(--pf-v5-global--spacer--lg, 1.5rem);
+  --pf-v6-c-drawer__head--PaddingBlockStart: 0;
+  --pf-v6-c-drawer__head--PaddingBlockEnd: 0;
+  --pf-v6-c-drawer__head--PaddingInlineStart: var(--pf-v5-global--spacer--lg, 1.5rem);
+  --pf-v6-c-drawer__head--PaddingInlineEnd: var(--pf-v5-global--spacer--lg, 1.5rem);
+  --pf-v6-c-drawer__panel__body--PaddingBlockStart: 0;
+  --pf-v6-c-drawer__panel__body--PaddingBlockEnd: 0;
+  --pf-v6-c-drawer__panel__body--PaddingInlineStart: var(--pf-v5-global--spacer--lg, 1.5rem);
+  --pf-v6-c-drawer__panel__body--PaddingInlineEnd: var(--pf-v5-global--spacer--lg, 1.5rem);
+
+  & .pf-v6-c-drawer__panel {
+    border-radius: 2rem; /* custom */
+  }
+}
+
+.global-drawer-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-v5-global--spacer--md, 1rem);
+
+  & .global-drawer-heading__icon {
+    display: flex;
+    align-items: center;
+  }
+
+  & .global-drawer-heading__text {
+    flex: 1;
+  }
+}
