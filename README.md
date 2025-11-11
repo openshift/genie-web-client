@@ -91,7 +91,6 @@ Tests should be placed alongside the components they test with a `.test.tsx` ext
 Example test:
 
 ```tsx
-import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import MyComponent from './MyComponent';
 
