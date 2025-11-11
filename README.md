@@ -83,10 +83,11 @@ yarn test:coverage
 
 #### Writing Tests
 
-Tests should be placed alongside the components they test with a `.test.tsx` extension. For example:
+Tests should be placed alongside the components they test with a `.test.tsx` extension. For components with multiple test files, use a `__tests__/` directory.
 
-- Component: `src/components/MyComponent.tsx`
-- Test: `src/components/MyComponent.test.tsx`
+**File Organization:**
+- Single test file: `src/components/MyComponent.test.tsx` (co-located)
+- Multiple test files: `src/components/my-component/__tests__/` (organized)
 
 Example test:
 
@@ -101,6 +102,48 @@ describe('MyComponent', () => {
   });
 });
 ```
+
+#### Testing with Global Drawer
+
+The project includes reusable test utilities for components that interact with the global drawer.
+
+**For integration tests** (testing full drawer functionality):
+
+```tsx
+import { renderWithDrawerProvider } from './components/global-drawer/test-utils';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+it('opens drawer with details', async () => {
+  const user = userEvent.setup();
+  renderWithDrawerProvider(<YourComponent />);
+  
+  await user.click(screen.getByText('Open Details'));
+  expect(screen.getByText('Details Panel')).toBeInTheDocument();
+});
+```
+
+**For unit tests** (mocking drawer interactions):
+
+```tsx
+import { createMockDrawerContext } from './components/global-drawer/test-utils';
+
+const mockDrawer = createMockDrawerContext();
+jest.mock('./components/global-drawer', () => ({
+  useDrawer: () => mockDrawer,
+}));
+
+it('calls openDrawer when button is clicked', async () => {
+  render(<YourComponent />);
+  await user.click(screen.getByText('Open'));
+  
+  expect(mockDrawer.openDrawer).toHaveBeenCalledWith(
+    expect.objectContaining({ heading: 'Details' })
+  );
+});
+```
+
+See `src/components/global-drawer/__tests__/example-usage.md` for more examples and patterns.
 
 ### Integration Tests
 
