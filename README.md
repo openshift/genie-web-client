@@ -62,6 +62,59 @@ OC_PASS=<password>
 3. `yarn run start`
 4. Navigate to <http://localhost:9000/genie>
 
+## Testing
+
+### Unit Tests
+
+This project uses Jest and React Testing Library for unit testing.
+
+#### Running Tests
+
+```bash
+# Run all tests once
+yarn test
+
+# Run tests in watch mode (re-runs on file changes)
+yarn test:watch
+
+# Run tests with coverage report
+yarn test:coverage
+```
+
+#### Writing Tests
+
+Tests should be placed alongside the components they test with a `.test.tsx` extension. For example:
+
+- Component: `src/components/MyComponent.tsx`
+- Test: `src/components/MyComponent.test.tsx`
+
+Example test:
+
+```tsx
+import * as React from 'react';
+import { render, screen } from '@testing-library/react';
+import MyComponent from './MyComponent';
+
+describe('MyComponent', () => {
+  it('renders correctly', () => {
+    render(<MyComponent />);
+    expect(screen.getByText('Expected Text')).toBeInTheDocument();
+  });
+});
+```
+
+### Integration Tests
+
+Integration tests using Cypress are available. See the `integration-tests` directory for more details.
+
+```bash
+# Run Cypress in interactive mode
+yarn test-cypress
+
+# Run Cypress in headless mode
+yarn test-cypress-headless
+```
+
 ## Contributing
 
 See `CONTRIBUTING.md` for guidelines. A PR template is in place (see `.github/pull_request_template.md`) prompting for a summary and testing details.
