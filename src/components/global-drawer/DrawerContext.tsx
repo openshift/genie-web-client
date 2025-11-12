@@ -1,9 +1,9 @@
-import * as React from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 
 export interface DrawerConfig {
-  heading: React.ReactNode;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+  heading: ReactNode;
+  icon: ReactNode;
+  children: ReactNode;
   position?: 'left' | 'right';
   onClose?: () => void;
 }
@@ -13,10 +13,10 @@ export interface DrawerContextValue {
   closeDrawer: () => void;
 }
 
-export const DrawerContext = React.createContext<DrawerContextValue | undefined>(undefined);
+export const DrawerContext = createContext<DrawerContextValue | undefined>(undefined);
 
 export const useDrawer = (): DrawerContextValue => {
-  const context = React.useContext(DrawerContext);
+  const context = useContext(DrawerContext);
   if (!context) {
     throw new Error('useDrawer must be used within a DrawerProvider');
   }

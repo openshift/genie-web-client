@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Content, PageSection, Button } from '@patternfly/react-core';
 import { CommentIcon, CogIcon } from '@patternfly/react-icons';

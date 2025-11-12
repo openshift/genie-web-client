@@ -1,22 +1,22 @@
-import * as React from 'react';
+import { FC, ReactNode, useState, useCallback, useMemo } from 'react';
 import { DrawerContext, DrawerConfig } from './DrawerContext';
 import { GlobalDrawer } from './GlobalDrawer';
 
 interface DrawerState {
   isOpen: boolean;
-  heading: React.ReactNode;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+  heading: ReactNode;
+  icon: ReactNode;
+  children: ReactNode;
   position: 'left' | 'right';
   onClose?: () => void;
 }
 
 interface DrawerProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
-  const [drawerState, setDrawerState] = React.useState<DrawerState>({
+export const DrawerProvider: FC<DrawerProviderProps> = ({ children }) => {
+  const [drawerState, setDrawerState] = useState<DrawerState>({
     isOpen: false,
     heading: null,
     icon: null,
@@ -24,7 +24,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
     position: 'right',
   });
 
-  const openDrawer = React.useCallback((config: DrawerConfig) => {
+  const openDrawer = useCallback((config: DrawerConfig) => {
     setDrawerState({
       isOpen: true,
       heading: config.heading,
@@ -35,7 +35,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
     });
   }, []);
 
-  const closeDrawer = React.useCallback(() => {
+  const closeDrawer = useCallback(() => {
     setDrawerState((prevState) => {
       if (prevState.onClose) {
         prevState.onClose();
@@ -47,7 +47,7 @@ export const DrawerProvider: React.FC<DrawerProviderProps> = ({ children }) => {
     });
   }, []);
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({ openDrawer, closeDrawer }),
     [openDrawer, closeDrawer]
   );

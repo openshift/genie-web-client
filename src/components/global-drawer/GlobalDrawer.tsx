@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { FC, ReactNode } from 'react';
 import {
   Backdrop,
   Drawer,
@@ -13,14 +13,14 @@ import './GlobalDrawer.css';
 
 interface GlobalDrawerProps {
   isOpen: boolean;
-  heading: React.ReactNode;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+  heading: ReactNode;
+  icon: ReactNode;
+  children: ReactNode;
   position: 'left' | 'right';
   onClose: () => void;
 }
 
-export const GlobalDrawer: React.FC<GlobalDrawerProps> = ({
+export const GlobalDrawer: FC<GlobalDrawerProps> = ({
   isOpen,
   heading,
   icon,
