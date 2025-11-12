@@ -19,9 +19,7 @@ import {
 import { MessageBar } from '@patternfly/chatbot';
 import {
   BellIcon,
-  CogIcon,
   CommentDotsIcon,
-  CommentIcon,
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
@@ -31,8 +29,9 @@ import {
 } from '@patternfly/react-icons';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
-import './Layout.css';
 import { useDrawer } from '../global-drawer';
+import './Layout.css';
+
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -43,10 +42,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const { openDrawer } = useDrawer();
 
-  const handleOpenLeftDrawer = () => {
+  // TODO: Maybe use useMemo and useCallback to memoize the drawer openers
+
+  const openChatHistoryDrawer = () => {
     openDrawer({
-      heading: 'Left Drawer',
-      icon: <CommentIcon />,
+      heading: 'Chat History',
+      icon: <CommentDotsIcon />,
       position: 'left',
       children: (
         <div>
@@ -55,15 +56,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       ),
       onClose: () => {
-        console.log('Left drawer closed');
+        console.log('Chat history closed');
       },
     });
   };
 
-  const handleOpenRightDrawer = () => {
+  const openNotificationsDrawer = () => {
     openDrawer({
-      heading: 'Right Drawer',
-      icon: <CogIcon />,
+      heading: 'Notifications',
+      icon: <BellIcon />,
       position: 'right',
       children: (
         <div>
@@ -72,11 +73,45 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       ),
       onClose: () => {
-        console.log('Right drawer closed');
+        console.log('Notifications closed');
       },
     });
   };
 
+  const openActivityDrawer = () => {
+    openDrawer({
+      heading: 'Activity',
+      icon: <WaveSquareIcon />,
+      position: 'right',
+      children: (
+        <div>
+          <p>This is content in the right drawer.</p>
+          <p>You can put any React components here.</p>
+        </div>
+      ),
+      onClose: () => {
+        console.log('Activity closed');
+      },
+    });
+  };
+
+  const openHelpDrawer = () => {
+    openDrawer({
+      heading: 'Help',
+      icon: <QuestionCircleIcon />,
+      position: 'right',
+      children: (
+        <div>
+          <p>This is content in the right drawer.</p>
+          <p>You can put any React components here.</p>
+        </div>
+      ),
+      onClose: () => {
+        console.log('Help closed');
+      },
+    });
+  };
+  
   const onNavSelect = (
     _event: React.FormEvent<HTMLInputElement>,
     selectedItem: {
@@ -131,7 +166,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Chat History">
-              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={handleOpenLeftDrawer} />
+              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={openChatHistoryDrawer} />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -150,17 +185,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="Notifications">
-              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={handleOpenRightDrawer} />
+              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={openNotificationsDrawer} />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Activity">
-              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" />
+              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" onClick={openActivityDrawer} />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Help">
-              <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" />
+              <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" onClick={openHelpDrawer} />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
