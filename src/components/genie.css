@@ -5,3 +5,8 @@
    * https://patternfly-react-main.surge.sh/developer-resources/global-css-variables */
   color: var(--pf-global--palette--blue-400);
 }
+
+/* Setting border radius as pill for all buttons */
+.global-layout-container .pf-v6-c-button{
+  --pf-v6-c-button--BorderRadius: var(--pf-t--global--border--radius--pill, 999px);
+}
