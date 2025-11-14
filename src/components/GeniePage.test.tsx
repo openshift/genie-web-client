@@ -15,4 +15,3 @@ describe('GeniePage', () => {
     expect(screen.getByText('Open Right Drawer')).toBeInTheDocument();
   });
 });
-
