@@ -83,6 +83,13 @@ const config: Configuration = {
   optimization: {
     chunkIds: isProd ? 'deterministic' : 'named',
     minimize: isProd,
+    minimizer: isProd ? [
+      new (require('terser-webpack-plugin'))({
+        terserOptions: {
+          ecma: 2020,
+        },
+      }),
+    ] : [],
   },
 };
 
