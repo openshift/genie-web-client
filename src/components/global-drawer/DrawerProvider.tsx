@@ -1,15 +1,5 @@
 import { FC, ReactNode, useState, useCallback, useMemo } from 'react';
-import { DrawerContext, DrawerConfig } from './DrawerContext';
-import { GlobalDrawer } from './GlobalDrawer';
-
-interface DrawerState {
-  isOpen: boolean;
-  heading: ReactNode;
-  icon: ReactNode;
-  children: ReactNode;
-  position: 'left' | 'right';
-  onClose?: () => void;
-}
+import { DrawerContext, DrawerConfig, DrawerState } from './DrawerContext';
 
 interface DrawerProviderProps {
   children: ReactNode;
@@ -48,22 +38,13 @@ export const DrawerProvider: FC<DrawerProviderProps> = ({ children }) => {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ openDrawer, closeDrawer }),
-    [openDrawer, closeDrawer]
+    () => ({ drawerState, openDrawer, closeDrawer }),
+    [drawerState, openDrawer, closeDrawer]
   );
 
   return (
     <DrawerContext.Provider value={contextValue}>
       {children}
-      <GlobalDrawer
-        isOpen={drawerState.isOpen}
-        heading={drawerState.heading}
-        icon={drawerState.icon}
-        position={drawerState.position}
-        onClose={closeDrawer}
-      >
-        {drawerState.children}
-      </GlobalDrawer>
     </DrawerContext.Provider>
   );
 };

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Compass,
   Avatar,
@@ -15,6 +15,11 @@ import {
   Tooltip,
   Button,
   CompassMessageBar,
+  DrawerActions,
+  DrawerCloseButton,
+  DrawerHead,
+  DrawerPanelBody,
+  DrawerPanelContent,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -40,77 +45,65 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
 
-  const { openDrawer } = useDrawer();
+  const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
-  // TODO: Maybe use useMemo and useCallback to memoize the drawer openers
+  
 
-  const openChatHistoryDrawer = () => {
-    openDrawer({
-      heading: 'Chat History',
-      icon: <CommentDotsIcon />,
-      position: 'left',
-      children: (
-        <div>
-          <p>This is content in the left drawer.</p>
-          <p>You can put any React components here.</p>
-        </div>
-      ),
-      onClose: () => {
-        console.log('Chat history closed');
-      },
-    });
-  };
-
-  const openNotificationsDrawer = () => {
-    openDrawer({
-      heading: 'Notifications',
-      icon: <BellIcon />,
-      position: 'right',
-      children: (
-        <div>
-          <p>This is content in the right drawer.</p>
-          <p>You can put any React components here.</p>
-        </div>
-      ),
-      onClose: () => {
-        console.log('Notifications closed');
-      },
-    });
-  };
-
-  const openActivityDrawer = () => {
-    openDrawer({
-      heading: 'Activity',
-      icon: <WaveSquareIcon />,
-      position: 'right',
-      children: (
-        <div>
-          <p>This is content in the right drawer.</p>
-          <p>You can put any React components here.</p>
-        </div>
-      ),
-      onClose: () => {
-        console.log('Activity closed');
-      },
-    });
-  };
-
-  const openHelpDrawer = () => {
-    openDrawer({
-      heading: 'Help',
-      icon: <QuestionCircleIcon />,
-      position: 'right',
-      children: (
-        <div>
-          <p>This is content in the right drawer.</p>
-          <p>You can put any React components here.</p>
-        </div>
-      ),
-      onClose: () => {
-        console.log('Help closed');
-      },
-    });
-  };
+    const handleDrawerOpen = useCallback((configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
+      const config = {
+        chatHistory: {
+          heading: 'Chat History',
+          icon: <CommentDotsIcon />,
+          position: 'left' as const,
+          children: (
+            <div>
+              <p>This is content in the left drawer.</p>
+              <p>You can put any React components here.</p>
+            </div>
+          ),
+          onClose: () => console.log('Chat history closed'),
+        },
+        notifications: {
+          heading: 'Notifications',
+          icon: <BellIcon />,
+          position: 'right' as const,
+          children: (
+            <div>
+              <p>This is content in the right drawer.</p>
+              <p>You can put any React components here.</p>
+            </div>
+          ),
+          onClose: () => console.log('Notifications closed'),
+        },
+        activity: {
+          heading: 'Activity',
+          icon: <WaveSquareIcon />,
+          position: 'right' as const,
+          children: (
+            <div>
+              <p>This is content in the right drawer.</p>
+              <p>You can put any React components here.</p>
+            </div>
+          ),
+          onClose: () => console.log('Activity closed'),
+        },
+        help: {
+          heading: 'Help',
+          icon: <QuestionCircleIcon />,
+          position: 'right' as const,
+          children: (
+            <div>
+              <p>This is content in the right drawer.</p>
+              <p>You can put any React components here.</p>
+            </div>
+          ),
+          onClose: () => console.log('Help closed'),
+        },
+      }[configKey];
+      if (config) {
+        openDrawer(config);
+      }
+    }, [openDrawer]);
   
   const onNavSelect = (
     _event: React.FormEvent<HTMLInputElement>,
@@ -166,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Chat History">
-              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={openChatHistoryDrawer} />
+              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={() => handleDrawerOpen('chatHistory')} />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -185,17 +178,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="Notifications">
-              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={openNotificationsDrawer} />
+              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={() => handleDrawerOpen('notifications')} />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Activity">
-              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" onClick={openActivityDrawer} />
+              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" onClick={() => handleDrawerOpen('activity')} />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Help">
-              <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" onClick={openHelpDrawer} />
+                  <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" onClick={() => handleDrawerOpen('help')} />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -218,6 +211,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassMessageBar>
   );
 
+  const drawerContent = drawerState.isOpen ? (
+    <DrawerPanelContent>
+      <DrawerHead>
+        <div className="drawer-heading">
+          {drawerState.icon && <span className="drawer-heading__icon">{drawerState.icon}</span>}
+          <span className="drawer-heading__text">{drawerState.heading}</span>
+        </div>
+        <DrawerActions>
+          <DrawerCloseButton onClick={closeDrawer} />
+        </DrawerActions>
+      </DrawerHead>
+      <DrawerPanelBody>{drawerState.children}</DrawerPanelBody>
+    </DrawerPanelContent>
+  ) : undefined;
+
   return (
     <Compass
       header={header}
@@ -226,6 +234,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       sidebarEnd={sidebarEnd}
       main={mainContent}
       footer={footer}
+      drawerContent={drawerContent}
+      drawerProps={{
+        isPill: true,
+        isExpanded: drawerState.isOpen,
+        position: drawerState.position,
+      }}
     >
       {children}
     </Compass>

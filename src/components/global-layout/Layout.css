@@ -34,3 +34,21 @@
   /* Footer specific styles */
 }
 
+.pf-v6-c-drawer__panel {
+  --pf-v6-c-drawer__panel--m-glass--BackgroundColor: var(--pf-t--global--background--color--floating--default);
+
+  & .drawer-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--pf-v5-global--spacer--md, 1rem);
+  
+    & .drawer-heading__icon {
+      display: flex;
+      align-items: center;
+    }
+  
+    & .drawer-heading__text {
+      flex: 1;
+    }
+  }
+}
