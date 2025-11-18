@@ -86,7 +86,7 @@ const config: Configuration = {
     minimizer: isProd ? [
       new (require('terser-webpack-plugin'))({
         terserOptions: {
-          ecma: 2020,
+          ecma: 2022,
         },
       }),
     ] : [],
