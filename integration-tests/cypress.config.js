@@ -18,7 +18,7 @@ module.exports = defineConfig({
   },
   e2e: {
     setupNodeEvents(on, config) {
-      return require('./plugins/index.js')(on, config);
+      return require('./plugins/index.ts')(on, config);
     },
     specPattern: 'tests/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'support/index.ts',

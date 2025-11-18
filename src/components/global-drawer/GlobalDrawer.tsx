@@ -57,3 +57,4 @@ export const GlobalDrawer: FC<GlobalDrawerProps> = ({
     </Backdrop>
   );
 };
+

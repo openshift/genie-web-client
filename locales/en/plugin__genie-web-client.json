@@ -1,7 +1,3 @@
 {
-  "genie": "Genie Web Client",
-  "termsUse": "Terms of Use",
-  "rhTerms": "Red Hat Terms of Use",
-  "lastUpdated": "Last updated: {{date}}",
-  "termsService": "Terms of Service"
+  "genie": "Genie Web Client"
 }

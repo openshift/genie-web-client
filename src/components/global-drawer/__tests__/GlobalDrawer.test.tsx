@@ -19,7 +19,9 @@ describe('GlobalDrawer', () => {
   });
 
   it('renders nothing when isOpen is false', () => {
-    const { container } = render(<GlobalDrawer {...defaultProps} isOpen={false} />);
+    const { container } = render(
+      <GlobalDrawer {...defaultProps} isOpen={false} />
+    );
 
     expect(container.firstChild).toBeNull();
     expect(screen.queryByText('Test Drawer')).not.toBeInTheDocument();
@@ -64,7 +66,7 @@ describe('GlobalDrawer', () => {
 
     // Find the backdrop (it's the outermost div with onClick)
     const backdrop = container.querySelector('.pf-v6-c-backdrop, .pf-c-backdrop');
-
+    
     if (backdrop) {
       await user.click(backdrop);
       expect(mockOnClose).toHaveBeenCalled();
@@ -103,7 +105,7 @@ describe('GlobalDrawer', () => {
             <button>Action Button</button>
           </div>
         }
-      />,
+      />
     );
 
     expect(screen.getByText('First paragraph')).toBeInTheDocument();
@@ -121,7 +123,7 @@ describe('GlobalDrawer', () => {
             <span> with extra text</span>
           </div>
         }
-      />,
+      />
     );
 
     expect(screen.getByText('Bold Title')).toBeInTheDocument();
@@ -138,7 +140,7 @@ describe('GlobalDrawer', () => {
             <span>Badge</span>
           </div>
         }
-      />,
+      />
     );
 
     const complexIcon = screen.getByTestId('complex-icon');
@@ -173,7 +175,9 @@ describe('GlobalDrawer', () => {
   });
 
   it('transitions from closed to open state', () => {
-    const { rerender } = render(<GlobalDrawer {...defaultProps} isOpen={false} />);
+    const { rerender } = render(
+      <GlobalDrawer {...defaultProps} isOpen={false} />
+    );
 
     expect(screen.queryByText('Test Drawer')).not.toBeInTheDocument();
 
@@ -192,3 +196,4 @@ describe('GlobalDrawer', () => {
     expect(screen.queryByText('Test Drawer')).not.toBeInTheDocument();
   });
 });
+

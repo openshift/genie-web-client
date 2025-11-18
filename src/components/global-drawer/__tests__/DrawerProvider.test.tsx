@@ -61,7 +61,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <div>Test Content</div>
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     expect(screen.getByText('Test Content')).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     const openButton = screen.getByText('Open Right');
@@ -88,7 +88,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     // Open drawer
@@ -108,7 +108,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     await user.click(screen.getByText('Open Default'));
@@ -122,7 +122,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     await user.click(screen.getByText('Open Left'));
@@ -138,7 +138,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     // Open drawer with callback
@@ -158,7 +158,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     // Open first drawer
@@ -178,7 +178,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     // First cycle
@@ -205,7 +205,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>,
+      </DrawerProvider>
     );
 
     await user.click(screen.getByText('Open Right'));
@@ -216,3 +216,4 @@ describe('DrawerProvider', () => {
     expect(screen.getByText('Right drawer content')).toBeInTheDocument();
   });
 });
+
