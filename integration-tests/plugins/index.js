@@ -22,5 +22,3 @@ module.exports = (on, config) => {
   config.env.BRIDGE_KUBEADMIN_PASSWORD = process.env.BRIDGE_KUBEADMIN_PASSWORD;
   return config;
 };
-
-

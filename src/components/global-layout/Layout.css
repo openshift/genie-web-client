@@ -6,6 +6,7 @@
   /* Navigation specific styles */
   display: flex;
   column-gap: var(--pf-t--global--spacer--md, 1rem);
+
   --pf-v6-c-compass__panel--Padding: var(--pf-t--global--spacer--sm, 0.5rem);
 }
 
@@ -17,7 +18,7 @@
   /* TODO: Create css variables for custom colors   */
   --pf-v6-c-nav__link--Color: #6A7282;
   --pf-v6-c-nav__link--hover--Color: #27272A;
-  --pf-v6-c-nav__link--m-current--Color: #000000;
+  --pf-v6-c-nav__link--m-current--Color: #000;
   --pf-v6-c-nav__link--hover--BackgroundColor: transparent;
   --pf-v6-c-nav__link--m-current--BackgroundColor: transparent;
 }
