@@ -11,8 +11,8 @@ jest.mock('react-i18next', () => ({
 describe('GeniePage', () => {
   it('renders without crashing', () => {
     render(<GeniePage />);
-    expect(screen.getByText('Open Left Drawer')).toBeInTheDocument();
-    expect(screen.getByText('Open Right Drawer')).toBeInTheDocument();
+    // Assert key accessible UI elements rendered by Layout
+    expect(screen.getByAltText('Genie Logo')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Home/i })).toBeInTheDocument();
   });
 });
-

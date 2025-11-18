@@ -30,8 +30,8 @@ import {
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 import { useDrawer } from '../global-drawer';
+import { UnifiedLegalConsent } from '../unified-legal/UnifiedLegalConsent';
 import './Layout.css';
-
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -111,14 +111,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       },
     });
   };
-  
+
   const onNavSelect = (
     _event: React.FormEvent<HTMLInputElement>,
     selectedItem: {
       groupId: number | string;
       itemId: number | string;
       to: string;
-    }
+    },
   ) => setActiveItem(selectedItem.itemId);
 
   // Header components
@@ -150,9 +150,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 
-  const header = (
-    <CompassHeader logo={genieLogo} nav={navContent} profile={userAccount} />
-  );
+  const header = <CompassHeader logo={genieLogo} nav={navContent} profile={userAccount} />;
 
   // Sidebar components
   const sidebarStart = (
@@ -166,7 +164,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Chat History">
-              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={openChatHistoryDrawer} />
+              <Button
+                variant="plain"
+                icon={<CommentDotsIcon />}
+                aria-label="Chat History"
+                onClick={openChatHistoryDrawer}
+              />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -185,17 +188,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="Notifications">
-              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={openNotificationsDrawer} />
+              <Button
+                variant="plain"
+                icon={<BellIcon />}
+                aria-label="Notifications"
+                onClick={openNotificationsDrawer}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Activity">
-              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" onClick={openActivityDrawer} />
+              <Button
+                variant="plain"
+                icon={<WaveSquareIcon />}
+                aria-label="Activity"
+                onClick={openActivityDrawer}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Help">
-              <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" onClick={openHelpDrawer} />
+              <Button
+                variant="plain"
+                icon={<QuestionCircleIcon />}
+                aria-label="Help"
+                onClick={openHelpDrawer}
+              />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -203,7 +221,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = <></>;
+  const showOnboarding = new URLSearchParams(window.location.search).get('onboarding') === 'true';
+  const mainContent = showOnboarding ? <UnifiedLegalConsent /> : <></>;
 
   // Footer component
   const footer = (

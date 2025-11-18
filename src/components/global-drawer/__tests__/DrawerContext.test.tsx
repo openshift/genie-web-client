@@ -5,7 +5,7 @@ import { DrawerProvider } from '../DrawerProvider';
 // Test component that uses the useDrawer hook
 const TestComponent = () => {
   const drawer = useDrawer();
-  
+
   return (
     <div>
       <span data-testid="has-open-drawer">{typeof drawer.openDrawer}</span>
@@ -37,7 +37,7 @@ describe('DrawerContext', () => {
       render(
         <DrawerProvider>
           <TestComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-open-drawer')).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('DrawerContext', () => {
       render(
         <DrawerProvider>
           <TestComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-open-drawer')).toHaveTextContent('function');
@@ -70,11 +70,10 @@ describe('DrawerContext', () => {
       render(
         <DrawerProvider>
           <TestPropertiesComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-properties')).toHaveTextContent('true');
     });
   });
 });
-
