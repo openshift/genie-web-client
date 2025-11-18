@@ -37,7 +37,6 @@ import AvatarImg from '../../assets/images/avatar.svg';
 import { useDrawer } from '../global-drawer';
 import './Layout.css';
 
-
 interface LayoutProps {
   children?: React.ReactNode;
 }
@@ -47,9 +46,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
-  
-
-    const handleDrawerOpen = useCallback((configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
+  const handleDrawerOpen = useCallback(
+    (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
       const config = {
         chatHistory: {
           heading: 'Chat History',
@@ -103,15 +101,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (config) {
         openDrawer(config);
       }
-    }, [openDrawer]);
-  
+    },
+    [openDrawer],
+  );
+
   const onNavSelect = (
     _event: React.FormEvent<HTMLInputElement>,
     selectedItem: {
       groupId: number | string;
       itemId: number | string;
       to: string;
-    }
+    },
   ) => setActiveItem(selectedItem.itemId);
 
   // Header components
@@ -143,9 +143,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 
-  const header = (
-    <CompassHeader logo={genieLogo} nav={navContent} profile={userAccount} />
-  );
+  const header = <CompassHeader logo={genieLogo} nav={navContent} profile={userAccount} />;
 
   // Sidebar components
   const sidebarStart = (
@@ -159,7 +157,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Chat History">
-              <Button variant="plain" icon={<CommentDotsIcon />} aria-label="Chat History" onClick={() => handleDrawerOpen('chatHistory')} />
+              <Button
+                variant="plain"
+                icon={<CommentDotsIcon />}
+                aria-label="Chat History"
+                onClick={() => handleDrawerOpen('chatHistory')}
+              />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
@@ -178,17 +181,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="Notifications">
-              <Button variant="plain" icon={<BellIcon />} aria-label="Notifications" onClick={() => handleDrawerOpen('notifications')} />
+              <Button
+                variant="plain"
+                icon={<BellIcon />}
+                aria-label="Notifications"
+                onClick={() => handleDrawerOpen('notifications')}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Activity">
-              <Button variant="plain" icon={<WaveSquareIcon />} aria-label="Activity" onClick={() => handleDrawerOpen('activity')} />
+              <Button
+                variant="plain"
+                icon={<WaveSquareIcon />}
+                aria-label="Activity"
+                onClick={() => handleDrawerOpen('activity')}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
             <Tooltip content="Help">
-                  <Button variant="plain" icon={<QuestionCircleIcon />} aria-label="Help" onClick={() => handleDrawerOpen('help')} />
+              <Button
+                variant="plain"
+                icon={<QuestionCircleIcon />}
+                aria-label="Help"
+                onClick={() => handleDrawerOpen('help')}
+              />
             </Tooltip>
           </ActionListItem>
         </ActionListGroup>
