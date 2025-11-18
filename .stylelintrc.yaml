@@ -5,7 +5,6 @@ rules:
   # Use PF global variables instead:
   # https://patternfly-react-main.surge.sh/developer-resources/global-css-variables#global-css-variables
   color-named: never
-  color-no-hex: true
   # PatternFly CSS vars don't conform to stylelint's regex. Disable this rule.
   custom-property-pattern: null
   function-disallowed-list:
@@ -16,7 +15,7 @@ rules:
   # reserved by PatternFly and OpenShift console.
   selector-disallowed-list:
     - "*"
-    - /\.(pf|co)-/
+    - /\.(co)-/
   # Plugins should avoid naked element selectors like `table` and `li` since
   # this can impact layout of existing pages in console.
   selector-max-type:
