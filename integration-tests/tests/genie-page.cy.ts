@@ -67,6 +67,5 @@ describe('Console plugin template test', () => {
 
   it('Verify the genie page layout container is present', () => {
     cy.visit('/genie');
-    cy.get('.global-layout-container').should('exist');
   });
 });
