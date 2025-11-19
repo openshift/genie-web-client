@@ -36,6 +36,7 @@ import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 import { useDrawer } from '../global-drawer';
 import './Layout.css';
+import { UnifiedLegalConsent } from '../unified-legal/UnifiedLegalConsent';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -214,7 +215,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = <></>;
+  const showOnboarding = new URLSearchParams(window.location.search).get('onboarding') === 'true';
+  const mainContent = showOnboarding ? <UnifiedLegalConsent /> : <></>;
 
   // Footer component
   const footer = (
