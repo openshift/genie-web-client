@@ -5,11 +5,12 @@ import { DrawerProvider } from '../DrawerProvider';
 // Test component that uses the useDrawer hook
 const TestComponent = () => {
   const drawer = useDrawer();
-  
+
   return (
     <div>
       <span data-testid="has-open-drawer">{typeof drawer.openDrawer}</span>
       <span data-testid="has-close-drawer">{typeof drawer.closeDrawer}</span>
+      <span data-testid="has-drawer-state">{typeof drawer.drawerState}</span>
     </div>
   );
 };
@@ -37,31 +38,33 @@ describe('DrawerContext', () => {
       render(
         <DrawerProvider>
           <TestComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-open-drawer')).toBeInTheDocument();
       expect(screen.getByTestId('has-close-drawer')).toBeInTheDocument();
+      expect(screen.getByTestId('has-drawer-state')).toBeInTheDocument();
     });
 
-    it('provides functions with correct types', () => {
+    it('provides functions and state with correct types', () => {
       render(
         <DrawerProvider>
           <TestComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-open-drawer')).toHaveTextContent('function');
       expect(screen.getByTestId('has-close-drawer')).toHaveTextContent('function');
+      expect(screen.getByTestId('has-drawer-state')).toHaveTextContent('object');
     });
 
-    it('provides openDrawer and closeDrawer properties', () => {
+    it('provides openDrawer, closeDrawer, and drawerState properties', () => {
       const TestPropertiesComponent = () => {
         const drawer = useDrawer();
         return (
           <div>
             <span data-testid="has-properties">
-              {drawer.openDrawer && drawer.closeDrawer ? 'true' : 'false'}
+              {drawer.openDrawer && drawer.closeDrawer && drawer.drawerState ? 'true' : 'false'}
             </span>
           </div>
         );
@@ -70,11 +73,10 @@ describe('DrawerContext', () => {
       render(
         <DrawerProvider>
           <TestPropertiesComponent />
-        </DrawerProvider>
+        </DrawerProvider>,
       );
 
       expect(screen.getByTestId('has-properties')).toHaveTextContent('true');
     });
   });
 });
-

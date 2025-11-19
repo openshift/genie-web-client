@@ -8,7 +8,12 @@ export interface DrawerConfig {
   onClose?: () => void;
 }
 
+export interface DrawerState extends DrawerConfig {
+  isOpen: boolean;
+}
+
 export interface DrawerContextValue {
+  drawerState: DrawerState;
   openDrawer: (config: DrawerConfig) => void;
   closeDrawer: () => void;
 }
@@ -22,4 +27,3 @@ export const useDrawer = (): DrawerContextValue => {
   }
   return context;
 };
-

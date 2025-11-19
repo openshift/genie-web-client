@@ -1,4 +1,4 @@
-import webpackPreprocessor from '@cypress/webpack-preprocessor';
+const webpackPreprocessor = require('@cypress/webpack-preprocessor');
 
 module.exports = (on, config) => {
   const options = {
@@ -18,7 +18,6 @@ module.exports = (on, config) => {
     },
   };
   on('file:preprocessor', webpackPreprocessor(options));
-  // `config` is the resolved Cypress config
   config.baseUrl = `${process.env.BRIDGE_BASE_ADDRESS || 'http://localhost:9000/'}`;
   config.env.BRIDGE_KUBEADMIN_PASSWORD = process.env.BRIDGE_KUBEADMIN_PASSWORD;
   return config;

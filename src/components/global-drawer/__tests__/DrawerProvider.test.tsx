@@ -5,7 +5,7 @@ import { useDrawer } from '../DrawerContext';
 
 // Test component that uses the drawer
 const TestComponent = () => {
-  const { openDrawer, closeDrawer } = useDrawer();
+  const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const handleOpenLeft = () => {
     openDrawer({
@@ -52,6 +52,12 @@ const TestComponent = () => {
       <button onClick={handleOpenWithCallback}>Open With Callback</button>
       <button onClick={closeDrawer}>Close Drawer</button>
       <div>Test Component Content</div>
+      <div data-testid="drawer-state">
+        <span data-testid="drawer-is-open">{String(drawerState.isOpen)}</span>
+        <span data-testid="drawer-position">{drawerState.position}</span>
+        <div data-testid="drawer-heading">{drawerState.heading}</div>
+        <div data-testid="drawer-children">{drawerState.children}</div>
+      </div>
     </div>
   );
 };
@@ -61,7 +67,7 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <div>Test Content</div>
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     expect(screen.getByText('Test Content')).toBeInTheDocument();
@@ -72,15 +78,16 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     const openButton = screen.getByText('Open Right');
     await user.click(openButton);
 
-    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
-    expect(screen.getByTestId('right-icon')).toBeInTheDocument();
-    expect(screen.getByText('Right drawer content')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
+    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Right drawer content');
   });
 
   it('closes drawer when closeDrawer is called', async () => {
@@ -88,18 +95,18 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     // Open drawer
     await user.click(screen.getByText('Open Right'));
-    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
 
     // Close drawer
     await user.click(screen.getByText('Close Drawer'));
 
     await waitFor(() => {
-      expect(screen.queryByText('Right Drawer')).not.toBeInTheDocument();
+      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
   });
 
@@ -108,13 +115,14 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     await user.click(screen.getByText('Open Default'));
 
-    expect(screen.getByText('Default Drawer')).toBeInTheDocument();
-    expect(screen.getByTestId('default-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Default Drawer');
   });
 
   it('handles left position correctly', async () => {
@@ -122,13 +130,15 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     await user.click(screen.getByText('Open Left'));
 
-    expect(screen.getByText('Left Drawer')).toBeInTheDocument();
-    expect(screen.getByText('Left drawer content')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
+    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Left drawer content');
   });
 
   it('invokes custom onClose callback when drawer is closed', async () => {
@@ -138,17 +148,18 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     // Open drawer with callback
     await user.click(screen.getByText('Open With Callback'));
-    expect(screen.getByText('Drawer with Callback')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
 
     // Close drawer
     await user.click(screen.getByText('Close Drawer'));
 
     expect(consoleSpy).toHaveBeenCalledWith('Custom close callback called');
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
 
     consoleSpy.mockRestore();
   });
@@ -158,19 +169,18 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     // Open first drawer
     await user.click(screen.getByText('Open Left'));
-    expect(screen.getByText('Left Drawer')).toBeInTheDocument();
-    expect(screen.getByText('Left drawer content')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
 
     // Open second drawer (should replace first)
     await user.click(screen.getByText('Open Right'));
-    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
-    expect(screen.getByText('Right drawer content')).toBeInTheDocument();
-    expect(screen.queryByText('Left Drawer')).not.toBeInTheDocument();
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
   });
 
   it('maintains drawer state through multiple open/close cycles', async () => {
@@ -178,42 +188,44 @@ describe('DrawerProvider', () => {
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     // First cycle
     await user.click(screen.getByText('Open Right'));
-    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
 
     await user.click(screen.getByText('Close Drawer'));
     await waitFor(() => {
-      expect(screen.queryByText('Right Drawer')).not.toBeInTheDocument();
+      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
 
     // Second cycle
     await user.click(screen.getByText('Open Left'));
-    expect(screen.getByText('Left Drawer')).toBeInTheDocument();
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
 
     await user.click(screen.getByText('Close Drawer'));
     await waitFor(() => {
-      expect(screen.queryByText('Left Drawer')).not.toBeInTheDocument();
+      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
   });
 
-  it('renders all drawer config properties correctly', async () => {
+  it('stores all drawer config properties correctly in state', async () => {
     const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
-      </DrawerProvider>
+      </DrawerProvider>,
     );
 
     await user.click(screen.getByText('Open Right'));
 
-    // Check all parts are rendered
-    expect(screen.getByText('Right Drawer')).toBeInTheDocument();
-    expect(screen.getByTestId('right-icon')).toBeInTheDocument();
-    expect(screen.getByText('Right drawer content')).toBeInTheDocument();
+    // Check all parts are in state
+    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
+    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
+    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Right drawer content');
   });
 });
-
