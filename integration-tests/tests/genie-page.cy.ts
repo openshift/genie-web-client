@@ -4,22 +4,6 @@ const PLUGIN_TEMPLATE_NAME = 'genie-web-client';
 const PLUGIN_TEMPLATE_PULL_SPEC = Cypress.env('PLUGIN_TEMPLATE_PULL_SPEC');
 export const isLocalDevEnvironment = Cypress.config('baseUrl').includes('localhost');
 
-export const guidedTour = {
-  close: () => {
-    cy.get('body').then(($body) => {
-      if ($body.find(`[data-test="guided-tour-modal"]`).length > 0) {
-        cy.get(`[data-test="tour-step-footer-secondary"]`).contains('Skip tour').click();
-      }
-    });
-  },
-  isOpen: () => {
-    cy.get('body').then(($body) => {
-      if ($body.find(`[data-test="guided-tour-modal"]`).length > 0) {
-        cy.get(`[data-test="guided-tour-modal"]`).should('be.visible');
-      }
-    });
-  },
-};
 
 const installHelmChart = (path: string) => {
   cy.exec(
@@ -28,13 +12,11 @@ const installHelmChart = (path: string) => {
       failOnNonZeroExit: false,
     },
   )
-    .get('[data-test="refresh-web-console"]', { timeout: 300000 })
-    .should('exist')
     .then((result) => {
-      cy.reload();
-      cy.visit(`/dashboards`);
       cy.log('Error installing helm chart: ', result.stderr);
       cy.log('Successfully installed helm chart: ', result.stdout);
+      cy.reload();
+      cy.visit(`/genie`);
     });
 };
 const deleteHelmChart = (path: string) => {
@@ -52,8 +34,6 @@ const deleteHelmChart = (path: string) => {
 describe('Console plugin template test', () => {
   before(() => {
     cy.login();
-    guidedTour.isOpen();
-    guidedTour.close();
     if (!isLocalDevEnvironment) {
       console.log('this is not a local env, installig helm');
 
@@ -85,10 +65,8 @@ describe('Console plugin template test', () => {
     cy.logout();
   });
 
-  it('Verify the example page title', () => {
-    cy.get('[data-quickstart-id="qs-nav-home"]').click();
-    cy.get('[data-test="nav"]').contains('Plugin Example').click();
-    cy.url().should('include', '/example');
-    cy.get('[data-test="example-page-title"]').should('contain', 'Hello, Plugin!');
+  it('Verify the genie page layout container is present', () => {
+    cy.visit('/genie');
+    cy.get('.global-layout-container').should('exist');
   });
 });
