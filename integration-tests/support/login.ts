@@ -7,6 +7,14 @@ declare global {
   }
 }
 
+declare global {
+  interface Window {
+    SERVER_FLAGS?: {
+      authDisabled?: boolean;
+    };
+  }
+}
+
 const KUBEADMIN_USERNAME = 'kubeadmin';
 
 // This will add 'cy.login(...)'
@@ -36,8 +44,16 @@ Cypress.Commands.add('logout', () => {
     if (win.SERVER_FLAGS?.authDisabled) {
       return;
     }
-    cy.get('[data-test="username"]').click();
-    cy.get('[data-test="log-out"]').should('be.visible');
-    cy.get('[data-test="log-out"]').click({ force: true });
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-test="username"]').length === 0) {
+        // Not logged in or element missing; nothing to do.
+        return;
+      }
+      cy.get('[data-test="username"]').click();
+      cy.get('[data-test="log-out"]').should('be.visible');
+      cy.get('[data-test="log-out"]').click({ force: true });
+    });
   });
 });
+
+export {};
