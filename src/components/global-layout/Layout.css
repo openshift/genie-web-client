@@ -36,8 +36,6 @@
 }
 
 .pf-v6-c-drawer__panel {
-  --pf-v6-c-drawer__panel--m-glass--BackgroundColor: var(--pf-t--global--background--color--floating--default);
-
   & .drawer-heading {
     display: flex;
     align-items: center;
