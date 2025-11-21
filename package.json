@@ -26,6 +26,10 @@
     "cypress-postreport": "yarn cypress-merge && yarn cypress-generate",
     "webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
+  "resolutions": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
   "overrides": {
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
