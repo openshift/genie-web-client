@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Compass,
   Avatar,
@@ -28,6 +28,7 @@ import {
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
+  OptimizeIcon,
   QuestionCircleIcon,
   SearchIcon,
   WaveSquareIcon,
@@ -36,6 +37,7 @@ import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 import { useDrawer } from '../global-drawer';
 import './Layout.css';
+import AppEmptyState from '../empty-state/EmptyState';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -45,6 +47,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
 
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
+
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    try {
+      const storedName = localStorage.getItem('genieUserName');
+      if (storedName && typeof storedName === 'string') {
+        setUserName(storedName);
+      }
+    } catch {
+      // local storage not available
+    }
+  }, []);
 
   const handleDrawerOpen = useCallback(
     (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
@@ -214,7 +229,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = <></>;
+  // Show empty state only if a username exists; otherwise render an empty container
+  const mainContent = userName ? (
+    <div className="global-layout-empty-state">
+      <AppEmptyState
+        heading={`Every dashboard tells a story. What will yours say, ${userName}?`}
+        description={
+          <>
+            Begin with Genie — transform your OpenShift data into insight, and insight into action.
+          </>
+        }
+        primaryAction={{
+          label: 'Create your first dashboard',
+          onClick: () => console.log('Start your first chat'),
+          icon: <OptimizeIcon />,
+        }}
+      />
+    </div>
+  ) : (
+    <></>
+  );
 
   // Footer component
   const footer = (

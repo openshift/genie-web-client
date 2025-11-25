@@ -35,6 +35,32 @@
   /* Footer specific styles */
 }
 
+.global-layout-empty-state {
+  display: flex;
+  justify-content: center;
+  min-height: 70vh;
+
+  .pf-v6-c-button.pf-m-primary {
+    --pf-v6-c-button--BackgroundColor: var(--Color-Level-8, #3F3F46);
+
+}
+}
+
+.pf-v6-c-empty-state__title-text {
+  color: var(--Color-Level-12, #000);
+
+  --pf-v6-c-empty-state__title-text--FontSize: var(--Font-Size-4X-Large, 36px);
+  --pf-v6-c-empty-state__title-text--FontWeight: 700;
+  
+}
+
+.pf-v6-c-empty-state__body {
+  --pf-v6-c-empty-state__body--Color: var(--Color-Level-7, #52525C);
+  --pf-v6-c-empty-state--body--FontSize: var(--Font-Size-Medium, 18px);
+}
+
+
+
 .pf-v6-c-drawer__panel {
   --pf-v6-c-drawer__panel--m-glass--BackgroundColor: var(--pf-t--global--background--color--floating--default);
 
