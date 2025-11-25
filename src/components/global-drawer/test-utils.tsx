@@ -18,17 +18,18 @@ import { DrawerContextValue } from './DrawerContext';
  * render(<YourComponent />);
  * expect(mockDrawer.openDrawer).toHaveBeenCalled();
  */
-export const createMockDrawerContext = (): DrawerContextValue => ({
-  drawerState: {
-    isOpen: false,
-    heading: null,
-    icon: null,
-    children: null,
-    position: 'right',
-  },
-  openDrawer: jest.fn(),
-  closeDrawer: jest.fn(),
-});
+export const createMockDrawerContext = (): DrawerContextValue =>
+  ({
+    drawerState: {
+      isOpen: false,
+      heading: null,
+      icon: null,
+      children: null,
+      position: 'right',
+    },
+    openDrawer: jest.fn(),
+    closeDrawer: jest.fn(),
+  } as unknown as DrawerContextValue);
 
 /**
  * Renders a component wrapped with DrawerProvider for integration testing.
