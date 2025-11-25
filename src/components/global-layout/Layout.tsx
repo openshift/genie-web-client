@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Compass,
   Avatar,
@@ -49,6 +50,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const [userName, setUserName] = useState<string>('');
+  const messageBarRef = useRef<HTMLTextAreaElement>(null);
+  const { t } = useTranslation('plugin__genie-web-client');
+
+  // in a future iteration, this will navigate to Chat Thread - Create Dashboard Flow (as per the design))
+  const goToChat = useCallback(() => {
+    messageBarRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     try {
@@ -233,15 +241,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const mainContent = userName ? (
     <div className="global-layout-empty-state">
       <AppEmptyState
-        heading={`Every dashboard tells a story. What will yours say, ${userName}?`}
-        description={
-          <>
-            Begin with Genie — transform your OpenShift data into insight, and insight into action.
-          </>
-        }
+        heading={t('dashboard.emptyState.heading', { name: userName })}
+        description={<>{t('dashboard.emptyState.description')}</>}
         primaryAction={{
-          label: 'Create your first dashboard',
-          onClick: () => console.log('Start your first chat'),
+          label: t('dashboard.emptyState.cta'),
+          onClick: goToChat,
           icon: <OptimizeIcon />,
         }}
       />
@@ -255,6 +259,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <CompassMessageBar>
       <CompassPanel isPill hasNoPadding>
         <MessageBar
+          ref={messageBarRef}
           onSendMessage={(message: string | number) => {
             console.log(message);
           }}
