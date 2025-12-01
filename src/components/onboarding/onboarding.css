@@ -1,0 +1,11 @@
+.pf-v6-c-modal-box .pf-v6-c-stack {
+  text-align: center;
+  align-items: center;
+}
+
+.pf-v6-c-modal-box .pf-v6-c-stack__item img,
+.pf-v6-c-modal-box .pf-v6-c-stack__item div[style*='background'] {
+  margin: 0 auto;
+}
+
+

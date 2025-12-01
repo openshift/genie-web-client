@@ -1,14 +1,18 @@
 import { DrawerProvider } from './global-drawer';
 import { Layout } from './global-layout/Layout';
+import { OnboardingProvider, OnboardingModal } from './onboarding';
 import '@patternfly/chatbot/dist/css/main.css';
 import './genie.css';
 
 export default function GeniePage() {
   return (
     <div className="global-layout-container">
-      <DrawerProvider>
-        <Layout />
-      </DrawerProvider>
+      <OnboardingProvider>
+        <DrawerProvider>
+          <Layout />
+        </DrawerProvider>
+        <OnboardingModal />
+      </OnboardingProvider>
     </div>
   );
 }
