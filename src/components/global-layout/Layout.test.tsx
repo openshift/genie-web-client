@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { Layout } from './Layout';
 import { DrawerProvider } from '../global-drawer';
+import { MemoryRouter } from 'react-router-dom-v5-compat';
 
 // Mock i18n to return predictable strings used in assertions
 jest.mock('react-i18next', () => ({
@@ -28,9 +29,15 @@ jest.mock('@patternfly/chatbot', () => ({
 describe('Layout empty state', () => {
   const renderWithProviders = () =>
     render(
-      <DrawerProvider>
-        <Layout />
-      </DrawerProvider>,
+      <MemoryRouter
+        initialEntries={['/genie']}
+        // future props are needed to prevent warnings about react router v7 compatibility in the console
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
+        <DrawerProvider>
+          <Layout />
+        </DrawerProvider>
+      </MemoryRouter>,
     );
 
   it('renders heading without username when none stored', () => {
