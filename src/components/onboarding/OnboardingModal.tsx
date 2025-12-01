@@ -7,7 +7,7 @@ import { ModalDeck } from '@patternfly/react-component-groups/dist/dynamic/Modal
 import './onboarding.css';
 
 /**
- * Displays a 4-step onboarding flow for first-time users
+ * Displays a 5-step onboarding flow for first-time users
  */
 export const OnboardingModal: React.FC = () => {
   const { onboardingState, completeOnboarding, handlePageChange } = useOnboarding();

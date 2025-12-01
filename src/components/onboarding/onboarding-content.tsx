@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Stack, StackItem, Title, Content, Label } from '@patternfly/react-core';
+import { Stack, StackItem, Title, Content, Label, Button } from '@patternfly/react-core';
 import { ButtonVariant } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import WelcomeImg from '../../assets/images/onboarding/welcome.svg';
 import AiCommandCenterImg from '../../assets/images/onboarding/ai-command-center.svg';
 import CanvasModeImg from '../../assets/images/onboarding/canvas-mode.svg';
@@ -27,8 +28,8 @@ const Illustration: React.FC<IllustrationProps> = ({ src, alt }) => (
   <div
     style={{
       width: '100%',
-      maxWidth: '400px',
-      height: '300px',
+      maxWidth: '280px',
+      height: '200px',
       margin: '0 auto',
       backgroundImage: `url(${src})`,
       backgroundSize: 'contain',
@@ -42,7 +43,7 @@ const Illustration: React.FC<IllustrationProps> = ({ src, alt }) => (
 );
 
 export const ONBOARDING_PAGES: DeckPage[] = [
-  // Step 1: Welcome
+  // step 1: Welcome
   {
     content: (
       <Stack hasGutter>
@@ -70,7 +71,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // Step 2: AI Command Center
+  // step 2: AI command center
   {
     content: (
       <Stack hasGutter>
@@ -82,19 +83,23 @@ export const ONBOARDING_PAGES: DeckPage[] = [
         </StackItem>
         <StackItem>
           <Title headingLevel="h2" size="2xl">
-            Your AI command center.
+            Intelligence at your command
           </Title>
         </StackItem>
         <StackItem>
           <Content component="p">
-            Ask questions, get answers, and take action—all in one place. Genie brings together
-            insights from across your hybrid cloud environment, powered by AI that understands your
-            infrastructure.
+            Ask anything. Get answers. Troubleshoot, analyze, and understand your entire fleet just
+            by asking. It&apos;s the power of your data, in plain language.
           </Content>
         </StackItem>
       </Stack>
     ),
     buttons: [
+      {
+        children: 'Back',
+        variant: ButtonVariant.secondary,
+        navigation: 'previous',
+      },
       {
         children: 'Continue',
         variant: ButtonVariant.primary,
@@ -103,7 +108,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // Step 3: Canvas Mode
+  // step 3: Canvas Mode
   {
     content: (
       <Stack hasGutter>
@@ -128,6 +133,11 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ),
     buttons: [
       {
+        children: 'Back',
+        variant: ButtonVariant.secondary,
+        navigation: 'previous',
+      },
+      {
         children: 'Continue',
         variant: ButtonVariant.primary,
         navigation: 'next',
@@ -135,7 +145,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // Step 4: Sharing
+  // step 4: Sharing
   {
     content: (
       <Stack hasGutter>
@@ -160,7 +170,66 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ),
     buttons: [
       {
-        children: 'Get started with Genie',
+        children: 'Back',
+        variant: ButtonVariant.secondary,
+        navigation: 'previous',
+      },
+      {
+        children: 'Continue',
+        variant: ButtonVariant.primary,
+        navigation: 'next',
+      },
+    ],
+  },
+
+  // step 5: Privacy Notice
+  {
+    content: (
+      <Stack hasGutter>
+        <StackItem>
+          <Illustration src={WelcomeImg} alt="Privacy notice illustration" />
+        </StackItem>
+        <StackItem>
+          <Title headingLevel="h2" size="2xl">
+            Important privacy notice
+          </Title>
+        </StackItem>
+        <StackItem>
+          <Content component="p">
+            <strong>Project Genie is powered by generative AI.</strong> To protect your security,
+            please do not include personal information or sensitive data (like secrets or API keys)
+            in your conversations.
+          </Content>
+        </StackItem>
+        <StackItem>
+          <Content component="p">
+            Your interactions may be used to improve Red Hat products and services.
+          </Content>
+        </StackItem>
+        <StackItem>
+          <Button
+            variant="link"
+            isInline
+            icon={<ExternalLinkAltIcon />}
+            iconPosition="end"
+            component="a"
+            href="https://www.redhat.com/en/about/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read the Red Hat Privacy Statement
+          </Button>
+        </StackItem>
+      </Stack>
+    ),
+    buttons: [
+      {
+        children: 'Back',
+        variant: ButtonVariant.secondary,
+        navigation: 'previous',
+      },
+      {
+        children: 'Get Started',
         variant: ButtonVariant.primary,
         navigation: 'close',
       },

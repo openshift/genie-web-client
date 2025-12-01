@@ -1,3 +1,38 @@
+/* color variables for light mode */
+.pf-v6-c-modal-box {
+  --onboarding-primary-bg: #3f3f46;
+  --onboarding-primary-bg-hover: #2d2d30;
+  --onboarding-primary-text: #fff;
+  --onboarding-secondary-text: #3f3f46;
+  --onboarding-secondary-border: #3f3f46;
+  --onboarding-secondary-border-hover: #2d2d30;
+  --onboarding-secondary-bg-hover: #f3f4f6;
+  --onboarding-link-text: #3f3f46;
+  --onboarding-link-hover: #2d2d30;
+
+  /* modal sizing */
+  max-width: 580px !important;
+  width: 90vw !important;
+}
+
+/* dark mode colors */
+.pf-v6-theme-dark .pf-v6-c-modal-box {
+  --onboarding-primary-bg: #f5f5f5;
+  --onboarding-primary-bg-hover: #fff;
+  --onboarding-primary-text: #1a1a1a;
+  --onboarding-secondary-text: #f5f5f5;
+  --onboarding-secondary-border: #f5f5f5;
+  --onboarding-secondary-border-hover: #fff;
+  --onboarding-secondary-bg-hover: #fff1;
+  --onboarding-link-text: #f5f5f5;
+  --onboarding-link-hover: #fff;
+}
+
+/* spacing */
+.pf-v6-c-modal-box .pf-v6-c-stack.pf-m-gutter {
+  gap: var(--pf-v6-global--spacer--md) !important;
+}
+
 .pf-v6-c-modal-box .pf-v6-c-stack {
   text-align: center;
   align-items: center;
@@ -8,4 +43,74 @@
   margin: 0 auto;
 }
 
+/* remove default button outlines */
+.pf-v6-c-modal-box .pf-v6-c-button {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
+.pf-v6-c-modal-box .pf-v6-c-button::before,
+.pf-v6-c-modal-box .pf-v6-c-button::after {
+  display: none !important;
+}
+
+/* primary button */
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-primary {
+  background-color: var(--onboarding-primary-bg);
+  border-color: var(--onboarding-primary-bg);
+  color: var(--onboarding-primary-text);
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-primary:hover {
+  background-color: var(--onboarding-primary-bg-hover);
+  border-color: var(--onboarding-primary-bg-hover);
+  color: var(--onboarding-primary-text);
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-primary:active,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-primary:focus,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-primary:focus-visible {
+  background-color: var(--onboarding-primary-bg);
+  border-color: var(--onboarding-primary-bg);
+}
+
+/* secondary button */
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-secondary {
+  color: var(--onboarding-secondary-text);
+  border: 1px solid var(--onboarding-secondary-border);
+  background-color: transparent;
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-secondary:hover {
+  background-color: var(--onboarding-secondary-bg-hover);
+  border-color: var(--onboarding-secondary-border-hover);
+  color: var(--onboarding-secondary-text);
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-secondary:active,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-secondary:focus,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-secondary:focus-visible {
+  border-color: var(--onboarding-secondary-border);
+  background-color: transparent;
+}
+
+/* privacy link */
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link {
+  color: var(--onboarding-link-text);
+  text-decoration: underline;
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link:hover {
+  color: var(--onboarding-link-hover);
+}
+
+/* privacy link icon */
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link svg,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link .pf-v6-svg {
+  fill: var(--onboarding-link-text);
+}
+
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link:hover svg,
+.pf-v6-c-modal-box .pf-v6-c-button.pf-m-link:hover .pf-v6-svg {
+  fill: var(--onboarding-link-hover);
+}
