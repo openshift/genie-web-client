@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { Layout } from '../Layout';
-import { DrawerProvider } from '../../global-drawer';
+import { Layout } from './Layout';
+import { DrawerProvider } from '../global-drawer';
 
 // Mock i18n to return predictable strings used in assertions
 jest.mock('react-i18next', () => ({
