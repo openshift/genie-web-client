@@ -21,6 +21,10 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  EmptyState,
+  EmptyStateFooter,
+  EmptyStateActions,
+  EmptyStateBody,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -38,7 +42,6 @@ import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 import { useDrawer } from '../global-drawer';
 import './Layout.css';
-import AppEmptyState from '../empty-state/EmptyState';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -50,6 +53,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const [userName, setUserName] = useState<string>('');
+  // temp variable to show empty state
+  const hasData = false;
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation('plugin__genie-web-client');
 
@@ -237,19 +242,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  // Show empty state only if a username exists; otherwise render an empty container
-  const mainContent = userName ? (
-    <div className="global-layout-empty-state">
-      <AppEmptyState
-        heading={t('dashboard.emptyState.heading', { name: userName })}
-        description={<>{t('dashboard.emptyState.description')}</>}
-        primaryAction={{
-          label: t('dashboard.emptyState.cta'),
-          onClick: goToChat,
-          icon: <OptimizeIcon />,
-        }}
-      />
-    </div>
+  const titleText = userName
+    ? t('dashboard.emptyState.heading', { name: userName })
+    : t('dashboard.emptyState.headingNoName');
+
+  const mainContent = !hasData ? (
+    <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
+      <EmptyStateBody className="pf-v6-u-font-size-lg">
+        {t('dashboard.emptyState.description')}
+      </EmptyStateBody>
+      <EmptyStateFooter>
+        <EmptyStateActions>
+          <Button icon={<OptimizeIcon />} onClick={goToChat}>
+            {t('dashboard.emptyState.cta')}
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
+    </EmptyState>
   ) : (
     <></>
   );
