@@ -27,13 +27,14 @@
 }
 
 /* make progress dots 8x8px instead of default 6x6px */
-.pf-v6-c-modal-box span[style*="width: 6px"] {
+.pf-v6-c-modal-box span[style*='width: 6px'] {
   width: 8px !important;
   height: 8px !important;
 }
 
 /* inactive dots use lighter gray color with no border */
-.pf-v6-c-modal-box span[style*="width: 6px"][style*="background-color: var(--pf-t--global--background-color--secondary--default)"] {
+.pf-v6-c-modal-box
+  span[style*='width: 6px'][style*='background-color: var(--pf-t--global--background-color--secondary--default)'] {
   background-color: var(--pf-v6-global--palette--black-300) !important;
   border: none !important;
 }
