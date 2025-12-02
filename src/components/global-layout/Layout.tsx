@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Compass,
   Avatar,
@@ -20,6 +21,10 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  EmptyState,
+  EmptyStateFooter,
+  EmptyStateActions,
+  EmptyStateBody,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -28,6 +33,7 @@ import {
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
+  PlusIcon,
   QuestionCircleIcon,
   SearchIcon,
   WaveSquareIcon,
@@ -45,6 +51,28 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
 
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
+
+  const [userName, setUserName] = useState<string>('');
+  // temp variable to show empty state
+  const hasData = false;
+  const messageBarRef = useRef<HTMLTextAreaElement>(null);
+  const { t } = useTranslation('plugin__genie-web-client');
+
+  // in a future iteration, this will navigate to Chat Thread - Create Dashboard Flow (as per the design))
+  const goToChat = useCallback(() => {
+    messageBarRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    try {
+      const storedName = localStorage.getItem('genieUserName');
+      if (storedName && typeof storedName === 'string') {
+        setUserName(storedName);
+      }
+    } catch {
+      // local storage not available
+    }
+  }, []);
 
   const handleDrawerOpen = useCallback(
     (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
@@ -214,13 +242,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = <></>;
+  const titleText = userName
+    ? t('dashboard.emptyState.heading', { name: userName })
+    : t('dashboard.emptyState.headingNoName');
+
+  const mainContent = !hasData ? (
+    <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
+      <EmptyStateBody className="pf-v6-u-font-size-lg">
+        {t('dashboard.emptyState.description')}
+      </EmptyStateBody>
+      <EmptyStateFooter>
+        <EmptyStateActions>
+          <Button icon={<PlusIcon />} onClick={goToChat}>
+            {t('dashboard.emptyState.cta')}
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
+    </EmptyState>
+  ) : (
+    <></>
+  );
 
   // Footer component
   const footer = (
     <CompassMessageBar>
       <CompassPanel isPill hasNoPadding>
         <MessageBar
+          ref={messageBarRef}
           onSendMessage={(message: string | number) => {
             console.log(message);
           }}
