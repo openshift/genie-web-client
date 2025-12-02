@@ -33,7 +33,7 @@ import {
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
-  OptimizeIcon,
+  PlusIcon,
   QuestionCircleIcon,
   SearchIcon,
   WaveSquareIcon,
@@ -253,7 +253,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button icon={<OptimizeIcon />} onClick={goToChat}>
+          <Button icon={<PlusIcon />} onClick={goToChat}>
             {t('dashboard.emptyState.cta')}
           </Button>
         </EmptyStateActions>
