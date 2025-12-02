@@ -44,3 +44,12 @@
 .pf-v6-c-modal-box h2.pf-v6-c-title.pf-m-2xl {
   font-weight: var(--pf-v6-global--FontWeight--bold) !important;
 }
+
+.onboarding-img {
+  width: 100%;
+  max-width: 280px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
