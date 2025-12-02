@@ -37,11 +37,6 @@
 
 .global-layout-empty-state {
   margin: auto;
-
-  .pf-v6-c-button.pf-m-primary {
-    --pf-v6-c-button--BackgroundColor: var(--Color-Level-8, #3F3F46);
-
-}
 }
 
 .pf-v6-c-empty-state__title-text {
