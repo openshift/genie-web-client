@@ -22,7 +22,7 @@ describe('OnboardingModal', () => {
       </OnboardingProvider>,
     );
 
-    // Wait for useEffect to run, then check modal is not present
+    // wait for useEffect to run, then check modal is not present
     await waitFor(() => {
       expect(container.querySelector('.onboarding-placeholder')).not.toBeInTheDocument();
     });
@@ -37,17 +37,17 @@ describe('OnboardingModal', () => {
       </OnboardingProvider>,
     );
 
-    // Wait for and verify the welcome title from first step
+    // wait for and verify the welcome title from first step
     await waitFor(() => {
       expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
     });
 
-    // Verify first step description content
+    // verify first step description content
     expect(
       screen.getByText('Harness the full potential of the hybrid cloud, simply by asking.'),
     ).toBeInTheDocument();
 
-    // Verify "Continue" button is present
+    // verify "Continue" button is present
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
   });
 });

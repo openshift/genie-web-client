@@ -43,7 +43,7 @@ const Illustration: React.FC<IllustrationProps> = ({ src, alt }) => (
 );
 
 export const ONBOARDING_PAGES: DeckPage[] = [
-  // step 1: Welcome
+  // step 1: welcome screen
   {
     content: (
       <Stack hasGutter>
@@ -108,7 +108,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // step 3: Canvas Mode
+  // step 3: canvas mode
   {
     content: (
       <Stack hasGutter>
@@ -145,7 +145,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // step 4: Sharing
+  // step 4: sharing
   {
     content: (
       <Stack hasGutter>
@@ -182,7 +182,7 @@ export const ONBOARDING_PAGES: DeckPage[] = [
     ],
   },
 
-  // step 5: Privacy Notice
+  // step 5: privacy notice
   {
     content: (
       <Stack hasGutter>
