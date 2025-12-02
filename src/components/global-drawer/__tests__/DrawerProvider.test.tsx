@@ -1,5 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, user, checkAccessibility } from '../../../unitTestUtils';
+
 import { DrawerProvider } from '../DrawerProvider';
 import { useDrawer } from '../DrawerContext';
 
@@ -73,8 +73,16 @@ describe('DrawerProvider', () => {
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
+  it('is accessible', async () => {
+    const { container } = render(
+      <DrawerProvider>
+        <TestComponent />
+      </DrawerProvider>,
+    );
+    await checkAccessibility(container);
+  });
+
   it('opens drawer with correct config when openDrawer is called', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -84,6 +92,7 @@ describe('DrawerProvider', () => {
     const openButton = screen.getByText('Open Right');
     await user.click(openButton);
 
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
@@ -91,7 +100,6 @@ describe('DrawerProvider', () => {
   });
 
   it('closes drawer when closeDrawer is called', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -100,18 +108,19 @@ describe('DrawerProvider', () => {
 
     // Open drawer
     await user.click(screen.getByText('Open Right'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
 
     // Close drawer
     await user.click(screen.getByText('Close Drawer'));
 
     await waitFor(() => {
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
   });
 
   it('defaults position to right when not specified', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -120,13 +129,13 @@ describe('DrawerProvider', () => {
 
     await user.click(screen.getByText('Open Default'));
 
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Default Drawer');
   });
 
   it('handles left position correctly', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -135,6 +144,7 @@ describe('DrawerProvider', () => {
 
     await user.click(screen.getByText('Open Left'));
 
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
@@ -142,7 +152,6 @@ describe('DrawerProvider', () => {
   });
 
   it('invokes custom onClose callback when drawer is closed', async () => {
-    const user = userEvent.setup();
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
     render(
@@ -153,19 +162,20 @@ describe('DrawerProvider', () => {
 
     // Open drawer with callback
     await user.click(screen.getByText('Open With Callback'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
 
     // Close drawer
     await user.click(screen.getByText('Close Drawer'));
 
     expect(consoleSpy).toHaveBeenCalledWith('Custom close callback called');
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
 
     consoleSpy.mockRestore();
   });
 
   it('updates drawer content when openDrawer is called multiple times', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -174,17 +184,18 @@ describe('DrawerProvider', () => {
 
     // Open first drawer
     await user.click(screen.getByText('Open Left'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
 
     // Open second drawer (should replace first)
     await user.click(screen.getByText('Open Right'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
   });
 
   it('maintains drawer state through multiple open/close cycles', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -193,27 +204,30 @@ describe('DrawerProvider', () => {
 
     // First cycle
     await user.click(screen.getByText('Open Right'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
 
     await user.click(screen.getByText('Close Drawer'));
     await waitFor(() => {
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
 
     // Second cycle
     await user.click(screen.getByText('Open Left'));
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
 
     await user.click(screen.getByText('Close Drawer'));
     await waitFor(() => {
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
     });
   });
 
   it('stores all drawer config properties correctly in state', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
         <TestComponent />
@@ -223,6 +237,7 @@ describe('DrawerProvider', () => {
     await user.click(screen.getByText('Open Right'));
 
     // Check all parts are in state
+    // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
     expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
     expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
     expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');

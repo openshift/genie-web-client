@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { checkAccessibility, render, screen } from '../../../unitTestUtils';
 import { useDrawer } from '../DrawerContext';
 import { DrawerProvider } from '../DrawerProvider';
 
@@ -41,6 +41,7 @@ describe('DrawerContext', () => {
         </DrawerProvider>,
       );
 
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('has-open-drawer')).toBeInTheDocument();
       expect(screen.getByTestId('has-close-drawer')).toBeInTheDocument();
       expect(screen.getByTestId('has-drawer-state')).toBeInTheDocument();
@@ -53,6 +54,7 @@ describe('DrawerContext', () => {
         </DrawerProvider>,
       );
 
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('has-open-drawer')).toHaveTextContent('function');
       expect(screen.getByTestId('has-close-drawer')).toHaveTextContent('function');
       expect(screen.getByTestId('has-drawer-state')).toHaveTextContent('object');
@@ -76,7 +78,17 @@ describe('DrawerContext', () => {
         </DrawerProvider>,
       );
 
+      // TODO: Change from getByTestId to getByRole or other more specific query (see: https://testing-library.com/docs/queries/about/#priority)
       expect(screen.getByTestId('has-properties')).toHaveTextContent('true');
+    });
+
+    it('is accessible', async () => {
+      const { container } = render(
+        <DrawerProvider>
+          <TestComponent />
+        </DrawerProvider>,
+      );
+      await checkAccessibility(container);
     });
   });
 });
