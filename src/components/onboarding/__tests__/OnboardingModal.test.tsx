@@ -1,53 +1,61 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { OnboardingModal } from '../OnboardingModal';
-import { OnboardingProvider } from '../OnboardingProvider';
-import * as onboardingStorage from '../../../utils/onboarding-storage';
-
-// mock the onboarding storage module
-jest.mock('../../../utils/onboarding-storage');
-
-const mockedStorage = onboardingStorage as jest.Mocked<typeof onboardingStorage>;
+import userEvent from '@testing-library/user-event';
+import { OnboardingModal, ONBOARDING_STORAGE_KEY } from '../OnboardingModal';
+import onboardingData from '../onboarding-content.json';
 
 describe('OnboardingModal', () => {
+  let getItemSpy: jest.SpyInstance;
+  let setItemSpy: jest.SpyInstance;
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
+    setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
   });
 
-  it('should not render when onboarding is closed', async () => {
-    mockedStorage.hasCompletedOnboarding.mockReturnValue(true);
-
-    const { container } = render(
-      <OnboardingProvider>
-        <OnboardingModal />
-      </OnboardingProvider>,
-    );
-
-    // wait for useEffect to run, then check modal is not present
-    await waitFor(() => {
-      expect(container.querySelector('.onboarding-placeholder')).not.toBeInTheDocument();
-    });
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  it('should render modal deck when onboarding is open', async () => {
-    mockedStorage.hasCompletedOnboarding.mockReturnValue(false);
+  it('should not render when onboarding has been completed', () => {
+    getItemSpy.mockReturnValue('true');
 
-    render(
-      <OnboardingProvider>
-        <OnboardingModal />
-      </OnboardingProvider>,
-    );
+    render(<OnboardingModal />);
 
-    // wait for and verify the welcome title from first step
-    await waitFor(() => {
-      expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
-    });
+    expect(screen.queryByText('Welcome to Red Hat Genie')).not.toBeInTheDocument();
+  });
 
-    // verify first step description content
+  it('should render when onboarding has not been completed', () => {
+    getItemSpy.mockReturnValue(null);
+
+    render(<OnboardingModal />);
+
+    expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
     expect(
       screen.getByText('Harness the full potential of the hybrid cloud, simply by asking.'),
     ).toBeInTheDocument();
-
-    // verify "Continue" button is present
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
+  });
+
+  it('should set completion in storage when the flow is finished', async () => {
+    getItemSpy.mockReturnValue(null);
+    const user = userEvent.setup();
+    render(<OnboardingModal />);
+
+    expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
+
+    const totalPages = onboardingData.length;
+    for (let i = 0; i < totalPages - 1; i++) {
+      const continueButton = await screen.findByRole('button', { name: /continue/i });
+      await user.click(continueButton);
+    }
+
+    const getStartedButton = await screen.findByRole('button', { name: /get started/i });
+    await user.click(getStartedButton);
+
+    expect(setItemSpy).toHaveBeenCalledWith(ONBOARDING_STORAGE_KEY, 'true');
+
+    await waitFor(() => {
+      expect(screen.queryByText('Welcome to Red Hat Genie')).not.toBeInTheDocument();
+    });
   });
 });

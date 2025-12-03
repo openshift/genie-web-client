@@ -1,46 +1,47 @@
+/* scope all styles to onboarding modal only to avoid affecting other modals */
+
 /* set modal width to match figma designs */
-.pf-v6-c-modal-box {
+.genie-onboarding-modal.pf-v6-c-modal-box {
   max-width: 768px;
   width: 90vw;
 }
 
-/* add extra space at top, keep sides and bottom at 24px */
-.pf-v6-c-modal-box__body {
-  padding: 48px 24px 24px;
+/* add extra space at top using patternfly spacing variables */
+.genie-onboarding-modal .pf-v6-c-modal-box__body {
+  padding-block-start: var(--pf-v6-global--spacer--2xl);
+  padding-block-end: var(--pf-v6-global--spacer--lg);
+  padding-inline-start: var(--pf-v6-global--spacer--lg);
+  padding-inline-end: var(--pf-v6-global--spacer--lg);
 }
 
 /* control spacing between stacked elements */
-.pf-v6-c-modal-box .pf-v6-c-stack.pf-m-gutter {
+.genie-onboarding-modal .pf-v6-c-stack.pf-m-gutter {
   gap: var(--pf-v6-global--spacer--md);
 }
 
 /* center all content horizontally */
-.pf-v6-c-modal-box .pf-v6-c-stack {
+.genie-onboarding-modal .pf-v6-c-stack {
   text-align: center;
   align-items: center;
 }
 
-/* make sure images are centered */
-.pf-v6-c-modal-box .pf-v6-c-stack__item img,
-.pf-v6-c-modal-box .pf-v6-c-stack__item div[style*='background'] {
+/* style for onboarding images */
+.onboarding-img {
+  width: 100%;
+  max-width: 280px;
+  height: 200px;
   margin: 0 auto;
+  border-radius: 8px;
+  object-fit: contain;
+  padding-top: 32px;
 }
 
-/* make progress dots 8x8px instead of default 6x6px */
-.pf-v6-c-modal-box span[style*='width: 6px'] {
-  width: 8px !important;
-  height: 8px !important;
+/* add space between pagination dots and buttons */
+.genie-onboarding-modal .pf-v6-c-flex:last-child {
+  margin-top: 24px !important;
 }
 
-/* inactive dots use lighter gray color with no border */
-.pf-v6-c-modal-box
-  span[style*='width: 6px'][style*='background-color: var(--pf-t--global--background-color--secondary--default)'] {
-  background-color: var(--pf-v6-global--palette--black-300) !important;
-  border: none !important;
-}
-
-/* make all page titles bold - originally intended for welcome screen only,
-   but targeting just the first page title is complex with current structure */
-.pf-v6-c-modal-box h2.pf-v6-c-title.pf-m-2xl {
-  font-weight: var(--pf-v6-global--FontWeight--bold) !important;
+/* add bottom padding to modal body for breathing room below buttons */
+.genie-onboarding-modal > .pf-v6-c-modal-box__body {
+  padding-bottom: 48px !important;
 }
