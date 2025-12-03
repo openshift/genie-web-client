@@ -35,6 +35,15 @@
   /* Footer specific styles */
 }
 
+.global-layout-empty-state {
+  margin: auto;
+
+  & .pf-v6-c-empty-state__title-text {
+    --pf-v6-c-empty-state__title-text--FontWeight: 700;
+  }
+}
+
+
 .pf-v6-c-drawer__panel {
   & .drawer-heading {
     display: flex;

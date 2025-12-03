@@ -35,5 +35,9 @@
       "deckLabel": "Red Hat Genie onboarding",
       "deckDescription": "onboarding walkthrough"
     }
-  }
+  },
+  "dashboard.emptyState.heading": "Every dashboard tells a story. What will yours say, {{name}}?",
+  "dashboard.emptyState.headingNoName": "Every dashboard tells a story. What will yours say?",
+  "dashboard.emptyState.description": "Begin with Genie — transform your OpenShift data into insight, and insight into action.",
+  "dashboard.emptyState.cta": "Create your first dashboard"
 }
