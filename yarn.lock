@@ -1038,6 +1038,11 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.15.3.tgz#d2509048d69dbb72d5389a14945339f1430b2d3c"
   integrity sha512-Oy8rmScVrVxWZVOpEF57ovlnhpZ8CCPlnIIumVcV9nFdiSIrus99+Lw78ekXyGvVDlIsFJbSfmSovJUhCWYV3w==
 
+"@remix-run/router@1.23.0":
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.23.0.tgz#35390d0e7779626c026b11376da6789eb8389242"
+  integrity sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==
+
 "@segment/analytics-core@1.8.2":
   version "1.8.2"
   resolved "https://registry.npmjs.org/@segment/analytics-core/-/analytics-core-1.8.2.tgz#f8aea312af3655e6483d0bdc160f0e05484529ab"
@@ -9560,6 +9565,15 @@ react-router-dom-v5-compat@^6.11.2:
     history "^5.3.0"
     react-router "6.22.3"
 
+react-router-dom-v5-compat@^6.23.1:
+  version "6.30.0"
+  resolved "https://registry.yarnpkg.com/react-router-dom-v5-compat/-/react-router-dom-v5-compat-6.30.0.tgz#d089e7b8dc964ade2480467aa77381647b10a78b"
+  integrity sha512-MAVRASbdQ3+ZOTPPjAa7jKcF0F9LkHWKB/iib3hf+jzzIazL4GEpMDDdTswCsqRQNU+zNnT3qD0WiNbzJ6ncPw==
+  dependencies:
+    "@remix-run/router" "1.23.0"
+    history "^5.3.0"
+    react-router "6.30.0"
+
 react-router-dom@5.3.x:
   version "5.3.4"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.3.4.tgz#2ed62ffd88cae6db134445f4a0c0ae8b91d2e5e6"
@@ -9594,6 +9608,13 @@ react-router@6.22.3:
   integrity sha512-dr2eb3Mj5zK2YISHK++foM9w4eBnO23eKnZEDs7c880P6oKbrjz/Svg9+nxqtHQK+oMW4OtjZca0RqPglXxguQ==
   dependencies:
     "@remix-run/router" "1.15.3"
+
+react-router@6.30.0:
+  version "6.30.0"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.30.0.tgz#9789d775e63bc0df60f39ced77c8c41f1e01ff90"
+  integrity sha512-D3X8FyH9nBcTSHGdEKurK7r8OYE1kKFn3d/CF+CoxbSHkxU7o37+Uh7eAHRXr6k2tSExXYO++07PeXJtA/dEhQ==
+  dependencies:
+    "@remix-run/router" "1.23.0"
 
 react-side-effect@^2.1.0:
   version "2.1.1"

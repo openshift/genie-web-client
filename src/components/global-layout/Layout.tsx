@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
   Avatar,
@@ -38,10 +39,35 @@ import {
   SearchIcon,
   WaveSquareIcon,
 } from '@patternfly/react-icons';
+import { useDrawer } from '../global-drawer';
+import { mainGenieRoute, SubRoutes } from '../routeList';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
-import { useDrawer } from '../global-drawer';
+
 import './Layout.css';
+
+const CreateNavItem = ({
+  subRoute,
+  title,
+  activeItem,
+}: {
+  subRoute: SubRoutes;
+  title: string;
+  activeItem: string | number;
+}) => {
+  const navigate = useNavigate();
+  return (
+    <NavItem
+      preventDefault
+      itemId={subRoute}
+      isActive={activeItem === subRoute}
+      to={`${mainGenieRoute}/${subRoute}`}
+      onClick={() => navigate(`${mainGenieRoute}/${subRoute}`)}
+    >
+      {title}
+    </NavItem>
+  );
+};
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -49,7 +75,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
-
+  const navigate = useNavigate();
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const [userName, setUserName] = useState<string>('');
@@ -142,6 +168,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     },
   ) => setActiveItem(selectedItem.itemId);
 
+  const location = useLocation();
+
+  // Set the active item based on the current route path
+  React.useEffect(() => {
+    const path = location.pathname;
+    const urlSegments = path.split('/');
+    const lastUrlItem = urlSegments.pop();
+    setActiveItem(lastUrlItem as SubRoutes);
+  }, [location.pathname]);
+
   // Header components
   const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
   const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
@@ -149,21 +185,29 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navContent = (
     <div className="global-layout-nav">
       <CompassPanel isPill>
-        <Button variant="plain" icon={<HomeIcon />} aria-label="Home" />
+        <Button
+          variant="plain"
+          icon={<HomeIcon />}
+          aria-label="Home"
+          onClick={() => navigate(mainGenieRoute)}
+        />
         <Nav onSelect={onNavSelect} aria-label="Nav" variant="horizontal">
           <NavList>
-            <NavItem preventDefault itemId={1} isActive={activeItem === 1} to="#">
-              AI & Automation
-            </NavItem>
-            <NavItem preventDefault itemId={2} isActive={activeItem === 2} to="#">
-              Infrastructure
-            </NavItem>
-            <NavItem preventDefault itemId={3} isActive={activeItem === 3} to="#">
-              Insights
-            </NavItem>
-            <NavItem preventDefault itemId={4} isActive={activeItem === 4} to="#">
-              Security
-            </NavItem>
+            <CreateNavItem
+              subRoute={SubRoutes.AIandAutomation}
+              title="AI & Automation"
+              activeItem={activeItem}
+            />
+
+            <CreateNavItem
+              subRoute={SubRoutes.Infrastructure}
+              title="Infrastructure"
+              activeItem={activeItem}
+            />
+
+            <CreateNavItem subRoute={SubRoutes.Insights} title="Insights" activeItem={activeItem} />
+
+            <CreateNavItem subRoute={SubRoutes.Security} title="Security" activeItem={activeItem} />
           </NavList>
         </Nav>
         <Button variant="plain" icon={<SearchIcon />} aria-label="Search" />
@@ -246,6 +290,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     ? t('dashboard.emptyState.heading', { name: userName })
     : t('dashboard.emptyState.headingNoName');
 
+  // NOTE keeping the code this way will mean that no routing is available if the there isn't any data
   const mainContent = !hasData ? (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
       <EmptyStateBody className="pf-v6-u-font-size-lg">
@@ -260,7 +305,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </EmptyStateFooter>
     </EmptyState>
   ) : (
-    <></>
+    <Outlet />
   );
 
   // Footer component

@@ -2,10 +2,13 @@
   {
     "type": "console.page/route/standalone",
     "properties": {
-      "exact": true,
+  
       "path": "/genie",
-      "component": { "$codeRef": "GeniePage" }
+      "component": { "$codeRef": "Routes" }
     }
+  
+  
+  
   },
   {
     "type": "console.navigation/href",
