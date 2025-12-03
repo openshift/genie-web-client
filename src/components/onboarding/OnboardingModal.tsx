@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Stack,
   StackItem,
@@ -12,7 +13,6 @@ import {
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { ModalDeck } from '@patternfly/react-component-groups/dist/dynamic/ModalDeck';
 import Deck from '@patternfly/react-component-groups/dist/dynamic/Deck';
-import onboardingData from './onboarding-content.json';
 import WelcomeImg from '../../assets/images/onboarding/welcome.svg';
 import AiCommandCenterImg from '../../assets/images/onboarding/ai-command-center.svg';
 import CanvasModeImg from '../../assets/images/onboarding/canvas-mode.svg';
@@ -29,6 +29,7 @@ const imageMap = {
 };
 
 export const OnboardingModal: React.FC = () => {
+  const { t } = useTranslation('plugin__genie-web-client');
   const [isOpen, setIsOpen] = useState(false);
   const [, setCurrentStep] = useState(0);
 
@@ -48,24 +49,61 @@ export const OnboardingModal: React.FC = () => {
     return null;
   }
 
+  const onboardingData = [
+    {
+      image: 'welcome',
+      alt: t('onboarding.welcome.title'),
+      title: t('onboarding.welcome.title'),
+      description: t('onboarding.welcome.description'),
+    },
+    {
+      image: 'ai-command-center',
+      alt: t('onboarding.aiCommandCenter.title'),
+      label: t('onboarding.aiCommandCenter.label'),
+      title: t('onboarding.aiCommandCenter.title'),
+      description: t('onboarding.aiCommandCenter.description'),
+    },
+    {
+      image: 'canvas-mode',
+      alt: t('onboarding.canvasMode.title'),
+      label: t('onboarding.canvasMode.label'),
+      title: t('onboarding.canvasMode.title'),
+      description: t('onboarding.canvasMode.description'),
+    },
+    {
+      image: 'sharing',
+      alt: t('onboarding.sharing.title'),
+      label: t('onboarding.sharing.label'),
+      title: t('onboarding.sharing.title'),
+      description: t('onboarding.sharing.description'),
+    },
+    {
+      image: 'welcome',
+      alt: t('onboarding.privacy.title'),
+      title: t('onboarding.privacy.title'),
+      description: t('onboarding.privacy.description'),
+      isPrivacyStep: true,
+    },
+  ];
+
   const pages = onboardingData.map((page, index) => {
     const buttons = [];
     if (index > 0) {
       buttons.push({
-        children: 'Back',
+        children: t('onboarding.buttons.back'),
         variant: ButtonVariant.secondary,
         navigation: 'previous',
       });
     }
     if (index < onboardingData.length - 1) {
       buttons.push({
-        children: 'Continue',
+        children: t('onboarding.buttons.continue'),
         variant: ButtonVariant.primary,
         navigation: 'next',
       });
     } else {
       buttons.push({
-        children: 'Get Started',
+        children: t('onboarding.buttons.getStarted'),
         variant: ButtonVariant.primary,
         navigation: 'close',
       });
@@ -103,7 +141,7 @@ export const OnboardingModal: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read the Red Hat Privacy Statement
+              {t('onboarding.privacy.linkText')}
             </Button>
           </StackItem>
         )}
@@ -120,7 +158,7 @@ export const OnboardingModal: React.FC = () => {
     <ModalDeck
       isOpen={isOpen}
       modalProps={{
-        'aria-label': 'Red Hat Genie onboarding walkthrough',
+        'aria-label': t('onboarding.aria.modalLabel'),
         className: 'genie-onboarding-modal',
       }}
     >
@@ -128,8 +166,8 @@ export const OnboardingModal: React.FC = () => {
         pages={pages}
         onClose={handleComplete}
         onPageChange={setCurrentStep}
-        ariaLabel="Red Hat Genie onboarding"
-        ariaRoleDescription="onboarding walkthrough"
+        ariaLabel={t('onboarding.aria.deckLabel')}
+        ariaRoleDescription={t('onboarding.aria.deckDescription')}
         contentFlexProps={{
           spaceItems: { default: 'spaceItemsXl' },
           gap: { default: 'gapXl' },
