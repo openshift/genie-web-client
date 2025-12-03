@@ -4,20 +4,18 @@ const PLUGIN_TEMPLATE_NAME = 'genie-web-client';
 const PLUGIN_TEMPLATE_PULL_SPEC = Cypress.env('PLUGIN_TEMPLATE_PULL_SPEC');
 export const isLocalDevEnvironment = Cypress.config('baseUrl').includes('localhost');
 
-
 const installHelmChart = (path: string) => {
   cy.exec(
     `cd ../../genie-web-client && ${path} upgrade -i ${PLUGIN_TEMPLATE_NAME} charts/openshift-console-plugin -n ${PLUGIN_TEMPLATE_NAME} --create-namespace --set plugin.image=${PLUGIN_TEMPLATE_PULL_SPEC}`,
     {
       failOnNonZeroExit: false,
     },
-  )
-    .then((result) => {
-      cy.log('Error installing helm chart: ', result.stderr);
-      cy.log('Successfully installed helm chart: ', result.stdout);
-      cy.reload();
-      cy.visit(`/genie`);
-    });
+  ).then((result) => {
+    cy.log('Error installing helm chart: ', result.stderr);
+    cy.log('Successfully installed helm chart: ', result.stdout);
+    cy.reload();
+    cy.visit(`/genie`);
+  });
 };
 const deleteHelmChart = (path: string) => {
   cy.exec(

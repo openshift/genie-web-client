@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Layout } from './Layout';
 import { DrawerProvider } from '../global-drawer';
@@ -23,7 +24,8 @@ jest.mock('react-i18next', () => ({
 
 // Stub out MessageBar so it doesn't render (but remains a valid component)
 jest.mock('@patternfly/chatbot', () => ({
-  MessageBar: () => null,
+  // eslint-disable-next-line react/display-name
+  MessageBar: React.forwardRef(() => null),
 }));
 
 describe('Layout empty state', () => {
