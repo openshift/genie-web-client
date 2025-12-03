@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom-v5-compat';
 // import AIandAutomation from './AIandAutomation'; // Example of sub route component
 
 import GeniePage from './GeniePage';
-import {  SubRoutes } from './routeList';
+import { SubRoutes } from './routeList';
 
 export default function GenieRoutes() {
   return (
