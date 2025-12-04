@@ -1,68 +1,46 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, user } from '../../../unitTestUtils';
+
 import { DrawerProvider } from '../DrawerProvider';
-import { useDrawer } from '../DrawerContext';
+import { DrawerConfig, useDrawer } from '../DrawerContext';
 
-// Test component that uses the drawer
-const TestComponent = () => {
+const CheckDrawerState = (key: string, value: string) => {
+  expect(
+    screen.getByText((content) => content.includes(`${key}:`) && content.includes(String(value))),
+  ).toBeInTheDocument();
+};
+
+const TestComponent = ({ openDrawerConfig }: { openDrawerConfig: DrawerConfig }) => {
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
-
-  const handleOpenLeft = () => {
-    openDrawer({
-      heading: 'Left Drawer',
-      icon: <span data-testid="left-icon">🔧</span>,
-      children: <div>Left drawer content</div>,
-      position: 'left',
-    });
-  };
-
-  const handleOpenRight = () => {
-    openDrawer({
-      heading: 'Right Drawer',
-      icon: <span data-testid="right-icon">📄</span>,
-      children: <div>Right drawer content</div>,
-      position: 'right',
-    });
-  };
-
-  const handleOpenDefault = () => {
-    openDrawer({
-      heading: 'Default Drawer',
-      icon: <span data-testid="default-icon">📋</span>,
-      children: <div>Default drawer content</div>,
-    });
-  };
-
-  const handleOpenWithCallback = () => {
-    openDrawer({
-      heading: 'Drawer with Callback',
-      icon: <span data-testid="callback-icon">🔔</span>,
-      children: <div>Drawer with callback content</div>,
-      onClose: () => {
-        console.log('Custom close callback called');
-      },
-    });
-  };
-
   return (
     <div>
-      <button onClick={handleOpenLeft}>Open Left</button>
-      <button onClick={handleOpenRight}>Open Right</button>
-      <button onClick={handleOpenDefault}>Open Default</button>
-      <button onClick={handleOpenWithCallback}>Open With Callback</button>
+      <button onClick={() => openDrawer(openDrawerConfig)}>Open Drawer</button>
       <button onClick={closeDrawer}>Close Drawer</button>
-      <div>Test Component Content</div>
-      <div data-testid="drawer-state">
-        <span data-testid="drawer-is-open">{String(drawerState.isOpen)}</span>
-        <span data-testid="drawer-position">{drawerState.position}</span>
-        <div data-testid="drawer-heading">{drawerState.heading}</div>
-        <div data-testid="drawer-children">{drawerState.children}</div>
-      </div>
+      <div>Drawer Content</div>
+      {Object.keys(drawerState).map((key) => {
+        const value = drawerState[key as keyof typeof drawerState];
+
+        return (
+          <div key={key}>
+            {`${key}:`}
+            {typeof value === 'function'
+              ? 'function'
+              : typeof value === 'boolean'
+              ? String(value)
+              : value}
+          </div>
+        );
+      })}
     </div>
   );
 };
 
-describe('DrawerProvider', () => {
+const defaultOpenDrawerConfig: DrawerConfig = {
+  heading: 'Drawer heading',
+  icon: <>my icon</>,
+  children: <>Drawer content</>,
+  position: 'left',
+};
+describe('DrawerProvider and Context', () => {
   it('renders children correctly', () => {
     render(
       <DrawerProvider>
@@ -74,158 +52,102 @@ describe('DrawerProvider', () => {
   });
 
   it('opens drawer with correct config when openDrawer is called', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
-        <TestComponent />
+        <TestComponent openDrawerConfig={defaultOpenDrawerConfig} />
       </DrawerProvider>,
     );
 
-    const openButton = screen.getByText('Open Right');
-    await user.click(openButton);
+    await user.click(screen.getByText('Open Drawer'));
 
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
-    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Right drawer content');
+    CheckDrawerState('icon', 'my icon');
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('heading', 'Drawer heading');
+    CheckDrawerState('children', 'Drawer content');
+    CheckDrawerState('position', 'left');
   });
 
   it('closes drawer when closeDrawer is called', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
-        <TestComponent />
+        <TestComponent openDrawerConfig={defaultOpenDrawerConfig} />
       </DrawerProvider>,
     );
 
-    // Open drawer
-    await user.click(screen.getByText('Open Right'));
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
+    await user.click(screen.getByText('Open Drawer'));
 
-    // Close drawer
+    CheckDrawerState('isOpen', 'true');
+
     await user.click(screen.getByText('Close Drawer'));
 
-    await waitFor(() => {
-      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
-    });
+    CheckDrawerState('isOpen', 'false');
   });
 
   it('defaults position to right when not specified', async () => {
-    const user = userEvent.setup();
     render(
       <DrawerProvider>
-        <TestComponent />
+        <TestComponent openDrawerConfig={{ ...defaultOpenDrawerConfig, position: undefined }} />
       </DrawerProvider>,
     );
 
-    await user.click(screen.getByText('Open Default'));
-
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Default Drawer');
-  });
-
-  it('handles left position correctly', async () => {
-    const user = userEvent.setup();
-    render(
-      <DrawerProvider>
-        <TestComponent />
-      </DrawerProvider>,
-    );
-
-    await user.click(screen.getByText('Open Left'));
-
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
-    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Left drawer content');
+    await user.click(screen.getByText('Open Drawer'));
+    CheckDrawerState('position', 'right');
   });
 
   it('invokes custom onClose callback when drawer is closed', async () => {
-    const user = userEvent.setup();
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
+    const mockedOnClose = jest.fn();
     render(
       <DrawerProvider>
-        <TestComponent />
+        <TestComponent openDrawerConfig={{ ...defaultOpenDrawerConfig, onClose: mockedOnClose }} />
       </DrawerProvider>,
     );
 
-    // Open drawer with callback
-    await user.click(screen.getByText('Open With Callback'));
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-
-    // Close drawer
+    await user.click(screen.getByText('Open Drawer'));
+    expect(mockedOnClose).not.toHaveBeenCalled();
     await user.click(screen.getByText('Close Drawer'));
-
-    expect(consoleSpy).toHaveBeenCalledWith('Custom close callback called');
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
-
-    consoleSpy.mockRestore();
+    expect(mockedOnClose).toHaveBeenCalled();
   });
 
   it('updates drawer content when openDrawer is called multiple times', async () => {
-    const user = userEvent.setup();
-    render(
+    const { rerender } = render(
       <DrawerProvider>
-        <TestComponent />
+        <TestComponent openDrawerConfig={defaultOpenDrawerConfig} />
       </DrawerProvider>,
     );
 
-    // Open first drawer
-    await user.click(screen.getByText('Open Left'));
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('left');
+    await user.click(screen.getByText('Open Drawer'));
+    CheckDrawerState('position', 'left');
+    CheckDrawerState('heading', 'Drawer heading');
 
-    // Open second drawer (should replace first)
-    await user.click(screen.getByText('Open Right'));
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
+    rerender(
+      <DrawerProvider>
+        <TestComponent
+          openDrawerConfig={{
+            ...defaultOpenDrawerConfig,
+            position: 'right',
+            heading: 'My Other Drawer',
+          }}
+        />
+      </DrawerProvider>,
+    );
+    await user.click(screen.getByText('Open Drawer'));
+    CheckDrawerState('position', 'right');
+    CheckDrawerState('heading', 'My Other Drawer');
   });
 
-  it('maintains drawer state through multiple open/close cycles', async () => {
-    const user = userEvent.setup();
-    render(
-      <DrawerProvider>
-        <TestComponent />
-      </DrawerProvider>,
-    );
+  it('throws error when useDrawer is used outside DrawerProvider', () => {
+    // Suppress console.error for this test since we expect an error
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    // First cycle
-    await user.click(screen.getByText('Open Right'));
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
+    const ComponentOutsideProvider = () => {
+      useDrawer();
+      return <div>Should not render</div>;
+    };
 
-    await user.click(screen.getByText('Close Drawer'));
-    await waitFor(() => {
-      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
-    });
+    expect(() => {
+      render(<ComponentOutsideProvider />);
+    }).toThrow('useDrawer must be used within a DrawerProvider');
 
-    // Second cycle
-    await user.click(screen.getByText('Open Left'));
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Left Drawer');
-
-    await user.click(screen.getByText('Close Drawer'));
-    await waitFor(() => {
-      expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('false');
-    });
-  });
-
-  it('stores all drawer config properties correctly in state', async () => {
-    const user = userEvent.setup();
-    render(
-      <DrawerProvider>
-        <TestComponent />
-      </DrawerProvider>,
-    );
-
-    await user.click(screen.getByText('Open Right'));
-
-    // Check all parts are in state
-    expect(screen.getByTestId('drawer-is-open')).toHaveTextContent('true');
-    expect(screen.getByTestId('drawer-position')).toHaveTextContent('right');
-    expect(screen.getByTestId('drawer-heading')).toHaveTextContent('Right Drawer');
-    expect(screen.getByTestId('drawer-children')).toHaveTextContent('Right drawer content');
+    consoleSpy.mockRestore();
   });
 });
