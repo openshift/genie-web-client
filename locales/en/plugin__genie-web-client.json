@@ -36,6 +36,9 @@
       "deckDescription": "onboarding walkthrough"
     }
   },
+  "notifications.ariaLabel": "Notifications",
+  "notifications.emptyState.heading": "No notifications",
+  "notifications.emptyState.description": "You don’t have any notifications right now. New alerts and updates will appear here as they come in.",
   "dashboard.emptyState.heading": "Every dashboard tells a story. What will yours say, {{name}}?",
   "dashboard.emptyState.headingNoName": "Every dashboard tells a story. What will yours say?",
   "dashboard.emptyState.description": "Begin with Genie — transform your OpenShift data into insight, and insight into action.",
