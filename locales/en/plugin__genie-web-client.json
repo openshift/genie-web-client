@@ -1,5 +1,41 @@
 {
   "genie": "Genie Web Client",
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Red Hat Genie",
+      "description": "Harness the full potential of the hybrid cloud, simply by asking."
+    },
+    "aiCommandCenter": {
+      "label": "AI Command Center",
+      "title": "Intelligence at your command",
+      "description": "Ask anything. Get answers. Troubleshoot, analyze, and understand your entire fleet just by asking. It's the power of your data, in plain language."
+    },
+    "canvasMode": {
+      "label": "Canvas Mode",
+      "title": "Go from conversation to clarity.",
+      "description": "Transform answers into custom dashboards. In Canvas Mode, you can effortlessly arrange, customize, and build the precise view you need to monitor what matters most."
+    },
+    "sharing": {
+      "label": "Sharing",
+      "title": "Share your vision. Instantly.",
+      "description": "An insight is only powerful when it's shared. Save any view to your library and share it with your team in a single click. Drive decisions, together."
+    },
+    "privacy": {
+      "title": "Important privacy notice",
+      "description": "<strong>Project Genie is powered by generative AI.</strong> To protect your security, please do not include personal information or sensitive data (like secrets or API keys) in your conversations.<br/><br/>Your interactions may be used to improve Red Hat products and services.",
+      "linkText": "Read the Red Hat Privacy Statement"
+    },
+    "buttons": {
+      "continue": "Continue",
+      "back": "Back",
+      "getStarted": "Get Started"
+    },
+    "aria": {
+      "modalLabel": "Red Hat Genie onboarding walkthrough",
+      "deckLabel": "Red Hat Genie onboarding",
+      "deckDescription": "onboarding walkthrough"
+    }
+  },
   "dashboard.emptyState.heading": "Every dashboard tells a story. What will yours say, {{name}}?",
   "dashboard.emptyState.headingNoName": "Every dashboard tells a story. What will yours say?",
   "dashboard.emptyState.description": "Begin with Genie — transform your OpenShift data into insight, and insight into action.",

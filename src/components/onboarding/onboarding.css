@@ -1,0 +1,47 @@
+/* scope all styles to onboarding modal only to avoid affecting other modals */
+
+/* set modal width to match figma designs */
+.genie-onboarding-modal.pf-v6-c-modal-box {
+  max-width: 768px;
+  width: 90vw;
+}
+
+/* add extra space at top using patternfly spacing variables */
+.genie-onboarding-modal .pf-v6-c-modal-box__body {
+  padding-block-start: var(--pf-v6-global--spacer--2xl);
+  padding-block-end: var(--pf-v6-global--spacer--lg);
+  padding-inline-start: var(--pf-v6-global--spacer--lg);
+  padding-inline-end: var(--pf-v6-global--spacer--lg);
+}
+
+/* control spacing between stacked elements */
+.genie-onboarding-modal .pf-v6-c-stack.pf-m-gutter {
+  gap: var(--pf-v6-global--spacer--md);
+}
+
+/* center all content horizontally */
+.genie-onboarding-modal .pf-v6-c-stack {
+  text-align: center;
+  align-items: center;
+}
+
+/* style for onboarding images */
+.onboarding-img {
+  width: 100%;
+  max-width: 280px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: 8px;
+  object-fit: contain;
+  padding-top: 32px;
+}
+
+/* add space between pagination dots and buttons */
+.genie-onboarding-modal .pf-v6-c-flex:last-child {
+  margin-top: 24px !important;
+}
+
+/* add bottom padding to modal body for breathing room below buttons */
+.genie-onboarding-modal > .pf-v6-c-modal-box__body {
+  padding-bottom: 48px !important;
+}
