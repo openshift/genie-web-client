@@ -45,6 +45,7 @@ import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
 import './Layout.css';
+import Notifications from '../notifications/Notifications';
 
 const CreateNavItem = ({
   subRoute,
@@ -119,12 +120,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           heading: 'Notifications',
           icon: <BellIcon />,
           position: 'right' as const,
-          children: (
-            <div>
-              <p>This is content in the right drawer.</p>
-              <p>You can put any React components here.</p>
-            </div>
-          ),
+          children: <Notifications />,
           onClose: () => console.log('Notifications closed'),
         },
         activity: {

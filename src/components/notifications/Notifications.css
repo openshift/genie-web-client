@@ -1,0 +1,25 @@
+.notifications {
+  display: flex;
+  height: 100%;
+
+  .empty-state {
+    margin: auto;
+  }
+
+  .pf-v6-c-notification-drawer__list {
+    --pf-v6-c-notification-drawer__list--Gap: var(--pf-t--global--spacer--lg, 1.5rem);
+    --pf-v6-c-notification-drawer__list--PaddingInlineStart: var(--pf-t--global--spacer--sm, 0.5rem);
+    --pf-v6-c-notification-drawer__list--PaddingInlineEnd: var(--pf-t--global--spacer--sm, 0.5rem);
+  }
+
+  .pf-v6-c-notification-drawer__list-item {
+    background-color: transparent !important;
+
+    --pf-v6-c-notification-drawer__list-item--BorderWidth: 0;
+    --pf-v6-c-notification-drawer__list-item--PaddingInlineStart: 0;
+    --pf-v6-c-notification-drawer__list-item--PaddingInlineEnd: 0;
+    --pf-v6-c-notification-drawer__list-item--PaddingBlockStart: 0;
+    --pf-v6-c-notification-drawer__list-item--PaddingBlockEnd: 0;
+  }
+}
+

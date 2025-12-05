@@ -22,5 +22,8 @@
   "onboarding.sharing.label": "Sharing",
   "onboarding.sharing.title": "Share your vision. Instantly.",
   "onboarding.welcome.description": "Harness the full potential of the hybrid cloud, simply by asking.",
-  "onboarding.welcome.title": "Welcome to Red Hat Genie"
+  "onboarding.welcome.title": "Welcome to Red Hat Genie",
+  "notifications.ariaLabel": "Notifications",
+  "notifications.emptyState.heading": "No notifications",
+  "notifications.emptyState.description": "You don’t have any notifications right now. New alerts and updates will appear here as they come in."
 }
