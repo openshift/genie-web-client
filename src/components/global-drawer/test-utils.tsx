@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { render, RenderOptions } from '../../unitTestUtils';
 import { DrawerProvider } from './DrawerProvider';
 import { DrawerContextValue } from './DrawerContext';
 
