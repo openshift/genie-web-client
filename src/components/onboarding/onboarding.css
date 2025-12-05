@@ -10,19 +10,21 @@
 .genie-onboarding-modal .pf-v6-c-modal-box__body {
   padding-block-start: var(--pf-v6-global--spacer--2xl);
   padding-block-end: var(--pf-v6-global--spacer--lg);
-  padding-inline-start: var(--pf-v6-global--spacer--lg);
-  padding-inline-end: var(--pf-v6-global--spacer--lg);
+  padding-inline-start: 96px;
+  padding-inline-end: 96px;
 }
 
 /* control spacing between stacked elements */
 .genie-onboarding-modal .pf-v6-c-stack.pf-m-gutter {
-  gap: var(--pf-v6-global--spacer--md);
+  gap: var(--pf-v6-global--spacer--lg);
 }
 
 /* center all content horizontally */
 .genie-onboarding-modal .pf-v6-c-stack {
   text-align: center;
   align-items: center;
+  max-width: 550px;
+  margin: 0 auto;
 }
 
 /* style for onboarding images */
@@ -31,6 +33,7 @@
   max-width: 280px;
   height: 200px;
   margin: 0 auto;
+  margin-block-end: var(--pf-v6-global--spacer--md);
   border-radius: 8px;
   object-fit: contain;
   padding-top: 32px;
