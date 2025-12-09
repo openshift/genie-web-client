@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
+import { useLocation, useNavigate, Outlet, useMatch } from 'react-router-dom-v5-compat';
 import {
   Compass,
   Avatar,
@@ -22,10 +21,6 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
-  EmptyState,
-  EmptyStateFooter,
-  EmptyStateActions,
-  EmptyStateBody,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -34,7 +29,6 @@ import {
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
-  PlusIcon,
   QuestionCircleIcon,
   SearchIcon,
   WaveSquareIcon,
@@ -80,15 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const [userName, setUserName] = useState<string>('');
-  // temp variable to show empty state
-  const hasData = false;
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
-  const { t } = useTranslation('plugin__genie-web-client');
-
-  // in a future iteration, this will navigate to Chat Thread - Create Dashboard Flow (as per the design))
-  const goToChat = useCallback(() => {
-    messageBarRef.current?.focus();
-  }, []);
 
   useEffect(() => {
     try {
@@ -220,7 +206,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="New Chat">
-              <Button variant="plain" icon={<PlusSquareIcon />} aria-label="New Chat" />
+              <Button
+                variant="plain"
+                icon={<PlusSquareIcon />}
+                aria-label="New Chat"
+                onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.Chat}`)}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
@@ -282,31 +273,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const titleText = userName
-    ? t('dashboard.emptyState.heading', { name: userName })
-    : t('dashboard.emptyState.headingNoName');
-
-  // NOTE keeping the code this way will mean that no routing is available if the there isn't any data
-  const mainContent = !hasData ? (
-    <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
-      <EmptyStateBody className="pf-v6-u-font-size-lg">
-        {t('dashboard.emptyState.description')}
-      </EmptyStateBody>
-      <EmptyStateFooter>
-        <EmptyStateActions>
-          <Button icon={<PlusIcon />} onClick={goToChat}>
-            {t('dashboard.emptyState.cta')}
-          </Button>
-        </EmptyStateActions>
-      </EmptyStateFooter>
-    </EmptyState>
-  ) : (
-    <Outlet />
-  );
+  const mainContent = <Outlet context={{ userName }} />;
 
   // Footer component
+  const isChatRoute = !!useMatch(`${mainGenieRoute}/${SubRoutes.Chat}`);
   const footer = (
-    <CompassMessageBar>
+    <CompassMessageBar
+      className={`global-layout-footer${isChatRoute ? ' global-layout-footer-hidden' : ''}`}
+      aria-hidden={isChatRoute || undefined}
+    >
       <CompassPanel isPill hasNoPadding>
         <MessageBar
           ref={messageBarRef}

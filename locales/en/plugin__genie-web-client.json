@@ -25,5 +25,14 @@
   "onboarding.welcome.title": "Welcome to Red Hat Genie",
   "notifications.ariaLabel": "Notifications",
   "notifications.emptyState.heading": "No notifications",
-  "notifications.emptyState.description": "You don’t have any notifications right now. New alerts and updates will appear here as they come in."
+  "notifications.emptyState.description": "You don’t have any notifications right now. New alerts and updates will appear here as they come in.",
+  "newChat.heading": "What's on your mind, {{name}}?",
+  "newChat.headingNoName": "What's on your mind?",
+  "newChat.description": "Genie can help you explore, build, and troubleshoot OpenShift — all in one place.",
+  "newChat.promptPlaceholder": "How can I support you today?",
+  "newChat.suggestion.build": "Build / Configure",
+  "newChat.suggestion.automate": "Automate Tasks",
+  "newChat.suggestion.troubleshoot": "Troubleshoot / Diagnose",
+  "newChat.suggestion.analyze": "Analyze / Optimize",
+  "newChat.suggestion.explore": "Explore what's possible"
 }

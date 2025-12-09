@@ -1,7 +1,5 @@
-import React from 'react';
 import { render, screen } from '../../unitTestUtils';
-import { Layout } from './Layout';
-import { DrawerProvider } from '../global-drawer';
+import Home from './Home';
 
 // Mock i18n to return predictable strings used in assertions
 jest.mock('react-i18next', () => ({
@@ -21,22 +19,11 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-// Stub out MessageBar so it doesn't render (but remains a valid component)
-jest.mock('@patternfly/chatbot', () => ({
-  // eslint-disable-next-line react/display-name
-  MessageBar: React.forwardRef(() => null),
-}));
-
-describe('Layout empty state', () => {
-  const renderWithProviders = () =>
-    render(
-      <DrawerProvider>
-        <Layout />
-      </DrawerProvider>,
-    );
+describe('Home empty state', () => {
+  const renderHome = () => render(<Home />);
 
   it('renders heading without username when none stored', () => {
-    renderWithProviders();
+    renderHome();
     expect(
       screen.getByRole('heading', {
         name: /every dashboard tells a story\. what will yours say\?/i,
@@ -45,7 +32,7 @@ describe('Layout empty state', () => {
   });
 
   it('renders description and CTA', () => {
-    renderWithProviders();
+    renderHome();
 
     expect(
       screen.getByText(

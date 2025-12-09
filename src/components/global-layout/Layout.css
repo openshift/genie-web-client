@@ -35,6 +35,12 @@
   /* Footer specific styles */
 }
 
+/* Hide footer contents while preserving row height */
+.global-layout-footer-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .global-layout-empty-state {
   margin: auto;
 
