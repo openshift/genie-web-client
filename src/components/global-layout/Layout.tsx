@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
@@ -22,10 +21,6 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
-  EmptyState,
-  EmptyStateFooter,
-  EmptyStateActions,
-  EmptyStateBody,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -34,7 +29,6 @@ import {
   HomeIcon,
   ImagesIcon,
   PlusSquareIcon,
-  PlusIcon,
   QuestionCircleIcon,
   SearchIcon,
   WaveSquareIcon,
@@ -46,6 +40,7 @@ import AvatarImg from '../../assets/images/avatar.svg';
 
 import './Layout.css';
 import Notifications from '../notifications/Notifications';
+import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 
 const CreateNavItem = ({
   subRoute,
@@ -77,29 +72,12 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
   const navigate = useNavigate();
+
+  const sendMessage = useSendMessage();
+  
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
-  const [userName, setUserName] = useState<string>('');
-  // temp variable to show empty state
-  const hasData = false;
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
-  const { t } = useTranslation('plugin__genie-web-client');
-
-  // in a future iteration, this will navigate to Chat Thread - Create Dashboard Flow (as per the design))
-  const goToChat = useCallback(() => {
-    messageBarRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    try {
-      const storedName = localStorage.getItem('genieUserName');
-      if (storedName && typeof storedName === 'string') {
-        setUserName(storedName);
-      }
-    } catch {
-      // local storage not available
-    }
-  }, []);
 
   const handleDrawerOpen = useCallback(
     (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
@@ -282,27 +260,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const titleText = userName
-    ? t('dashboard.emptyState.heading', { name: userName })
-    : t('dashboard.emptyState.headingNoName');
-
-  // NOTE keeping the code this way will mean that no routing is available if the there isn't any data
-  const mainContent = !hasData ? (
-    <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
-      <EmptyStateBody className="pf-v6-u-font-size-lg">
-        {t('dashboard.emptyState.description')}
-      </EmptyStateBody>
-      <EmptyStateFooter>
-        <EmptyStateActions>
-          <Button icon={<PlusIcon />} onClick={goToChat}>
-            {t('dashboard.emptyState.cta')}
-          </Button>
-        </EmptyStateActions>
-      </EmptyStateFooter>
-    </EmptyState>
-  ) : (
-    <Outlet />
-  );
 
   // Footer component
   const footer = (
@@ -310,8 +267,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <CompassPanel isPill hasNoPadding>
         <MessageBar
           ref={messageBarRef}
-          onSendMessage={(message: string | number) => {
-            console.log(message);
+          onSendMessage={(value: string) => {
+            sendMessage(value, { stream: true, requestOptions: {} });
+            navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
           }}
         />
       </CompassPanel>
@@ -339,7 +297,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
       sidebarEnd={sidebarEnd}
-      main={mainContent}
+      main={<Outlet />}
       footer={footer}
       drawerContent={drawerContent}
       drawerProps={{

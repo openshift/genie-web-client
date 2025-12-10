@@ -1,13 +1,17 @@
 import { Route, Routes } from 'react-router-dom-v5-compat';
 // import AIandAutomation from './AIandAutomation'; // Example of sub route component
 
+import { Home } from './home';
 import GeniePage from './GeniePage';
 import { SubRoutes } from './routeList';
+import { Chat } from './Chat';
 
 export default function GenieRoutes() {
   return (
     <Routes>
       <Route element={<GeniePage />}>
+        <Route index element={<Home />} />
+        <Route path={SubRoutes.Chat} element={<Chat />} />
         <Route path={SubRoutes.AIandAutomation} element={<></>} />
         <Route path={SubRoutes.Insights} element={<></>} />
         <Route path={SubRoutes.Security} element={<></>} />

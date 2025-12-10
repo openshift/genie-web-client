@@ -5,4 +5,5 @@ export enum SubRoutes {
   Infrastructure = 'infrastructure',
   Insights = 'insights',
   Security = 'security',
+  Chat = 'chat',
 }
