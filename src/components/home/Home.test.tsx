@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen } from '../../unitTestUtils';
-import { Layout } from './Layout';
-import { DrawerProvider } from '../global-drawer';
+import { Home } from './Home';
+import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
+import { stateManager } from '../utils/aiStateManager';
 
 // Mock i18n to return predictable strings used in assertions
 jest.mock('react-i18next', () => ({
@@ -27,14 +28,14 @@ jest.mock('@patternfly/chatbot', () => ({
   MessageBar: React.forwardRef(() => null),
 }));
 
-describe('Layout empty state', () => {
-  const renderWithProviders = () =>
+describe('Home', () => {
+    const renderWithProviders = () =>
     render(
-      <DrawerProvider>
-        <Layout />
-      </DrawerProvider>,
+      <AIStateProvider stateManager={stateManager}>
+        <Home />
+      </AIStateProvider>
     );
-
+  
   it('renders heading without username when none stored', () => {
     renderWithProviders();
     expect(

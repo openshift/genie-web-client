@@ -273,8 +273,8 @@ export class OLSClient implements IAIClient {
   }) {
     this.baseUrl = options.baseUrl.startsWith('http')
       ? options.baseUrl
-      // eslint-disable-next-line no-restricted-globals
-      : `${location.origin}${options.baseUrl}`;
+      : // eslint-disable-next-line no-restricted-globals
+        `${location.origin}${options.baseUrl}`;
     this.fetchFunction = options.fetchFunction;
   }
 

@@ -33,7 +33,7 @@ import {
   SearchIcon,
   WaveSquareIcon,
 } from '@patternfly/react-icons';
-import { useDrawer } from '../global-drawer';
+import { useDrawer } from '../drawer';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
@@ -74,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
 
   const sendMessage = useSendMessage();
-  
+
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
@@ -259,7 +259,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </ActionList>
     </CompassPanel>
   );
-
 
   // Footer component
   const footer = (

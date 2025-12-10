@@ -41,10 +41,16 @@ export const Home: React.FC = () => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button icon={<PlusIcon />} onClick={() => {
-            sendMessage('Can you help me create a new dashboard?', { stream: true, requestOptions: {} });
-            navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);  
-          }}>
+          <Button
+            icon={<PlusIcon />}
+            onClick={() => {
+              sendMessage('Can you help me create a new dashboard?', {
+                stream: true,
+                requestOptions: {},
+              });
+              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+            }}
+          >
             {t('dashboard.emptyState.cta')}
           </Button>
         </EmptyStateActions>

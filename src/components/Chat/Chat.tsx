@@ -23,12 +23,9 @@ export const Chat: React.FunctionComponent = () => {
     return messages.map((msg) => {
       const message = msg as any; // Type assertion for Red Hat Cloud Services message format
       const isBot = message.role === 'bot';
-      let content =
-        message.answer || message.query || message.message || message.content || '';
+      let content = message.answer || message.query || message.message || message.content || '';
       console.log('content', content);
-      content = content
-        .split('=====The following is the user query that was asked:')
-        .pop();
+      content = content.split('=====The following is the user query that was asked:').pop();
       return (
         <Message
           key={msg.id}
