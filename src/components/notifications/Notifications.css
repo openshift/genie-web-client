@@ -14,6 +14,7 @@
 
   .pf-v6-c-notification-drawer__list-item {
     background-color: transparent !important;
+    cursor: default !important;
 
     --pf-v6-c-notification-drawer__list-item--BorderWidth: 0;
     --pf-v6-c-notification-drawer__list-item--PaddingInlineStart: 0;
