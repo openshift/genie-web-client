@@ -11,7 +11,7 @@ export default function GenieRoutes() {
     <Routes>
       <Route element={<GeniePage />}>
         <Route index element={<Home />} />
-        <Route path={SubRoutes.Chat} element={<NewChat />} />
+        <Route path={SubRoutes.NewChat} element={<NewChat />} />
         <Route path={SubRoutes.AIandAutomation} element={<></>} />
         <Route path={SubRoutes.Insights} element={<></>} />
         <Route path={SubRoutes.Security} element={<></>} />

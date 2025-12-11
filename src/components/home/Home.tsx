@@ -1,6 +1,5 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useOutletContext } from 'react-router-dom-v5-compat';
-import type { GenieOutletContext } from '../../types/types';
 import {
   EmptyState,
   EmptyStateBody,
@@ -12,9 +11,17 @@ import { PlusIcon } from '@patternfly/react-icons';
 
 const Home = () => {
   const { t } = useTranslation('plugin__genie-web-client');
-
-  const outlet = useOutletContext<GenieOutletContext | undefined>();
-  const userName = outlet?.userName || '';
+  const [userName, setUserName] = useState<string>('');
+  useEffect(() => {
+    try {
+      const storedName = localStorage.getItem('genieUserName');
+      if (storedName && typeof storedName === 'string') {
+        setUserName(storedName);
+      }
+    } catch {
+      // local storage not available
+    }
+  }, []);
 
   const titleText = userName
     ? t('dashboard.emptyState.heading', { name: userName })

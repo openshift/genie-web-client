@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate, Outlet, useMatch } from 'react-router-dom-v5-compat';
 import {
   Compass,
@@ -21,6 +21,8 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  CompassContent,
+  CompassMainFooter,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -73,19 +75,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
-  const [userName, setUserName] = useState<string>('');
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    try {
-      const storedName = localStorage.getItem('genieUserName');
-      if (storedName && typeof storedName === 'string') {
-        setUserName(storedName);
-      }
-    } catch {
-      // local storage not available
-    }
-  }, []);
 
   const handleDrawerOpen = useCallback(
     (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
@@ -160,6 +150,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
+  const isChatRoute = !!useMatch(`${mainGenieRoute}/${SubRoutes.NewChat}`);
+
   // Header components
   const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
   const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
@@ -210,7 +202,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<PlusSquareIcon />}
                 aria-label="New Chat"
-                onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.Chat}`)}
+                onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.NewChat}`)}
               />
             </Tooltip>
           </ActionListItem>
@@ -273,24 +265,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = <Outlet context={{ userName }} />;
-
-  // Footer component
-  const isChatRoute = !!useMatch(`${mainGenieRoute}/${SubRoutes.Chat}`);
-  const footer = (
-    <CompassMessageBar
-      className={`global-layout-footer${isChatRoute ? ' global-layout-footer-hidden' : ''}`}
-      aria-hidden={isChatRoute || undefined}
-    >
-      <CompassPanel isPill hasNoPadding>
-        <MessageBar
-          ref={messageBarRef}
-          onSendMessage={(message: string | number) => {
-            console.log(message);
-          }}
-        />
-      </CompassPanel>
-    </CompassMessageBar>
+  const mainContent = (
+    <>
+      <CompassContent>
+        <Outlet />
+      </CompassContent>
+      {!isChatRoute && (
+        <CompassMainFooter>
+          <CompassMessageBar>
+            <CompassPanel isPill hasNoPadding>
+              <MessageBar
+                ref={messageBarRef}
+                onSendMessage={(message: string | number) => {
+                  console.log(message);
+                }}
+              />
+            </CompassPanel>
+          </CompassMessageBar>
+        </CompassMainFooter>
+      )}
+    </>
   );
 
   const drawerContent = drawerState.isOpen ? (
@@ -315,7 +309,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       sidebarStart={sidebarStart}
       sidebarEnd={sidebarEnd}
       main={mainContent}
-      footer={footer}
+      isFooterExpanded={false}
       drawerContent={drawerContent}
       drawerProps={{
         isPill: true,

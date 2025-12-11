@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import './NewChat.css';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,22 +9,27 @@ import {
   Button,
 } from '@patternfly/react-core';
 import {
-  BugIcon,
-  ImagesIcon,
-  ListIcon,
-  ProcessAutomationIcon,
-  TrendUpIcon,
+  RhStandardBarGraphIcon,
+  RhStandardBugIcon,
+  RhStandardCommandLineIcon,
+  RhUiAiExperienceIcon,
+  RhUiAnalyzeIcon,
 } from '@patternfly/react-icons';
-import { useOutletContext } from 'react-router-dom-v5-compat';
-import type { GenieOutletContext } from '../../types/types';
 import { MessageBar } from '@patternfly/chatbot';
 
 const NewChat = () => {
   const { t } = useTranslation('plugin__genie-web-client');
-
-  const outlet = useOutletContext<GenieOutletContext | undefined>();
-  const userName = outlet?.userName || '';
-  const inlineBarRef = React.useRef<HTMLTextAreaElement>(null);
+  const [userName, setUserName] = useState<string>('');
+  useEffect(() => {
+    try {
+      const storedName = localStorage.getItem('genieUserName');
+      if (storedName && typeof storedName === 'string') {
+        setUserName(storedName);
+      }
+    } catch {
+      // local storage not available
+    }
+  }, []);
 
   const titleText = userName
     ? t('newChat.heading', { name: userName })
@@ -34,24 +39,23 @@ const NewChat = () => {
     key: 'build' | 'automate' | 'troubleshoot' | 'analyze' | 'explore';
     icon?: React.ReactNode;
   }> = [
-    { key: 'build', icon: <ImagesIcon /> },
-    { key: 'automate', icon: <ProcessAutomationIcon /> },
-    { key: 'troubleshoot', icon: <BugIcon /> },
-    { key: 'analyze', icon: <TrendUpIcon /> },
-    { key: 'explore', icon: <ListIcon /> },
+    { key: 'build', icon: <RhStandardBarGraphIcon /> },
+    { key: 'automate', icon: <RhStandardCommandLineIcon /> },
+    { key: 'troubleshoot', icon: <RhStandardBugIcon /> },
+    { key: 'analyze', icon: <RhUiAnalyzeIcon /> },
+    { key: 'explore', icon: <RhUiAiExperienceIcon /> },
   ];
 
   return (
     <EmptyState className="new-chat" variant="xl" titleText={titleText}>
       <EmptyStateBody className="pf-v6-u-font-size-lg">{t('newChat.description')}</EmptyStateBody>
-        <MessageBar
-          ref={inlineBarRef}
-          aria-label={t('newChat.promptPlaceholder') as string}
-          placeholder={t('newChat.promptPlaceholder') as string}
-          onSendMessage={(message: string | number) => {
-            console.log('new chat message:', message);
-          }}
-        />
+      <MessageBar
+        aria-label={t('newChat.promptPlaceholder') as string}
+        placeholder={t('newChat.promptPlaceholder') as string}
+        onSendMessage={(message: string | number) => {
+          console.log('new chat message:', message);
+        }}
+      />
       <EmptyStateFooter>
         <EmptyStateActions>
           {suggestions.slice(0, 3).map(({ key, icon }) => (
@@ -70,5 +74,5 @@ const NewChat = () => {
       </EmptyStateFooter>
     </EmptyState>
   );
-}
+};
 export default NewChat;
