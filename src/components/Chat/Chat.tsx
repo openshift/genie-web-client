@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useMessages } from '@redhat-cloud-services/ai-react-state';
 import {
   Chatbot,
@@ -11,12 +11,6 @@ import {
 export const Chat: React.FunctionComponent = () => {
   const bottomRef = React.createRef<HTMLDivElement>();
   const messages = useMessages();
-
-  useEffect(() => {
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    });
-  }, [messages]);
 
   // Convert Red Hat Cloud Services messages to PatternFly format
   const formatMessages = () => {
