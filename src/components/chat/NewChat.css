@@ -1,0 +1,8 @@
+.new-chat {
+  margin: auto;
+
+  .pf-chatbot__message-bar {
+    margin: var(--pf-t--global--spacer--3xl, 4rem) 0;
+  }
+}
+

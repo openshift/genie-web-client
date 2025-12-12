@@ -3,14 +3,16 @@ import { Route, Routes } from 'react-router-dom-v5-compat';
 
 import { Home } from './home';
 import GeniePage from './GeniePage';
+import { NewChat } from './chat/NewChat';
 import { SubRoutes } from './routeList';
-import { Chat } from './Chat';
+import { Chat } from './chat/Chat';
 
 export default function GenieRoutes() {
   return (
     <Routes>
       <Route element={<GeniePage />}>
         <Route index element={<Home />} />
+        <Route path={SubRoutes.NewChat} element={<NewChat />} />
         <Route path={SubRoutes.Chat} element={<Chat />} />
         <Route path={SubRoutes.AIandAutomation} element={<></>} />
         <Route path={SubRoutes.Insights} element={<></>} />

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useCallback, useRef, useState } from 'react';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
+import { useLocation, useNavigate, Outlet, useMatch } from 'react-router-dom-v5-compat';
 import {
   Compass,
   Avatar,
@@ -21,6 +21,8 @@ import {
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  CompassContent,
+  CompassMainFooter,
 } from '@patternfly/react-core';
 import { MessageBar } from '@patternfly/chatbot';
 import {
@@ -152,6 +154,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
+  const isChatRoute = !!useMatch(`${mainGenieRoute}/${SubRoutes.NewChat}`);
+
   // Header components
   const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
   const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
@@ -198,7 +202,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ActionListGroup>
           <ActionListItem>
             <Tooltip content="New Chat">
-              <Button variant="plain" icon={<PlusSquareIcon />} aria-label="New Chat" />
+              <Button
+                variant="plain"
+                icon={<PlusSquareIcon />}
+                aria-label="New Chat"
+                onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.NewChat}`)}
+              />
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
@@ -262,17 +271,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Footer component
   const footer = (
-    <CompassMessageBar>
-      <CompassPanel isPill hasNoPadding>
-        <MessageBar
-          ref={messageBarRef}
-          onSendMessage={(value: string) => {
-            sendMessage(value, { stream: true, requestOptions: {} });
-            navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-          }}
-        />
-      </CompassPanel>
-    </CompassMessageBar>
+    <CompassMainFooter>
+      <CompassMessageBar>
+        <CompassPanel isPill hasNoPadding>
+          <MessageBar
+            ref={messageBarRef}
+            onSendMessage={(value: string) => {
+              sendMessage(value, { stream: true, requestOptions: {} });
+              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+            }}
+          />
+        </CompassPanel>
+      </CompassMessageBar>
+    </CompassMainFooter>
   );
 
   const drawerContent = drawerState.isOpen ? (
@@ -296,8 +307,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
       sidebarEnd={sidebarEnd}
-      main={<Outlet />}
-      footer={footer}
+      main={<CompassContent><Outlet /></CompassContent>}
+      footer={!isChatRoute ? footer : <div></div>}
+      isFooterExpanded={!isChatRoute}
       drawerContent={drawerContent}
       drawerProps={{
         isPill: true,
