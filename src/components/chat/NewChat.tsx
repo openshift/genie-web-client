@@ -16,10 +16,16 @@ import {
   RhUiAnalyzeIcon,
 } from '@patternfly/react-icons';
 import { MessageBar } from '@patternfly/chatbot';
+import { mainGenieRoute, SubRoutes } from '../routeList';
+import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
+import { useNavigate } from 'react-router-dom-v5-compat';
 
 export const NewChat = () => {
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
+  const sendMessage = useSendMessage();
+  const navigate = useNavigate();
+  
   useEffect(() => {
     try {
       const storedName = localStorage.getItem('genieUserName');
@@ -53,7 +59,8 @@ export const NewChat = () => {
         aria-label={t('newChat.promptPlaceholder') as string}
         placeholder={t('newChat.promptPlaceholder') as string}
         onSendMessage={(message: string | number) => {
-          console.log('new chat message:', message);
+          sendMessage(message, { stream: true, requestOptions: {} });
+          navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
         }}
       />
       <EmptyStateFooter>
