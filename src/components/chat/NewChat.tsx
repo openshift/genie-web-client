@@ -66,14 +66,14 @@ export const NewChat = () => {
       <EmptyStateFooter>
         <EmptyStateActions>
           {suggestions.slice(0, 3).map(({ key, icon }) => (
-            <Button key={key} variant="secondary" icon={icon}>
+            <Button key={key} variant="tertiary" icon={icon}>
               {t(`newChat.suggestion.${key}`)}
             </Button>
           ))}
         </EmptyStateActions>
         <EmptyStateActions>
           {suggestions.slice(3).map(({ key, icon }) => (
-            <Button key={key} variant="secondary" icon={icon}>
+            <Button key={key} variant="tertiary" icon={icon}>
               {t(`newChat.suggestion.${key}`)}
             </Button>
           ))}

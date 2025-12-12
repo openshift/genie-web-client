@@ -10,3 +10,8 @@
 .global-layout-container .pf-v6-c-button{
   --pf-v6-c-button--BorderRadius: var(--pf-t--global--border--radius--pill, 999px);
 }
+
+/* Setting margin for empty state body xl variant */
+.global-layout-container .pf-v6-c-empty-state.pf-m-xl .pf-v6-c-empty-state__body {
+  margin-top: var(--pf-t--global--spacer--md, 1rem);
+}

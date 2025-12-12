@@ -6,7 +6,7 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { PlusIcon } from '@patternfly/react-icons';
+import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { mainGenieRoute, SubRoutes } from '../routeList';
@@ -42,7 +42,8 @@ export const Home: React.FC = () => {
       <EmptyStateFooter>
         <EmptyStateActions>
           <Button
-            icon={<PlusIcon />}
+            size="lg"
+            icon={<RhUiAiExperienceIcon />}
             onClick={() => {
               sendMessage('Can you help me create a new dashboard?', {
                 stream: true,
