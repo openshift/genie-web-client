@@ -35,13 +35,14 @@ import {
   SearchIcon,
   WaveSquareIcon,
 } from '@patternfly/react-icons';
-import { useDrawer } from '../global-drawer';
+import { useDrawer } from '../drawer';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
 import './Layout.css';
 import Notifications from '../notifications/Notifications';
+import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 
 const CreateNavItem = ({
   subRoute,
@@ -73,6 +74,9 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
   const navigate = useNavigate();
+
+  const sendMessage = useSendMessage();
+
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
@@ -265,26 +269,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </CompassPanel>
   );
 
-  const mainContent = (
-    <>
-      <CompassContent>
-        <Outlet />
-      </CompassContent>
-      {!isChatRoute && (
-        <CompassMainFooter>
-          <CompassMessageBar>
-            <CompassPanel isPill hasNoPadding>
-              <MessageBar
-                ref={messageBarRef}
-                onSendMessage={(message: string | number) => {
-                  console.log(message);
-                }}
-              />
-            </CompassPanel>
-          </CompassMessageBar>
-        </CompassMainFooter>
-      )}
-    </>
+  // Footer component
+  const footer = (
+    <CompassMainFooter>
+      <CompassMessageBar>
+        <CompassPanel isPill hasNoPadding>
+          <MessageBar
+            ref={messageBarRef}
+            onSendMessage={(value: string) => {
+              sendMessage(value, { stream: true, requestOptions: {} });
+              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+            }}
+          />
+        </CompassPanel>
+      </CompassMessageBar>
+    </CompassMainFooter>
   );
 
   const drawerContent = drawerState.isOpen ? (
@@ -308,8 +307,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
       sidebarEnd={sidebarEnd}
-      main={mainContent}
-      isFooterExpanded={false}
+      main={<CompassContent><Outlet /></CompassContent>}
+      footer={!isChatRoute ? footer : <div></div>}
+      isFooterExpanded={!isChatRoute}
       drawerContent={drawerContent}
       drawerProps={{
         isPill: true,

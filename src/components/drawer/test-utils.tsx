@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { render, RenderOptions } from '../../unitTestUtils';
+import { render, RenderOptions, RouterOptions } from '../../unitTestUtils';
 import { DrawerProvider } from './DrawerProvider';
 import { DrawerContextValue } from './DrawerContext';
 
@@ -43,10 +43,8 @@ export const createMockDrawerContext = (): DrawerContextValue =>
  */
 export const renderWithDrawerProvider = (
   ui: ReactElement,
+  routerOptions: RouterOptions = {},
   options?: Omit<RenderOptions, 'wrapper'>,
 ) => {
-  return render(ui, {
-    wrapper: DrawerProvider,
-    ...options,
-  });
+  return render(<DrawerProvider>{ui}</DrawerProvider>, routerOptions, options);
 };

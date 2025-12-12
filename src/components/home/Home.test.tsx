@@ -1,5 +1,8 @@
+import React from 'react';
 import { render, screen } from '../../unitTestUtils';
-import Home from './Home';
+import { Home } from './Home';
+import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
+import { stateManager } from '../utils/aiStateManager';
 
 // Mock i18n to return predictable strings used in assertions
 jest.mock('react-i18next', () => ({
@@ -19,11 +22,22 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-describe('Home empty state', () => {
-  const renderHome = () => render(<Home />);
+// Stub out MessageBar so it doesn't render (but remains a valid component)
+jest.mock('@patternfly/chatbot', () => ({
+  // eslint-disable-next-line react/display-name
+  MessageBar: React.forwardRef(() => null),
+}));
 
+describe('Home', () => {
+    const renderWithProviders = () =>
+    render(
+      <AIStateProvider stateManager={stateManager}>
+        <Home />
+      </AIStateProvider>
+    );
+  
   it('renders heading without username when none stored', () => {
-    renderHome();
+    renderWithProviders();
     expect(
       screen.getByRole('heading', {
         name: /every dashboard tells a story\. what will yours say\?/i,
@@ -32,7 +46,7 @@ describe('Home empty state', () => {
   });
 
   it('renders description and CTA', () => {
-    renderHome();
+    renderWithProviders();
 
     expect(
       screen.getByText(

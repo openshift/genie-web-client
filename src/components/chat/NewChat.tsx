@@ -17,7 +17,7 @@ import {
 } from '@patternfly/react-icons';
 import { MessageBar } from '@patternfly/chatbot';
 
-const NewChat = () => {
+export const NewChat = () => {
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   useEffect(() => {
@@ -75,4 +75,3 @@ const NewChat = () => {
     </EmptyState>
   );
 };
-export default NewChat;

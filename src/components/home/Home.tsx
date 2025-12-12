@@ -1,17 +1,24 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import * as React from 'react';
 import {
+  Button,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateActions,
-  Button,
 } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
+import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import { mainGenieRoute, SubRoutes } from '../routeList';
+import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
+import { useNavigate } from 'react-router-dom-v5-compat';
 
-const Home = () => {
-  const { t } = useTranslation('plugin__genie-web-client');
+export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
+  const { t } = useTranslation('plugin__genie-web-client');
+  const sendMessage = useSendMessage();
+  const navigate = useNavigate();
+
   useEffect(() => {
     try {
       const storedName = localStorage.getItem('genieUserName');
@@ -34,7 +41,16 @@ const Home = () => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button icon={<PlusIcon />} onClick={() => console.log('go to create dashboard')}>
+          <Button
+            icon={<PlusIcon />}
+            onClick={() => {
+              sendMessage('Can you help me create a new dashboard?', {
+                stream: true,
+                requestOptions: {},
+              });
+              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+            }}
+          >
             {t('dashboard.emptyState.cta')}
           </Button>
         </EmptyStateActions>
@@ -42,5 +58,3 @@ const Home = () => {
     </EmptyState>
   );
 };
-
-export default Home;
