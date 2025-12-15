@@ -19,13 +19,17 @@ import { MessageBar } from '@patternfly/chatbot';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useNavigate } from 'react-router-dom-v5-compat';
+import { useChatBar } from '../ChatBarContext';
 
 export const NewChat = () => {
+  const { setShowChatBar } = useChatBar();
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
-  
+
+  setShowChatBar(false);
+
   useEffect(() => {
     try {
       const storedName = localStorage.getItem('genieUserName');

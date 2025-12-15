@@ -29,13 +29,13 @@ jest.mock('@patternfly/chatbot', () => ({
 }));
 
 describe('Home', () => {
-    const renderWithProviders = () =>
+  const renderWithProviders = () =>
     render(
       <AIStateProvider stateManager={stateManager}>
         <Home />
-      </AIStateProvider>
+      </AIStateProvider>,
     );
-  
+
   it('renders heading without username when none stored', () => {
     renderWithProviders();
     expect(
