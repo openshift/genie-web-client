@@ -34,5 +34,19 @@
   "newChat.suggestion.automate": "Automate Tasks",
   "newChat.suggestion.troubleshoot": "Troubleshoot / Diagnose",
   "newChat.suggestion.analyze": "Analyze / Optimize",
-  "newChat.suggestion.explore": "Explore what's possible"
+  "newChat.suggestion.explore": "Explore what's possible",
+  "chatHistory.emptyState.heading": "Ready to chat?",
+  "chatHistory.emptyState.description": "Your chat history is currently empty. Start a new conversation and we'll keep a record of it for you here.",
+  "chatHistory.emptyState.cta": "Start your first chat",
+  "chatHistory.loading": "Loading conversation history",
+  "chatHistory.error.heading": "Error loading conversations",
+  "chatHistory.error.description": "There was an error loading your conversations. Please try again later or try refreshing the page.",
+  "chatHistory.search.ariaLabel": "Find conversation",
+  "chatHistory.search.placeholder": "Find conversation",
+  "chatHistory.noResults.heading": "No results found",
+  "chatHistory.noResults.description": "No conversations match your search \"{{searchTerm}}\". Try adjusting your search terms.",
+  "chatHistory.group.today": "Today",
+  "chatHistory.group.yesterday": "Yesterday",
+  "chatHistory.group.lastWeek": "Last Week",
+  "chatHistory.group.older": "Older"
 }

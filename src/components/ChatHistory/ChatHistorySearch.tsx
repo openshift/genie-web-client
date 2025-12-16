@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SearchInput } from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
 interface ChatHistorySearchProps {
   onSearch: (value: string) => void;
@@ -8,6 +9,7 @@ interface ChatHistorySearchProps {
 
 export function ChatHistorySearch(props: ChatHistorySearchProps) {
   const { onSearch, resultsCount } = props;
+  const { t } = useTranslation('plugin__genie-web-client');
   const [value, setValue] = useState('');
 
   const onChange = (value: string) => {
@@ -22,8 +24,8 @@ export function ChatHistorySearch(props: ChatHistorySearchProps) {
 
   return (
     <SearchInput
-      aria-label="Find conversation"
-      placeholder="Find conversation"
+      aria-label={t('chatHistory.search.ariaLabel')}
+      placeholder={t('chatHistory.search.placeholder')}
       value={value}
       onChange={(_event, value) => onChange(value)}
       onClear={onClear}

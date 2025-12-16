@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom-v5-compat';
 import { groupByDate } from './dateHelpers';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Filters conversations by search term (case-insensitive, matches anywhere in title)
@@ -36,17 +37,22 @@ const filterConversations = (conversations: Conversation[], searchTerm: string):
   );
 };
 
-const ChatHistoryGroup = ({
-  title,
-  conversations,
-  isLoading,
-  onClick,
-}: {
-  title: 'Today' | 'Yesterday' | 'Last Week' | 'Older';
+interface ChatHistoryGroupProps {
+  titleKey: 'today' | 'yesterday' | 'lastWeek' | 'older';
   conversations: Conversation[];
   isLoading: boolean;
   onClick: (conversation: Conversation) => void;
-}) => {
+}
+
+const ChatHistoryGroup = ({
+  titleKey,
+  conversations,
+  isLoading,
+  onClick,
+}: ChatHistoryGroupProps) => {
+  const { t } = useTranslation('plugin__genie-web-client');
+  const title = t(`chatHistory.group.${titleKey}`);
+
   if (!isLoading && conversations.length === 0) {
     return null;
   }
@@ -79,12 +85,14 @@ const ChatHistoryGroup = ({
 const EmptyStateComponent: React.FC = () => {
   const navigate = useNavigate();
   const { closeDrawer } = useDrawer();
+  const { t } = useTranslation('plugin__genie-web-client');
   return (
-    <EmptyState variant={EmptyStateVariant.lg} titleText="Ready to chat?" headingLevel="h4">
-      <EmptyStateBody>
-        Your chat history is currently empty. Start a new conversation and we&apos;ll keep a record
-        of it for you here.
-      </EmptyStateBody>
+    <EmptyState
+      variant={EmptyStateVariant.lg}
+      titleText={t('chatHistory.emptyState.heading')}
+      headingLevel="h4"
+    >
+      <EmptyStateBody>{t('chatHistory.emptyState.description')}</EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
           <Button
@@ -95,7 +103,7 @@ const EmptyStateComponent: React.FC = () => {
               navigate(`${mainGenieRoute}/${ChatNew}`);
             }}
           >
-            Start your first chat
+            {t('chatHistory.emptyState.cta')}
           </Button>
         </EmptyStateActions>
       </EmptyStateFooter>
@@ -104,9 +112,10 @@ const EmptyStateComponent: React.FC = () => {
 };
 
 const LoadingComponent: React.FC = () => {
+  const { t } = useTranslation('plugin__genie-web-client');
   return (
     <>
-      <Skeleton screenreaderText="Loading conversation history" />
+      <Skeleton screenreaderText={t('chatHistory.loading')} />
       <Skeleton className="pf-v6-u-mt-md" />
       <Skeleton className="pf-v6-u-mt-md" />
     </>
@@ -118,6 +127,7 @@ export const ChatHistory: React.FC = () => {
   const conversations = useConversations();
   const isInitializing = useIsInitializing();
   const { closeDrawer } = useDrawer();
+  const { t } = useTranslation('plugin__genie-web-client');
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -142,11 +152,8 @@ export const ChatHistory: React.FC = () => {
     // TODO: Determine if there is a better way to determining if there is an error
     // TODO: Verify error state design and behavior
     return (
-      <Alert variant={AlertVariant.danger} title="Error loading conversations" role="alert">
-        <p>
-          There was an error loading your conversations. Please try again later or try refreshing
-          the page.
-        </p>
+      <Alert variant={AlertVariant.danger} title={t('chatHistory.error.heading')} role="alert">
+        <p>{t('chatHistory.error.description')}</p>
       </Alert>
     );
   }
@@ -171,34 +178,35 @@ export const ChatHistory: React.FC = () => {
         <ChatHistorySearch onSearch={setSearchTerm} resultsCount={filteredConversations.length} />
       )}
       {searchTerm.trim() && !hasSearchResults && !isInitializing ? (
-        <EmptyState variant={EmptyStateVariant.sm} titleText="No results found" headingLevel="h4">
-          <EmptyStateBody>
-            No conversations match your search &quot;{searchTerm}&quot;. Try adjusting your search
-            terms.
-          </EmptyStateBody>
+        <EmptyState
+          variant={EmptyStateVariant.sm}
+          titleText={t('chatHistory.noResults.heading')}
+          headingLevel="h4"
+        >
+          <EmptyStateBody>{t('chatHistory.noResults.description', { searchTerm })}</EmptyStateBody>
         </EmptyState>
       ) : (
         <>
           <ChatHistoryGroup
-            title="Today"
+            titleKey="today"
             conversations={groupedConversations.today}
             isLoading={isInitializing}
             onClick={handleConversationClick}
           />
           <ChatHistoryGroup
-            title="Yesterday"
+            titleKey="yesterday"
             conversations={groupedConversations.yesterday}
             isLoading={isInitializing}
             onClick={handleConversationClick}
           />
           <ChatHistoryGroup
-            title="Last Week"
+            titleKey="lastWeek"
             conversations={groupedConversations.lastWeek}
             isLoading={isInitializing}
             onClick={handleConversationClick}
           />
           <ChatHistoryGroup
-            title="Older"
+            titleKey="older"
             conversations={groupedConversations.other}
             isLoading={isInitializing}
             onClick={handleConversationClick}
