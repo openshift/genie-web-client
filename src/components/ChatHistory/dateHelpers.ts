@@ -1,22 +1,15 @@
 import { Conversation } from '@redhat-cloud-services/ai-client-state';
+import {
+  isToday as isTodayDateFns,
+  isYesterday as isYesterdayDateFns,
+  isThisWeek as isThisWeekDateFns,
+} from 'date-fns';
 
-const diffInDaysFromToday = (date: Date) => {
-  const today = new Date();
-  const millisecondsDiff = today.getTime() - date.getTime();
-  return Math.round(millisecondsDiff / (24 * 60 * 60 * 1000));
-};
+const isToday = (date: Date) => isTodayDateFns(date);
 
-const isToday = (date: Date) => {
-  return diffInDaysFromToday(date) === 0;
-};
+const isYesterday = (date: Date) => isYesterdayDateFns(date);
 
-const isYesterday = (date: Date) => {
-  return diffInDaysFromToday(date) === 1;
-};
-
-const isLastWeek = (date: Date) => {
-  return diffInDaysFromToday(date) <= 7;
-};
+const isLastWeek = (date: Date) => isThisWeekDateFns(date, { weekStartsOn: 0 }); // week starts on Sunday
 
 export const groupByDate = (conversations: Conversation[]) => {
   const groupedConversations = {

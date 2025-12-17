@@ -96,9 +96,9 @@ describe('ChatHistory', () => {
 
   describe('Conversation Groups', () => {
     it('renders conversations grouped by date', () => {
-      // Mock today's date
+      // Mock today's date - using Friday so that 5 days ago (Sunday) is still in the current week
       jest.useFakeTimers();
-      jest.setSystemTime(new Date('2025-10-16T08:00:00.000Z'));
+      jest.setSystemTime(new Date('2025-10-17T08:00:00.000Z'));
 
       const conversations = getConversations();
       mockUseConversations.mockReturnValue(conversations);

@@ -16,27 +16,28 @@ describe('dateHelpers', () => {
 
   describe('groupByDate', () => {
     it('groups conversations by date correctly', () => {
-      mockDate('2025-01-15T12:00:00.000Z');
+      // Using Friday so that dates earlier in the week fall within the current week (Jan 12-18)
+      mockDate('2025-01-17T12:00:00.000Z');
 
       const conversations: Conversation[] = [
         {
           id: '1',
           title: 'Today conversation',
-          createdAt: '2025-01-15T10:00:00.000Z',
+          createdAt: '2025-01-17T10:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '2',
           title: 'Yesterday conversation',
-          createdAt: '2025-01-14T10:00:00.000Z',
+          createdAt: '2025-01-16T10:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '3',
           title: 'Last week conversation',
-          createdAt: '2025-01-10T10:00:00.000Z',
+          createdAt: '2025-01-13T10:00:00.000Z',
           messages: [],
           locked: false,
         },
@@ -62,7 +63,8 @@ describe('dateHelpers', () => {
     });
 
     it('sorts conversations by date in descending order', () => {
-      mockDate('2025-01-15T12:00:00.000Z');
+      // Using Friday so that dates earlier in the week fall within the current week (Jan 12-18)
+      mockDate('2025-01-17T12:00:00.000Z');
 
       const conversations: Conversation[] = [
         {
@@ -75,14 +77,14 @@ describe('dateHelpers', () => {
         {
           id: '2',
           title: 'Newer',
-          createdAt: '2025-01-15T10:00:00.000Z',
+          createdAt: '2025-01-17T10:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '3',
           title: 'Middle',
-          createdAt: '2025-01-10T10:00:00.000Z',
+          createdAt: '2025-01-13T10:00:00.000Z',
           messages: [],
           locked: false,
         },
@@ -97,27 +99,27 @@ describe('dateHelpers', () => {
     });
 
     it('handles multiple conversations in the same group', () => {
-      mockDate('2025-01-15T12:00:00.000Z');
+      mockDate('2025-01-17T12:00:00.000Z');
 
       const conversations: Conversation[] = [
         {
           id: '1',
           title: 'Today 1',
-          createdAt: '2025-01-15T08:00:00.000Z',
+          createdAt: '2025-01-17T08:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '2',
           title: 'Today 2',
-          createdAt: '2025-01-15T10:00:00.000Z',
+          createdAt: '2025-01-17T10:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '3',
           title: 'Today 3',
-          createdAt: '2025-01-15T12:00:00.000Z',
+          createdAt: '2025-01-17T12:00:00.000Z',
           messages: [],
           locked: false,
         },
@@ -133,7 +135,7 @@ describe('dateHelpers', () => {
     });
 
     it('handles empty array', () => {
-      mockDate('2025-01-15T12:00:00.000Z');
+      mockDate('2025-01-17T12:00:00.000Z');
 
       const result = groupByDate([]);
 
@@ -144,20 +146,20 @@ describe('dateHelpers', () => {
     });
 
     it('handles conversations with same timestamp correctly', () => {
-      mockDate('2025-01-15T12:00:00.000Z');
+      mockDate('2025-01-17T12:00:00.000Z');
 
       const conversations: Conversation[] = [
         {
           id: '1',
           title: 'Same time 1',
-          createdAt: '2025-01-15T10:00:00.000Z',
+          createdAt: '2025-01-17T10:00:00.000Z',
           messages: [],
           locked: false,
         },
         {
           id: '2',
           title: 'Same time 2',
-          createdAt: '2025-01-15T10:00:00.000Z',
+          createdAt: '2025-01-17T10:00:00.000Z',
           messages: [],
           locked: false,
         },
@@ -167,7 +169,7 @@ describe('dateHelpers', () => {
 
       expect(result.today).toHaveLength(2);
       // Both should be in today group
-      expect(result.today.every((c) => c.createdAt === '2025-01-15T10:00:00.000Z')).toBe(true);
+      expect(result.today.every((c) => c.createdAt === '2025-01-17T10:00:00.000Z')).toBe(true);
     });
   });
 });

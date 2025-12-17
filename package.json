@@ -111,6 +111,7 @@
     "@redhat-cloud-services/ai-client-state": "^0.15.0",
     "@redhat-cloud-services/ai-react-state": "^0.15.0",
     "@redhat-cloud-services/lightspeed-client": "^0.15.0",
+    "date-fns":"^4.1.0",
     "pluralize": "^8.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
