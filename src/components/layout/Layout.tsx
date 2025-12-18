@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useCallback, useRef, useState } from 'react';
-import { useLocation, useNavigate, Outlet, useMatch } from 'react-router-dom-v5-compat';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
   Avatar,
@@ -36,13 +36,16 @@ import {
   WaveSquareIcon,
 } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
-import { mainGenieRoute, SubRoutes } from '../routeList';
+import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
+import { useChatBar } from '../ChatBarContext';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
 import './Layout.css';
 import Notifications from '../notifications/Notifications';
 import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
+import { ChatHistory } from '../ChatHistory';
+import { useDrawerFocusManagement } from './useDrawerFocusManagement';
 
 const CreateNavItem = ({
   subRoute,
@@ -73,6 +76,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
+  const { showChatBar } = useChatBar();
   const navigate = useNavigate();
 
   const sendMessage = useSendMessage();
@@ -81,19 +85,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
 
+  // Manage drawer focus: focus close button on open, handle Escape key, restore focus on close
+  const { storeTriggerElement } = useDrawerFocusManagement({
+    drawerState,
+    closeDrawer,
+  });
+
   const handleDrawerOpen = useCallback(
     (configKey: 'chatHistory' | 'notifications' | 'activity' | 'help') => {
+      // Store the trigger element for focus restoration when drawer closes
+      storeTriggerElement(configKey);
+
       const config = {
         chatHistory: {
           heading: 'Chat History',
           icon: <CommentDotsIcon />,
           position: 'left' as const,
-          children: (
-            <div>
-              <p>This is content in the left drawer.</p>
-              <p>You can put any React components here.</p>
-            </div>
-          ),
+          children: <ChatHistory />,
           onClose: () => console.log('Chat history closed'),
         },
         notifications: {
@@ -132,7 +140,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         openDrawer(config);
       }
     },
-    [openDrawer],
+    [openDrawer, storeTriggerElement],
   );
 
   const onNavSelect = (
@@ -147,14 +155,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
 
   // Set the active item based on the current route path
-  React.useEffect(() => {
+  useEffect(() => {
     const path = location.pathname;
     const urlSegments = path.split('/');
     const lastUrlItem = urlSegments.pop();
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
-  const isChatRoute = !!useMatch(`${mainGenieRoute}/${SubRoutes.NewChat}`);
+  // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
   // Header components
   const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
@@ -206,7 +214,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<PlusSquareIcon />}
                 aria-label="New Chat"
-                onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.NewChat}`)}
+                onClick={() => navigate(`${mainGenieRoute}/${ChatNew}`)}
               />
             </Tooltip>
           </ActionListItem>
@@ -307,9 +315,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
       sidebarEnd={sidebarEnd}
-      main={<CompassContent><Outlet /></CompassContent>}
-      footer={!isChatRoute ? footer : <div></div>}
-      isFooterExpanded={!isChatRoute}
+      main={
+        <CompassContent>
+          <Outlet />
+        </CompassContent>
+      }
+      footer={footer}
+      isFooterExpanded={showChatBar}
       drawerContent={drawerContent}
       drawerProps={{
         isPill: true,

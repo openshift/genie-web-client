@@ -5,15 +5,15 @@ import { Layout } from './Layout';
 import { DrawerProvider } from '../drawer';
 
 describe('Layout', () => {
-    const renderWithProviders = () =>
-        render(
-            <AIStateProvider stateManager={stateManager}>
-                <DrawerProvider>
-                    <Layout />
-                </DrawerProvider>
-            </AIStateProvider>,
-        );
-    it('renders without crashing', () => {
-        renderWithProviders();
-    });
+  const renderWithProviders = () =>
+    render(
+      <AIStateProvider stateManager={stateManager}>
+        <DrawerProvider>
+          <Layout />
+        </DrawerProvider>
+      </AIStateProvider>,
+    );
+  it('renders without crashing', () => {
+    renderWithProviders();
+  });
 });

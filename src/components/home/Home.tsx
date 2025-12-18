@@ -12,12 +12,16 @@ import { useEffect, useState } from 'react';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useNavigate } from 'react-router-dom-v5-compat';
+import { useChatBar } from '../ChatBarContext';
 
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const { t } = useTranslation('plugin__genie-web-client');
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
+  const { setShowChatBar } = useChatBar();
+
+  setShowChatBar(true);
 
   useEffect(() => {
     try {
