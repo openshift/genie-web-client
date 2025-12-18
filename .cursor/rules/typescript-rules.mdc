@@ -1,0 +1,25 @@
+---
+description: TypeScript rules for type safety and code quality
+globs: src/**/*.ts, src/**/*.tsx
+alwaysApply: false
+---
+
+- Always define prop types using TypeScript interfaces or types in tsx files
+- Define interfaces for all props and complex objects in tsx and ts files
+- Use union types for known variations in tsx and ts files
+- Avoid `any` type - use `unknown` if needed, then narrow the type with type guards
+- If `any` must be used temporarily, add an eslint-disable comment with explanation
+- Use proper TypeScript error types instead of generic Error objects
+- Use `Partial<T>` for optional object properties instead of making each property optional
+- Use `Record<string, T>` for object maps instead of `{ [key: string]: T }`
+- Define return types for all functions and methods
+- Import types with `import type` syntax to avoid runtime imports
+- Prefer `interface` over `type` for object shapes that might be extended
+- Use `type` for unions, intersections, and computed types
+- Use `readonly` modifier for arrays and object properties that should not be mutated
+- Use `as const` assertions for literal types when you want to preserve exact values
+- Avoid type assertions (`as Type`) - prefer type guards or proper typing instead
+- If type assertions are necessary, use `as unknown as Type` pattern and document why
+- Use `NonNullable<T>` to exclude null and undefined from types
+- Use `Pick<T, K>` and `Omit<T, K>` utility types to create derived types
+- Use generic types for reusable type patterns
