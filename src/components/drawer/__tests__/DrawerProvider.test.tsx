@@ -41,7 +41,7 @@ const defaultOpenDrawerConfig: DrawerConfig = {
   position: 'left',
 };
 describe('DrawerProvider and Context', () => {
-  it('renders children correctly', () => {
+  it('displays children when provided', () => {
     render(
       <DrawerProvider>
         <div>Test Content</div>

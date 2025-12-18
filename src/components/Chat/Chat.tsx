@@ -26,8 +26,8 @@ import './Chat.css';
 import { useTranslation } from 'react-i18next';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
 
-export const Chat: React.FunctionComponent = () => {
-  const bottomRef = React.createRef<HTMLDivElement>();
+export const Chat: React.FC = () => {
+  const bottomRef = useRef<HTMLDivElement>(null);
   const messages = useMessages();
   const { conversationId } = useParams();
   const setActiveConversation = useSetActiveConversation();
@@ -59,10 +59,20 @@ export const Chat: React.FunctionComponent = () => {
   }, [isValidConversationId, setShowChatBar]);
 
   // Convert Red Hat Cloud Services messages to PatternFly format
-  const formatMessages = () => {
+  const formatMessages = (): ReactElement[] => {
     return messages.map((msg) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const message = msg as any; // Type assertion for Red Hat Cloud Services message format
+      // Type assertion needed for Red Hat Cloud Services message format compatibility
+      // TODO: see if ai-react-state has an exported type for the message object
+      const message = msg as unknown as {
+        role?: string;
+        answer?: string;
+        query?: string;
+        message?: string;
+        content?: string;
+        timestamp?: number | string;
+        createdAt?: number | string;
+      };
       const isBot = message.role === 'bot';
       let content = message.answer || message.query || message.message || message.content || '';
       content = content.split('=====The following is the user query that was asked:').pop();
@@ -114,8 +124,8 @@ export const Chat: React.FunctionComponent = () => {
       <Divider />
       <ChatbotContent>
         <MessageBox>
-          {isLoading && messages.length === 0 && <ChatLoading />}
-          {!isValidConversationId && <ConversationNotFound />}
+          {isLoading && messages.length === 0 ? <ChatLoading /> : null}
+          {!isValidConversationId ? <ConversationNotFound /> : null}
           {formatMessages()}
           <div ref={bottomRef}></div>
         </MessageBox>

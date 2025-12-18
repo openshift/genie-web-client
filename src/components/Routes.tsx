@@ -7,7 +7,7 @@ import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';
 
-export default function GenieRoutes() {
+export const GenieRoutes = () => {
   return (
     <Routes>
       <Route element={<GeniePage />}>
@@ -24,4 +24,4 @@ export default function GenieRoutes() {
       </Route>
     </Routes>
   );
-}
+};

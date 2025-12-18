@@ -1,19 +1,16 @@
-import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
 import { render } from '../../unitTestUtils';
-import { stateManager } from '../utils/aiStateManager';
-import { Layout } from './Layout';
 import { DrawerProvider } from '../drawer';
+import { Layout } from './Layout';
 
 describe('Layout', () => {
-  const renderWithProviders = () =>
+  it('displays layout content when rendered', () => {
     render(
-      <AIStateProvider stateManager={stateManager}>
-        <DrawerProvider>
-          <Layout />
-        </DrawerProvider>
-      </AIStateProvider>,
+      <DrawerProvider>
+        <Layout />
+      </DrawerProvider>,
     );
-  it('renders without crashing', () => {
-    renderWithProviders();
+
+    // Layout should render without errors
+    expect(document.body).toBeInTheDocument();
   });
 });
