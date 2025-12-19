@@ -53,7 +53,7 @@
 
 /* add space between pagination dots and buttons */
 .genie-onboarding-modal .pf-v6-c-flex:last-child {
-  margin-top: 2px !important;
+  margin-top: 24px !important;
 }
 
 /* add bottom padding to modal body for breathing room below buttons */
