@@ -4,6 +4,7 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom-v5-compat';
 import { render, RenderOptions } from '@testing-library/react';
 export * from '@testing-library/react';
+export { renderHook } from '@testing-library/react-hooks';
 
 const user = userEvent.setup();
 export { user };
