@@ -6,7 +6,7 @@ CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
-PLUGIN_NAME="genie-web-client"
+PLUGIN_NAME=${npm_package_consolePlugin_name}
 
 echo "Starting local OpenShift console..."
 

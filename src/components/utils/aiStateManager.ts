@@ -48,9 +48,7 @@ const consoleFetchWithCSRF = (input: RequestInfo, init?: RequestInit): Promise<R
 
 // Initialize state manager outside React scope
 const client = new OLSClient({
-  // Lightspeed operator is creating ConsolePlugin that is already configured to use the bridge proxy, so we need to use the same URL.
-  // https://github.com/openshift/lightspeed-operator/blob/8aea14b4a532260fcbf64f1e7516be67fd2dc6c3/internal/controller/console/assets.go#L96-L131
-  baseUrl: `${window.location.origin}/api/proxy/plugin/lightspeed-console-plugin/ols/`, // Always use bridge proxy
+  baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
   fetchFunction: consoleFetchWithCSRF,
 });
 

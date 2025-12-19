@@ -15,3 +15,12 @@ spec:
       namespace: {{ .Release.Namespace }}
       port: {{ .Values.plugin.port }}
       basePath: {{ .Values.plugin.basePath }}
+  proxy:
+    - alias: ols
+      authorization: UserToken
+      endpoint:
+        service:
+          name: lightspeed-app-server
+          namespace: openshift-lightspeed
+          port: 8443
+        type: Service

@@ -95,7 +95,7 @@ docker push quay.io/YOUR_USERNAME/genie-web-client:latest
 oc rollout restart deployment/genie-web-client -n genie-web-client
 ```
 
-**Note:** The `dev-build.sh` script handles yarn install, build locally, to speed up the build process.
+**Note:** The `build-deploy.sh` script handles yarn install, build locally, to speed up the build process.
 
 ## Troubleshooting
 
