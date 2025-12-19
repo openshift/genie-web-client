@@ -27,6 +27,23 @@ const Message = ({ children, name, role, content, isLoading, timestamp, ...props
   }, content || children);
 };
 
+// Header pieces used by Chat.tsx
+const ChatbotHeader = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-header', ...props }, children);
+};
+const ChatbotHeaderMain = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-header-main', ...props }, children);
+};
+const ChatbotHeaderTitle = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-header-title', ...props }, children);
+};
+const ChatbotHeaderActions = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-header-actions', ...props }, children);
+};
+const ChatbotHeaderOptionsDropdown = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-header-options', ...props }, children);
+};
+
 const ChatbotDisplayMode = {
   embedded: 'embedded',
   overlay: 'overlay',
@@ -36,6 +53,11 @@ const ChatbotDisplayMode = {
 module.exports = {
   MessageBar,
   Chatbot,
+  ChatbotHeader,
+  ChatbotHeaderMain,
+  ChatbotHeaderTitle,
+  ChatbotHeaderActions,
+  ChatbotHeaderOptionsDropdown,
   ChatbotContent,
   MessageBox,
   Message,

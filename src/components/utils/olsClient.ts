@@ -29,6 +29,15 @@ import {
 
 const TEMP_CONVERSATION_ID = '__temp_lightspeed_conversation__';
 
+type QuickResponsesOpt = {
+  requestPayload?: {
+    quickResponses?: {
+      key: string;
+      items: Array<{ id: string; labelKey: string }>;
+    };
+  };
+};
+
 class DefaultStreamingHandler implements ISimpleStreamingHandler<string | StreamingEvent> {
   // LSC does not provide message IDs in stream, so we generate one and keep it constant across stream instance
   private messageId = crypto.randomUUID();
@@ -401,7 +410,7 @@ export class OLSClient implements IAIClient {
   async sendMessage(
     conversationId: string,
     message: string,
-    options?: LightspeedSendMessageOptions & {
+    options?: (LightspeedSendMessageOptions & QuickResponsesOpt) & {
       userId?: string;
     },
   ): Promise<IMessageResponse<LightSpeedCoreAdditionalProperties>> {
@@ -415,6 +424,10 @@ export class OLSClient implements IAIClient {
       media_type: mediaType,
       attachments: [],
     };
+
+    // Extract UI metadata (quick responses) from options.requestPayload (typed via QuickResponsesOpt)
+    const quickResponsesPayload = (options as QuickResponsesOpt | undefined)?.requestPayload
+      ?.quickResponses;
 
     if (options?.stream) {
       // Streaming request - use self-contained handler approach
@@ -435,7 +448,16 @@ export class OLSClient implements IAIClient {
       const handleChunk = options?.handleChunk || (() => undefined); // fallback for safety
       const handler = new DefaultStreamingHandler(response, conversationId, mediaType, handleChunk);
 
-      return await handler.getResult();
+      const finalResult = await handler.getResult();
+      return quickResponsesPayload
+        ? {
+            ...finalResult,
+            additionalAttributes: {
+              ...(finalResult.additionalAttributes || {}),
+              quickResponses: quickResponsesPayload,
+            } as unknown as LightSpeedCoreAdditionalProperties,
+          }
+        : finalResult;
     } else {
       // Non-streaming request
       const url = this.buildUrl('/v1/query', options?.userId);
@@ -465,6 +487,7 @@ export class OLSClient implements IAIClient {
           toolCalls: response.tool_calls,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           toolResults: (response as any).tool_results,
+          ...(quickResponsesPayload ? { quickResponses: quickResponsesPayload } : {}),
         },
       };
 

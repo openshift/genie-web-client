@@ -19,6 +19,7 @@ import { MessageBar } from '@patternfly/chatbot';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useNavigate } from 'react-router-dom-v5-compat';
+import { buildQuickResponsesPayload, getIntroPromptKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';
 
 export const NewChat = () => {
@@ -70,14 +71,38 @@ export const NewChat = () => {
       <EmptyStateFooter>
         <EmptyStateActions>
           {suggestions.slice(0, 3).map(({ key, icon }) => (
-            <Button key={key} variant="tertiary" icon={icon}>
+            <Button
+              key={key}
+              variant="tertiary"
+              icon={icon}
+              onClick={() => {
+                const prompt = t(getIntroPromptKey(key));
+                sendMessage(prompt, {
+                  stream: true,
+                  requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
+                });
+                navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+              }}
+            >
               {t(`newChat.suggestion.${key}`)}
             </Button>
           ))}
         </EmptyStateActions>
         <EmptyStateActions>
           {suggestions.slice(3).map(({ key, icon }) => (
-            <Button key={key} variant="tertiary" icon={icon}>
+            <Button
+              key={key}
+              variant="tertiary"
+              icon={icon}
+              onClick={() => {
+                const prompt = t(getIntroPromptKey(key));
+                sendMessage(prompt, {
+                  stream: true,
+                  requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
+                });
+                navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+              }}
+            >
               {t(`newChat.suggestion.${key}`)}
             </Button>
           ))}

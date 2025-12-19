@@ -5,11 +5,13 @@ import { ChatBarProvider, useChatBar } from '../ChatBarContext';
 // Mock the hooks
 const mockUseMessages = jest.fn();
 const mockUseSetActiveConversation = jest.fn();
+const mockUseSendMessage = jest.fn();
 const mockUseParams = jest.fn();
 
 jest.mock('@redhat-cloud-services/ai-react-state', () => ({
   useMessages: () => mockUseMessages(),
   useSetActiveConversation: () => mockUseSetActiveConversation(),
+  useSendMessage: () => mockUseSendMessage,
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
