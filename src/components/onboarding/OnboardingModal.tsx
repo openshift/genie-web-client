@@ -109,10 +109,14 @@ export const OnboardingModal: React.FC = () => {
       });
     }
 
+    const isFirstCard = index === 0;
+    const isLastCard = index === onboardingData.length - 1;
+    const imageClassName = `onboarding-img ${isFirstCard ? 'onboarding-img-first' : ''} ${isLastCard ? 'onboarding-img-last' : ''}`.trim();
+
     const content = (
       <Stack hasGutter>
         <StackItem>
-          <img src={imageMap[page.image]} alt={page.alt} className="onboarding-img" />
+          <img src={imageMap[page.image]} alt={page.alt} className={imageClassName} />
         </StackItem>
         {page.label && (
           <StackItem>
