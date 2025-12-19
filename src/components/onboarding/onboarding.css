@@ -39,9 +39,21 @@
   padding-top: 32px;
 }
 
+/* first card image - bigger size due to less content */
+.onboarding-img-first {
+  max-width: 350px;
+  height: 263px;
+}
+
+/* last card image - smaller size due to more content */
+.onboarding-img-last {
+  max-width: 240px;
+  height: 163px;
+}
+
 /* add space between pagination dots and buttons */
 .genie-onboarding-modal .pf-v6-c-flex:last-child {
-  margin-top: 24px !important;
+  margin-top: 2px !important;
 }
 
 /* add bottom padding to modal body for breathing room below buttons */
