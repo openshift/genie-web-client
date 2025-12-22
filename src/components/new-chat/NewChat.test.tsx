@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '../../unitTestUtils';
+import { render, screen, user } from '../../unitTestUtils';
 import { NewChat } from './NewChat';
 
 // Mocks
@@ -44,7 +44,7 @@ describe('NewChat', () => {
     renderNewChat();
 
     const buildButton = screen.getByRole('button', { name: 'Build / Configure' });
-    fireEvent.click(buildButton);
+    await  user.click(buildButton);
 
     expect(mockUseSendMessage).toHaveBeenCalled();
     const [prompt, options] = mockUseSendMessage.mock.calls[0];
