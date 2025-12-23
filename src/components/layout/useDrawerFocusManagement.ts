@@ -25,10 +25,14 @@ const DRAWER_CONFIG_ARIA_LABELS: Record<string, string> = {
  * - Handles Escape key to close drawer
  * - Restores focus to trigger element when drawer closes
  */
+interface UseDrawerFocusManagementReturn {
+  storeTriggerElement: (configKey: string) => void;
+}
+
 export const useDrawerFocusManagement = ({
   drawerState,
   closeDrawer,
-}: UseDrawerFocusManagementProps) => {
+}: UseDrawerFocusManagementProps): UseDrawerFocusManagementReturn => {
   const drawerTriggerRef = useRef<HTMLElement | null>(null);
   const drawerConfigKeyRef = useRef<string | null>(null);
 

@@ -1,0 +1,36 @@
+---
+description: Basic rules when writing react code
+globs: src/**/*.tsx, src/**/*.jsx
+alwaysApply: false
+---
+
+- Use functional components with hooks instead of class components
+- Prefer `React.FC` or `React.FunctionComponent` for component type annotations (both are equivalent, be consistent within a file)
+- Use named imports for React hooks and methods (e.g., `useEffect`, `useState`, `createContext`) instead of accessing them via the React namespace (e.g., `React.useEffect`)
+- Keep components small and focused on a single responsibility
+- Use PascalCase for component names and component files
+- Use descriptive component names that indicate the component's purpose
+- Avoid abbreviations in component names
+- Use camelCase for prop names
+- Boolean props should be prefixed with `is`, `has`, `can`, or `should`
+- Use optional props sparingly and provide defaults when needed
+- Keep props interface small and focused
+- Don't store derived data in state
+- Name custom hooks with `use` prefix
+- Keep useEffect effects focused and specific
+- Use `useMemo` for expensive calculations
+- Use `useMemo` to memoize context values to prevent unnecessary re-renders
+- Use `useCallback` for functions passed to child components
+- Avoid props drilling where props are only passed down to child components - use Context API instead if possible
+- Do not mutate props or state. Create a copy array or object if possible
+- Avoid using index as the key prop value - use stable unique identifiers instead
+- Avoid using inline functions in jsx or tsx blocks - extract to useCallback or component methods
+- When possible use ternary operators for conditional display. Use this pattern `{shouldShow ? <MyComponent /> : null}` instead of `{shouldShow && <MyComponent />}`
+- Implement proper cleanup in useEffect hooks when needed (return cleanup function)
+- Avoid using custom CSS. If possible, use PatternFly variables or utility classes
+- When creating React Context, always validate that the context is used within its provider by throwing an error if context is undefined
+- Export context value interfaces/types separately for better type safety
+- Prefer named exports over default exports for components to improve refactoring and tree-shaking
+- Use barrel exports (index.ts files) to organize component exports
+- Always define explicit return types for custom hooks
+- Always consider accessibility, especially compliance with WCAG 2.1 AA when writing new or editing existing code

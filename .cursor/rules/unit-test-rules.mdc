@@ -1,0 +1,80 @@
+---
+description: Unit testing rules and best practices
+globs: src/**/*.test.ts, src/**/*.test.tsx, src/**/*.test.js, src/**/*.test.jsx
+alwaysApply: false
+---
+
+## Test File Organization
+
+- Place test files in the same directory as the component (e.g., `Component.test.tsx` alongside `Component.tsx`)
+- Use `.test.jsx`, `.test.tsx`, `.test.js`, or `.test.ts` extensions - do not use `.spec.`
+- Create meaningful test fixtures in separate fixture files (e.g., `*.mock.ts`)
+
+## Test Structure
+
+- Follow Arrange-Act-Assert pattern
+- Use `describe` blocks: component name for main block (e.g., `<MyComponent />`), nested blocks for related tests
+- Use `it` instead of `test`; use `it.skip` instead of `xit`
+- One empty line between tests
+- Render in each test - do not put render in `beforeEach` or similar blocks
+- Use `beforeEach`/`afterEach` for common setup/cleanup only
+
+## Test Descriptions
+
+- Format: _Expected result when conditions_ (e.g., `it('displays "hello" when "hello" is sent as a prop')`)
+- Avoid non-descriptive names like "it works" or "it renders"
+
+## Test Scope
+
+- Test behavior, not implementation details
+- Test all code paths (e.g., both branches of an if statement)
+- Only test component logic, not imported components or libraries
+- Keep tests small and focused (one state/item at a time)
+- Test error states, loading states, and edge cases
+- Keep tests DRY while maintaining readability - avoid over-abstraction
+- Avoid snapshot or "it renders" tests
+
+## Test Independence
+
+- Tests must run independently (singly or as part of suite) with same results
+- Ensure no test impacts another or persists state
+
+## React Testing Library Queries
+
+- Import `render` and `screen` from `src/unitTestUtils`
+- Query priority: `getByRole` → `getByLabelText` → `getByPlaceholderText` → `getByText` → `getByDisplayValue` → `getByAltText` → `getByTitle` → `getByTestId`
+- Use `getBy*` when item exists, `queryBy*` when item should not exist, `findBy*` for async elements
+- Prefer `findBy*` over `waitFor` for consistency
+- Use `within` instead of `querySelector` for nested elements
+- If using `getByTestId`, explain why no other method works
+- Do not force inappropriate roles, alt text, or titles for testing
+
+## Assertions and User Interactions
+
+- Use `toBeInTheDocument` to test element existence
+- Use descriptive assertion messages when failures might be unclear
+- Use custom jest-dom matchers when appropriate (e.g., `toBeChecked()`, `toBeVisible()`)
+- Use `user` from `src/unitTestUtils` (not `fireEvent` or `userEvent` directly) for interactions
+- Clear textbox with `await user.clear()` before `await user.type()` since RTL doesn't empty automatically
+
+## Async Operations and Timing
+
+- Use `findBy*` for async elements; use `waitFor` only when `findBy` is not appropriate
+- Use `jest.useFakeTimers()`/`jest.useRealTimers()` for time-dependent tests; always restore in `afterEach`/`afterAll`
+
+## Accessibility Testing
+
+- Test accessibility with `checkAccessibility` at least once per test suite; ideally test each state separately
+- For external library accessibility issues: skip test with explanation, check/create bug report, add URL as comment
+
+## Mocking and Hooks
+
+- Keep mocks simple and focused; avoid mocking child React components unless necessary
+- Use `jest.spyOn` for specific methods; use `jest.mock` at module level for consistency
+- Avoid try/catch blocks - let errors propagate naturally
+- Test custom hooks with `renderHook` when isolated testing is needed
+
+## Test Development
+
+- Do not ignore warnings - address the cause when possible
+- Fix "not wrapped in act" errors by checking for post-render state using `findBy` (ideal) or `waitFor`

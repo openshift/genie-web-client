@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, user, waitFor } from '../../../unitTestUtils';
 import { OnboardingModal, ONBOARDING_STORAGE_KEY } from '../OnboardingModal';
 
 describe('OnboardingModal', () => {
@@ -37,7 +36,6 @@ describe('OnboardingModal', () => {
 
   it('should set completion in storage when the flow is finished', async () => {
     getItemSpy.mockReturnValue(null);
-    const user = userEvent.setup();
     render(<OnboardingModal />);
 
     expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
@@ -54,6 +52,7 @@ describe('OnboardingModal', () => {
 
     expect(setItemSpy).toHaveBeenCalledWith(ONBOARDING_STORAGE_KEY, 'true');
 
+    // Wait for modal to disappear after completion
     await waitFor(() => {
       expect(screen.queryByText('Welcome to Red Hat Genie')).not.toBeInTheDocument();
     });

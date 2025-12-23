@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Notifications from './Notifications';
+import { render, screen } from '../../unitTestUtils';
+import { Notifications } from './Notifications';
 
 describe('Notifications', () => {
-  it('renders a list of notifications', () => {
+  it('displays a list of notifications on initial render', () => {
     render(
       <React.Fragment>
         <Notifications />
