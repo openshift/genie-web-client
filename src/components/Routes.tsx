@@ -2,7 +2,7 @@ import { Route, Routes, Outlet } from 'react-router-dom-v5-compat';
 // import AIandAutomation from './AIandAutomation'; // Example of sub route component
 
 import { Home } from './home';
-import GeniePage from './GeniePage';
+import { GeniePage } from './GeniePage';
 import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';

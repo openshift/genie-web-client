@@ -6,6 +6,7 @@ const mockUseSendMessage = jest.fn();
 const mockUseNavigate = jest.fn();
 
 jest.mock('@redhat-cloud-services/ai-react-state', () => ({
+  ...jest.requireActual('@redhat-cloud-services/ai-react-state'),
   useSendMessage: () => mockUseSendMessage,
 }));
 
