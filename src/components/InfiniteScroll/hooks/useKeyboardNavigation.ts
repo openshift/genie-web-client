@@ -1,16 +1,20 @@
 import { RefObject, useEffect } from 'react';
-import { findCurrentArticleIndex, getAllFocusableElements, isElementVisible } from '../utils/domUtils';
+import {
+  findCurrentArticleIndex,
+  getAllFocusableElements,
+  isElementVisible,
+} from '../utils/domUtils';
 
 /**
  * Custom hook to handle keyboard navigation within the infinite scroll feed.
- * 
+ *
  * Supported shortcuts:
  * - Escape: Move focus out of the feed to the next focusable element
  * - Page Down: Move focus to the next article
  * - Page Up: Move focus to the previous article
  * - Ctrl/Cmd + Home: Move focus to the first article in the feed
  * - Ctrl/Cmd + End: Move focus to the first focusable element after the feed
- * 
+ *
  * @param postsContainerRef - Ref to the main container div
  * @param feedRef - Ref to the feed container (role="feed")
  * @param isInDrawer - If true, indicates that the infinite scroll is in a drawer.
@@ -18,7 +22,7 @@ import { findCurrentArticleIndex, getAllFocusableElements, isElementVisible } fr
 export function useKeyboardNavigation(
   postsContainerRef: RefObject<HTMLDivElement>,
   feedRef: RefObject<HTMLDivElement>,
-  isInDrawer: boolean
+  isInDrawer: boolean,
 ) {
   useEffect(() => {
     const postsContainer = postsContainerRef.current;
@@ -69,7 +73,9 @@ export function useKeyboardNavigation(
       // Page Down: Move focus to the next article in the feed
       if (e.key === 'PageDown') {
         e.preventDefault();
-        const articles = Array.from(feed.querySelectorAll<HTMLElement>('article[tabindex="0"]')) as HTMLElement[];
+        const articles = Array.from(
+          feed.querySelectorAll<HTMLElement>('article[tabindex="0"]'),
+        ) as HTMLElement[];
         const currentArticleIndex = findCurrentArticleIndex(activeElement, articles);
 
         if (currentArticleIndex >= 0 && currentArticleIndex < articles.length - 1) {
@@ -83,7 +89,9 @@ export function useKeyboardNavigation(
       // Page Up: Move focus to the previous article in the feed
       if (e.key === 'PageUp') {
         e.preventDefault();
-        const articles = Array.from(feed.querySelectorAll<HTMLElement>('article[tabindex="0"]')) as HTMLElement[];
+        const articles = Array.from(
+          feed.querySelectorAll<HTMLElement>('article[tabindex="0"]'),
+        ) as HTMLElement[];
         const currentArticleIndex = findCurrentArticleIndex(activeElement, articles);
 
         if (currentArticleIndex > 0) {
@@ -100,7 +108,9 @@ export function useKeyboardNavigation(
         e.stopPropagation();
 
         // Find all articles in the feed
-        const articles = Array.from(feed.querySelectorAll<HTMLElement>('article[tabindex="0"]')) as HTMLElement[];
+        const articles = Array.from(
+          feed.querySelectorAll<HTMLElement>('article[tabindex="0"]'),
+        ) as HTMLElement[];
 
         if (articles.length > 0) {
           // Focus the first article
@@ -129,13 +139,13 @@ export function useKeyboardNavigation(
 
         if (targetElement) {
           targetElement.focus();
-          
+
           // VoiceOver may move focus to an article after our handler runs.
           // Use requestAnimationFrame in a loop to continuously monitor and correct focus
           // for a short period to catch VoiceOver's delayed focus changes.
           let correctionAttempts = 0;
           const maxAttempts = 10; // Check for ~160ms (10 frames at ~16ms each)
-          
+
           const correctFocus = () => {
             const currentFocus = document.activeElement;
             if (currentFocus && currentFocus.tagName === 'ARTICLE' && feed.contains(currentFocus)) {
@@ -146,7 +156,7 @@ export function useKeyboardNavigation(
               }
             }
           };
-          
+
           // Start checking after a brief delay to let VoiceOver do its thing
           setTimeout(() => {
             requestAnimationFrame(correctFocus);
@@ -167,7 +177,10 @@ export function useKeyboardNavigation(
     const handleDocumentKeyDown = (e: KeyboardEvent) => {
       // Only handle Control+Home and Control+End
       if (
-        !((e.key === 'Home' || e.code === 'Home' || e.key === 'End' || e.code === 'End') && (e.ctrlKey || e.metaKey))
+        !(
+          (e.key === 'Home' || e.code === 'Home' || e.key === 'End' || e.code === 'End') &&
+          (e.ctrlKey || e.metaKey)
+        )
       ) {
         return;
       }
@@ -190,4 +203,3 @@ export function useKeyboardNavigation(
     };
   }, [postsContainerRef, feedRef]);
 }
-

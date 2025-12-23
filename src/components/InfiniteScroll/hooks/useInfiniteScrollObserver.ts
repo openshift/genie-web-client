@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 /**
  * Custom hook to manage the IntersectionObserver for infinite scroll.
  * Detects when the user scrolls to the last item and triggers loading the next page.
- * 
+ *
  * @param isLoading - Whether items are currently being loaded
  * @param endOfData - Whether all data has been loaded
  * @param isInfiniteScrollEnabled - Whether infinite scroll is enabled
@@ -16,7 +16,7 @@ export function useInfiniteScrollObserver(
   endOfData: boolean,
   isInfiniteScrollEnabled: boolean,
   increasePage: () => void,
-  loadingDataErrorMessage?: string
+  loadingDataErrorMessage?: string,
 ) {
   /** IntersectionObserver instance for detecting when user scrolls to the last item */
   const observer = useRef<IntersectionObserver>();
@@ -53,4 +53,3 @@ export function useInfiniteScrollObserver(
 
   return lastPostElementRef;
 }
-

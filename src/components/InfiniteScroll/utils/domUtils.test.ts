@@ -22,7 +22,9 @@ describe('domUtils', () => {
 
       expect(focusableElements.length).toBeGreaterThan(0);
       expect(focusableElements.some((el) => el.tagName === 'A')).toBe(true);
-      expect(focusableElements.some((el) => el.tagName === 'BUTTON' && !el.hasAttribute('disabled'))).toBe(true);
+      expect(
+        focusableElements.some((el) => el.tagName === 'BUTTON' && !el.hasAttribute('disabled')),
+      ).toBe(true);
       expect(focusableElements.some((el) => el.tagName === 'INPUT')).toBe(true);
       expect(focusableElements.some((el) => el.tagName === 'SELECT')).toBe(true);
       expect(focusableElements.some((el) => el.tagName === 'TEXTAREA')).toBe(true);
@@ -31,14 +33,18 @@ describe('domUtils', () => {
     it('should not include disabled buttons', () => {
       document.body.innerHTML = '<button disabled>Disabled</button>';
       const focusableElements = getAllFocusableElements();
-      const disabledButton = Array.from(focusableElements).find((el) => el.hasAttribute('disabled'));
+      const disabledButton = Array.from(focusableElements).find((el) =>
+        el.hasAttribute('disabled'),
+      );
       expect(disabledButton).toBeUndefined();
     });
 
     it('should not include elements with tabindex="-1"', () => {
       document.body.innerHTML = '<div tabindex="-1">Not focusable</div>';
       const focusableElements = getAllFocusableElements();
-      const negativeTabindex = Array.from(focusableElements).find((el) => el.getAttribute('tabindex') === '-1');
+      const negativeTabindex = Array.from(focusableElements).find(
+        (el) => el.getAttribute('tabindex') === '-1',
+      );
       expect(negativeTabindex).toBeUndefined();
     });
   });
@@ -130,6 +136,4 @@ describe('domUtils', () => {
       expect(findCurrentArticleIndex(button, [])).toBe(-1);
     });
   });
-
-
 });

@@ -80,16 +80,18 @@ global.IntersectionObserver = class IntersectionObserver {
   observe = jest.fn();
   unobserve = jest.fn();
   disconnect = jest.fn();
-  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
-} as any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
+} as never;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
   observe = jest.fn();
   unobserve = jest.fn();
   disconnect = jest.fn();
-  constructor(callback: ResizeObserverCallback) {}
-} as any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  constructor(_callback: ResizeObserverCallback) {}
+} as never;
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
