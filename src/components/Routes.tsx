@@ -3,7 +3,7 @@ import { Route, Routes, Outlet } from 'react-router-dom-v5-compat';
 
 import { Home } from './home';
 import GeniePage from './GeniePage';
-import { NewChat } from './Chat/NewChat';
+import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';
 
