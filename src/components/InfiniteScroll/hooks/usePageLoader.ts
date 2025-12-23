@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 /**
  * Custom hook to manage page loading logic for infinite scroll.
  * Handles initial page load and subsequent page loads, preventing duplicate loads.
- * 
+ *
  * @param initialPage - The initial page number to load
  * @param page - Current page number
  * @param endOfData - Whether all data has been loaded
@@ -13,7 +13,7 @@ export function usePageLoader(
   initialPage: number,
   page: number,
   endOfData: boolean,
-  fetchMoreItems: (page: number) => void
+  fetchMoreItems: (page: number) => void,
 ) {
   /** Set of page numbers that have already been loaded (prevents duplicate loads) */
   const loadedPagesRef = useRef<Set<number>>(new Set());
@@ -27,15 +27,14 @@ export function usePageLoader(
   useEffect(() => {
     // Skip if initial load has already been performed
     if (hasInitialBulkLoadRef.current) return;
-    
+
     hasInitialBulkLoadRef.current = true;
-    
+
     // Load initial page if it hasn't been loaded yet
     if (!loadedPagesRef.current.has(initialPage)) {
       loadedPagesRef.current.add(initialPage);
       fetchMoreItems(initialPage);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
   /**
@@ -53,4 +52,3 @@ export function usePageLoader(
     }
   }, [page, endOfData, fetchMoreItems]);
 }
-

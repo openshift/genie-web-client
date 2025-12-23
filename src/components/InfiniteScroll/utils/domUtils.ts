@@ -41,7 +41,10 @@ export const isElementVisible = (el: HTMLElement): boolean => {
  * @param articles - Array of article elements to search through
  * @returns The index of the article, or -1 if not found
  */
-export const findCurrentArticleIndex = (activeElement: Element | null, articles: HTMLElement[]): number => {
+export const findCurrentArticleIndex = (
+  activeElement: Element | null,
+  articles: HTMLElement[],
+): number => {
   if (!(activeElement instanceof HTMLElement)) return -1;
 
   // If the active element is itself an article, return its index
@@ -52,4 +55,3 @@ export const findCurrentArticleIndex = (activeElement: Element | null, articles:
   // Otherwise, find which article contains the active element
   return articles.findIndex((article) => article.contains(activeElement));
 };
-

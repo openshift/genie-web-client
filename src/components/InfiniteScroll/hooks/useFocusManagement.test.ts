@@ -118,12 +118,12 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 6; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef.current?.appendChild(article);
     }
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
-    const articles = feedRef.current!.querySelectorAll('article');
+    const articles = feedRef.current?.querySelectorAll('article');
     const firstNewArticle = articles[5] as HTMLElement;
     const focusSpy = jest.spyOn(firstNewArticle, 'focus');
 
@@ -148,7 +148,7 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 5; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef?.current?.appendChild(article);
     }
 
     // Create the first new article (index 5) with a button inside
@@ -156,9 +156,9 @@ describe('useFocusManagement', () => {
     article.setAttribute('tabindex', '0');
     const button = document.createElement('button');
     article.appendChild(button);
-    feedRef.current!.appendChild(article);
+    feedRef.current?.appendChild(article);
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
     // Create spy on the article itself (implementation focuses article, not focusable elements within)
     const articleFocusSpy = jest.spyOn(article, 'focus');
@@ -187,15 +187,15 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 5; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef.current?.appendChild(article);
     }
 
     // Create the first new article (index 5) without focusable children
     const article = document.createElement('article');
     article.setAttribute('tabindex', '0');
-    feedRef.current!.appendChild(article);
+    feedRef.current?.appendChild(article);
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
     const articleFocusSpy = jest.spyOn(article, 'focus');
 
@@ -220,15 +220,15 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 5; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef.current?.appendChild(article);
     }
 
     // Create the first new article (index 5)
     const article = document.createElement('article');
     article.setAttribute('tabindex', '0');
-    feedRef.current!.appendChild(article);
+    feedRef.current?.appendChild(article);
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
     renderHook(() =>
       useFocusManagement({
@@ -255,13 +255,13 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 5; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef.current?.appendChild(article);
     }
 
     // Create the first new article (index 5)
     const article = document.createElement('article');
     article.setAttribute('tabindex', '0');
-    feedRef.current!.appendChild(article);
+    feedRef.current?.appendChild(article);
 
     // Don't focus the button - set loadMoreButtonHadFocusRef to false
     loadMoreButtonHadFocusRef.current = false;
@@ -291,7 +291,7 @@ describe('useFocusManagement', () => {
   it('should not move focus if feedRef.current is null', () => {
     const nullFeedRef: React.RefObject<HTMLDivElement> = { current: null };
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
     const focusSpy = jest.spyOn(HTMLElement.prototype, 'focus');
 
@@ -316,10 +316,10 @@ describe('useFocusManagement', () => {
     for (let i = 0; i < 4; i++) {
       const article = document.createElement('article');
       article.setAttribute('tabindex', '0');
-      feedRef.current!.appendChild(article);
+      feedRef.current?.appendChild(article);
     }
 
-    loadMoreButtonRef.current!.focus();
+    loadMoreButtonRef.current?.focus();
 
     const focusSpy = jest.spyOn(HTMLElement.prototype, 'focus');
 
