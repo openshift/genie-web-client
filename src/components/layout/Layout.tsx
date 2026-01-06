@@ -37,6 +37,7 @@ import {
 import { useDrawer } from '../drawer';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 import { useChatBar } from '../ChatBarContext';
+import { ThemeToggle } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
@@ -276,6 +277,9 @@ export const Layout = ({ children }: LayoutProps) => {
     <CompassPanel isPill>
       <ActionList isIconList isVertical>
         <ActionListGroup>
+          <ActionListItem>
+            <ThemeToggle />
+          </ActionListItem>
           <ActionListItem>
             <Tooltip content="Notifications">
               <Button
