@@ -2,15 +2,65 @@
 
 An AI-powered, extensible UI framework built on the OpenShift Console dynamic plugin, enabling unified, intelligent experiences across Red Hat products.
 
-## Status
+## Prerequisites
 
-This README is a work in progress (WIP).
+- **Node.js 20+** and **yarn** - For frontend development
+- **Python 3.11+** - For backend (Lightspeed services)
+- **OpenShift CLI (`oc`)** - To connect to a cluster
+- **Podman 3.2.0+** or **Docker** - To run the console
+- **OpenAI API Key** - Or compatible LLM provider
 
-## Getting started
+## Getting Started
+
+Genie Web Client requires both a frontend (this repo) and a backend (AI service). Follow these steps:
+
+### 1. Setup Backend (One-Time)
+
+The backend provides AI capabilities. See detailed instructions in [`backend/README.md`](./backend/README.md).
+
+**Quick Start:**
+```bash
+# Clone lightspeed-stack
+cd ~/Documents/GHRepos  # or your preferred location
+git clone https://github.com/lightspeed-core/lightspeed-stack.git
+cd lightspeed-stack
+
+# Copy our configs
+cp ~/Documents/GHRepos/genie-web-client/backend/lightspeed-stack/*.yaml .
+
+# Install and start
+uv sync
+export OPENAI_API_KEY="sk-your-key-here"
+make run
+
+# Runs on port 8080 - keep this terminal running
+```
+
+### 2. Setup Frontend
+
+In separate terminal windows, run:
+
+**Terminal 1: Plugin Dev Server**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+yarn install
+yarn run start
+# Runs on port 9001 - keep running
+```
+
+**Terminal 2: OpenShift Console**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+oc login  # Connect to your cluster
+yarn run start-console
+# Runs on port 9000 - keep running
+```
+
+**Access the app:** http://localhost:9000/genie
 
 ## Development
 
-### Option 1: Local
+### Option 1: Local (Recommended)
 
 In one terminal window, run:
 
@@ -24,7 +74,10 @@ In another terminal window, run:
 
 This will run the OpenShift console in a container connected to the cluster
 you've logged into. The plugin HTTP server runs on port 9001 with CORS enabled.
-Navigate to <http://localhost:9000/example> to see the running plugin.
+
+**Note:** Make sure the backend is running (see "Getting Started" section above) for full AI functionality.
+
+Navigate to http://localhost:9000/genie to see the running plugin.
 
 #### Running start-console with Apple silicon and podman
 
