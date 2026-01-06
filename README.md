@@ -31,7 +31,7 @@ cp ~/Documents/GHRepos/genie-web-client/backend/lightspeed-stack/*.yaml .
 # Install and start
 uv sync
 export OPENAI_API_KEY="sk-your-key-here"
-make run
+uv run python -m src.lightspeed_stack
 
 # Runs on port 8080 - keep this terminal running
 ```
