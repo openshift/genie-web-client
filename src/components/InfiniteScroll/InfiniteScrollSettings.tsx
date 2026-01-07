@@ -1,9 +1,8 @@
 import { Switch } from '@patternfly/react-core';
 import KeyboardShortcuts from './KeyboardShortcuts';
+import { setText, textType } from './text';
 
 export type InfiniteScrollSettingsProps = {
-  /** Title/label for the items (e.g., "posts", "items", "articles") */
-  itemsTitle: string;
   /** Whether automatic infinite scroll is enabled */
   isInfiniteScrollEnabled: boolean;
   /** Callback to toggle infinite scroll on/off */
@@ -12,6 +11,7 @@ export type InfiniteScrollSettingsProps = {
   isInDrawer?: boolean;
 
   onlyAllowLoadMoreButton?: boolean;
+  text?: textType;
 };
 
 /**
@@ -19,24 +19,25 @@ export type InfiniteScrollSettingsProps = {
  * Allows users to toggle infinite scroll on/off and displays keyboard shortcuts.
  */
 export default function InfiniteScrollSettings({
-  itemsTitle,
   isInfiniteScrollEnabled,
   onToggleInfiniteScroll,
   isInDrawer = false,
   onlyAllowLoadMoreButton = false,
+  text,
 }: InfiniteScrollSettingsProps) {
+  const customText = setText(text);
   return (
     <>
       {!onlyAllowLoadMoreButton && (
         <Switch
-          label={`Enable automatic loading of new ${itemsTitle}`}
+          label={customText.enableAutomaticLoadingOfNew}
           id="checked-with-label-switch-on"
           isChecked={isInfiniteScrollEnabled}
           hasCheckIcon
           onChange={() => onToggleInfiniteScroll(!isInfiniteScrollEnabled)}
         />
       )}
-      <KeyboardShortcuts isInDrawer={isInDrawer} />
+      <KeyboardShortcuts isInDrawer={isInDrawer} text={customText} />
     </>
   );
 }

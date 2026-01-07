@@ -33,7 +33,7 @@ describe('InfiniteScroll', () => {
     await user.click(settingsButton);
 
     // Check for the switch label which is in the settings
-    expect(screen.getByText(/Enable automatic loading of new posts/)).toBeInTheDocument();
+    expect(screen.getByText(/Enable automatic loading of new/)).toBeInTheDocument();
   });
 
   it('should call fetchMoreItems with initialPage on mount', async () => {
@@ -95,7 +95,7 @@ describe('InfiniteScroll', () => {
 
   it('should display end of data message when endOfData is true', () => {
     render(<InfiniteScroll {...defaultProps} endOfData={true} />);
-    expect(screen.getByText('All posts loaded.')).toBeInTheDocument();
+    expect(screen.getByText(/All loaded/)).toBeInTheDocument();
   });
 
   it('should not render load more button when endOfData is true', async () => {
@@ -113,7 +113,13 @@ describe('InfiniteScroll', () => {
   });
 
   it('should use custom itemsTitle', async () => {
-    render(<InfiniteScroll {...defaultProps} itemsTitle="articles" />);
+    render(
+      <InfiniteScroll
+        {...defaultProps}
+        itemsTitle="articles"
+        text={{ enableAutomaticLoadingOfNew: 'Enable automatic loading of new articles' }}
+      />,
+    );
 
     // Open the popover to see settings
     const settingsButton = screen.getByLabelText('Feed settings');
@@ -191,7 +197,7 @@ describe('InfiniteScroll', () => {
     await user.click(settingsButton);
 
     // Check for the switch label with default itemsTitle
-    expect(screen.getByText(/Enable automatic loading of new items/)).toBeInTheDocument();
+    expect(screen.getByText(/Enable automatic loading of new/)).toBeInTheDocument();
   });
 
   it('should render feedTitle when provided', () => {
@@ -246,7 +252,7 @@ describe('InfiniteScroll', () => {
     // Click to open
     await user.click(settingsButton);
     await waitFor(() => {
-      expect(screen.getByText(/Enable automatic loading of new posts/)).toBeInTheDocument();
+      expect(screen.getByText(/Enable automatic loading of new/)).toBeInTheDocument();
     });
 
     // Click again to close
@@ -254,7 +260,7 @@ describe('InfiniteScroll', () => {
     // Popover content should be removed from DOM when closed
     await waitFor(
       () => {
-        expect(screen.queryByText(/Enable automatic loading of new posts/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Enable automatic loading of new/)).not.toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -279,7 +285,7 @@ describe('InfiniteScroll', () => {
     const settingsButton = screen.getByLabelText('Feed settings');
     await user.click(settingsButton);
     await waitFor(() => {
-      expect(screen.getByText(/Enable automatic loading of new posts/)).toBeInTheDocument();
+      expect(screen.getByText(/Enable automatic loading of new/)).toBeInTheDocument();
     });
 
     // Press Escape key
@@ -288,7 +294,7 @@ describe('InfiniteScroll', () => {
     // Popover should be closed
     await waitFor(
       () => {
-        expect(screen.queryByText(/Enable automatic loading of new posts/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Enable automatic loading of new/)).not.toBeInTheDocument();
       },
       { timeout: 3000 },
     );

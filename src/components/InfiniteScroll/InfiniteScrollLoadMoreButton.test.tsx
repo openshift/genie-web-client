@@ -21,7 +21,7 @@ describe('InfiniteScrollLoadMoreButton', () => {
 
   it('should render the button with correct text when not loading', () => {
     render(<InfiniteScrollLoadMoreButton {...defaultProps} />);
-    expect(screen.getByText('Load 10 more')).toBeInTheDocument();
+    expect(screen.getByText('Load more')).toBeInTheDocument();
   });
 
   it('should call onLoadMore when button is clicked', async () => {
@@ -120,7 +120,7 @@ describe('InfiniteScrollLoadMoreButton', () => {
   });
 
   it('should use itemsPerPage in button text', () => {
-    render(<InfiniteScrollLoadMoreButton {...defaultProps} itemsPerPage={20} />);
+    render(<InfiniteScrollLoadMoreButton {...defaultProps} text={{ loadMore: 'Load 20 more' }} />);
     expect(screen.getByText('Load 20 more')).toBeInTheDocument();
   });
 

@@ -12,7 +12,7 @@ describe('InfiniteScrollSettings', () => {
   it('should render the settings card with switch', () => {
     render(<InfiniteScrollSettings {...defaultProps} />);
     // The component doesn't render a title, just the switch and keyboard shortcuts
-    expect(screen.getByText('Enable automatic loading of new posts')).toBeInTheDocument();
+    expect(screen.getByText(/Enable automatic loading of new/)).toBeInTheDocument();
   });
 
   it('should render keyboard shortcuts component', () => {
@@ -49,7 +49,12 @@ describe('InfiniteScrollSettings', () => {
   });
 
   it('should use itemsTitle in the label', () => {
-    render(<InfiniteScrollSettings {...defaultProps} itemsTitle="articles" />);
+    render(
+      <InfiniteScrollSettings
+        {...defaultProps}
+        text={{ enableAutomaticLoadingOfNew: 'Enable automatic loading of new articles' }}
+      />,
+    );
     expect(screen.getByText('Enable automatic loading of new articles')).toBeInTheDocument();
   });
 

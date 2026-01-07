@@ -8,7 +8,6 @@ import { useInfiniteScrollObserver } from './hooks/useInfiniteScrollObserver';
 import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
 import { useFocusManagement } from './hooks/useFocusManagement';
 
-import './infiniteScroll.css';
 import {
   Alert,
   AlertVariant,
@@ -19,6 +18,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { CogIcon, RedoIcon } from '@patternfly/react-icons';
+import { setText, textType } from './text';
 
 /**
  * Props for the InfiniteScroll component
@@ -50,6 +50,7 @@ export type InfiniteScrollProps = {
   loadingDataErrorMessage?: string;
   feedTitleHeadingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   isInfiniteScrollEnabled?: boolean;
+  text?: textType;
 };
 
 /**
@@ -81,7 +82,10 @@ export default function InfiniteScroll({
   feedTitleHeadingLevel = 'h2',
   loadingDataErrorMessage,
   isInfiniteScrollEnabled: externalControlledInfiniteScrollEnabled,
+  text = {} as textType,
 }: InfiniteScrollProps) {
+  const customText = setText(text);
+
   // Determine if infinite scroll is externally controlled
   const isExternallyControlled = externalControlledInfiniteScrollEnabled !== undefined;
 
@@ -192,7 +196,7 @@ export default function InfiniteScroll({
         {!isExternallyControlled && (
           <FlexItem>
             <Popover
-              headerContent="Feed settings"
+              headerContent={customText.feedSettings}
               headerIcon={<CogIcon />}
               hasAutoWidth
               isVisible={isPopoverOpen}
@@ -202,11 +206,11 @@ export default function InfiniteScroll({
               }}
               bodyContent={
                 <InfiniteScrollSettings
-                  itemsTitle={itemsTitle}
                   isInfiniteScrollEnabled={isInfiniteScrollEnabled}
                   onToggleInfiniteScroll={setIsInfiniteScrollEnabled}
                   isInDrawer={isInDrawer}
                   onlyAllowLoadMoreButton={onlyAllowLoadMoreButton}
+                  text={customText}
                 />
               }
               appendTo={() => document.body}
@@ -215,7 +219,7 @@ export default function InfiniteScroll({
                 ref={popoverButtonRef}
                 isSettings
                 variant="plain"
-                aria-label="Feed settings"
+                aria-label={customText.feedSettings}
                 onClick={() => setIsPopoverOpen(!isPopoverOpen)}
               />
             </Popover>
@@ -235,26 +239,22 @@ export default function InfiniteScroll({
       />
 
       {/* End of data message: Shown when all items have been loaded */}
-      {endOfData && <p>{`All ${itemsTitle} loaded.`}</p>}
+      {endOfData && <p>{customText.allLoaded}</p>}
 
       {/* Loading indicator: Shown when loading and infinite scroll is enabled */}
       {/* The loading indicator when infinite scroll is disabled is shown in the Load more button */}
       {isInfiniteScrollEnabled && (
-        <InfiniteScrollLoadingIndicator
-          isLoading={isLoading}
-          itemsCount={items.length}
-          itemsPerPage={itemsPerPage}
-        />
+        <InfiniteScrollLoadingIndicator isLoading={isLoading} text={customText} />
       )}
 
       {/* Error message: Shown when there is an error loading data */}
       {loadingDataErrorMessage && (
         <Alert
           variant={AlertVariant.warning}
-          title={`Could not load more ${itemsTitle}`}
+          title={customText.couldNotLoadMore}
           actionLinks={
             <Button icon={<RedoIcon />} onClick={() => fetchMoreItems(page)}>
-              Retry
+              {customText.retry}
             </Button>
           }
         >
@@ -273,6 +273,7 @@ export default function InfiniteScroll({
           previousPostCountRef={previousPostCountRef}
           loadMoreButtonHadFocusRef={loadMoreButtonHadFocusRef}
           onLoadMore={increasePage}
+          text={customText}
         />
       )}
     </div>

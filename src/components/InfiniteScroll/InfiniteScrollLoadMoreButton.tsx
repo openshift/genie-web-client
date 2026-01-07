@@ -2,6 +2,7 @@ import { Button } from '@patternfly/react-core';
 import { MutableRefObject, RefObject, useEffect } from 'react';
 import InfiniteScrollLoadingIndicator from './InfiniteScrollLoadingIndicator';
 import { RedoIcon } from '@patternfly/react-icons';
+import { setText, textType } from './text';
 
 export type InfiniteScrollLoadMoreButtonProps = {
   /** Whether items are currently being loaded */
@@ -21,6 +22,7 @@ export type InfiniteScrollLoadMoreButtonProps = {
   loadMoreButtonHadFocusRef: MutableRefObject<boolean>;
   /** Callback when button is clicked */
   onLoadMore: () => void;
+  text?: textType;
 };
 
 /**
@@ -29,14 +31,15 @@ export type InfiniteScrollLoadMoreButtonProps = {
  */
 export default function InfiniteScrollLoadMoreButton({
   isLoading,
-  itemsPerPage,
   loadMoreButtonRef,
   loadingIndicatorContainerRef,
   itemsCount,
   previousPostCountRef,
   loadMoreButtonHadFocusRef,
   onLoadMore,
+  text,
 }: InfiniteScrollLoadMoreButtonProps) {
+  const customText = setText(text);
   const handleClick = () => {
     // Store the current item count before loading (for focus management)
     previousPostCountRef.current = itemsCount;
@@ -62,12 +65,10 @@ export default function InfiniteScrollLoadMoreButton({
     <div ref={loadingIndicatorContainerRef}>
       {isLoading ? (
         <>
-          <span className="pf-v6-u-screen-reader">New content will receive focus once loaded</span>
-          <InfiniteScrollLoadingIndicator
-            isLoading={isLoading}
-            itemsCount={itemsCount}
-            itemsPerPage={itemsPerPage}
-          />
+          <span className="pf-v6-u-screen-reader">
+            {customText.newContentWillReceiveFocusOnceLoaded}
+          </span>
+          <InfiniteScrollLoadingIndicator isLoading={isLoading} text={customText} />
         </>
       ) : (
         <Button
@@ -76,7 +77,7 @@ export default function InfiniteScrollLoadMoreButton({
           isAriaDisabled={isLoading}
           icon={<RedoIcon aria-hidden="true" />}
         >
-          Load {itemsPerPage} more
+          {customText.loadMore}
         </Button>
       )}
     </div>

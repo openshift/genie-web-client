@@ -1,12 +1,10 @@
 import { Skeleton } from '@patternfly/react-core';
+import { setText, textType } from './text';
 
 export type InfiniteScrollLoadingIndicatorProps = {
   /** Whether items are currently being loaded */
   isLoading: boolean;
-  /** Number of items currently loaded */
-  itemsCount: number;
-  /** Number of items per page (for display) */
-  itemsPerPage?: number;
+  text?: textType;
 };
 
 /**
@@ -14,18 +12,14 @@ export type InfiniteScrollLoadingIndicatorProps = {
  */
 export default function InfiniteScrollLoadingIndicator({
   isLoading,
-  itemsCount,
-  itemsPerPage,
+  text,
 }: InfiniteScrollLoadingIndicatorProps) {
+  const customText = setText(text);
   if (!isLoading) return null;
 
   return (
     <div role="status" aria-live="polite">
-      <Skeleton
-        screenreaderText={`Loading ${
-          itemsCount !== 0 && itemsPerPage ? `${itemsPerPage} more ` : ''
-        }...`}
-      />
+      <Skeleton screenreaderText={customText.loadingMore} />
       <Skeleton className="pf-v6-u-mt-md" width="50%" />
       <Skeleton className="pf-v6-u-mt-md" width="75%" />
     </div>
