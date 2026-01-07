@@ -6,6 +6,7 @@ import GeniePage from './GeniePage';
 import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';
+import { ArtifactLibrary } from './artifact-library';
 
 export default function GenieRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function GenieRoutes() {
           <Route path={SubRoutes.New} element={<NewChat />} />
           <Route path=":conversationId" element={<Chat />} />
         </Route>
+        <Route path={SubRoutes.Library} element={<ArtifactLibrary />} />
         <Route path={SubRoutes.AIandAutomation} element={<></>} />
         <Route path={SubRoutes.Insights} element={<></>} />
         <Route path={SubRoutes.Security} element={<></>} />

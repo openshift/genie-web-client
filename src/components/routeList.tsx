@@ -8,6 +8,8 @@ export enum SubRoutes {
   // Chat and sub routes
   Chat = 'chat',
   New = 'new',
+  // Library
+  Library = 'library',
 }
 
 // Used only for navigation - make sure this nesting represents Routes.tsx
