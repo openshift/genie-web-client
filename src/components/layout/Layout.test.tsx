@@ -14,7 +14,7 @@ describe('Layout', () => {
       </AIStateProvider>,
       { initialEntries: [initialRoute] },
     );
-  
+
   it('renders without crashing', () => {
     renderWithProviders();
   });

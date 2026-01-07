@@ -51,9 +51,8 @@ describe('ArtifactLibrary', () => {
     render(<ArtifactLibrary />);
     const primaryCta = screen.getByRole('button', { name: /create a dashboard/i });
     const secondaryCta = screen.getByRole('button', { name: /code a config file/i });
-    
+
     expect(primaryCta).toHaveAccessibleName();
     expect(secondaryCta).toHaveAccessibleName();
   });
 });
-

@@ -36,10 +36,18 @@ export const ArtifactLibrary: React.FC = () => {
           </EmptyStateBody>
           <EmptyStateFooter>
             <EmptyStateActions>
-              <Button variant="primary" icon={<RhUiAiExperienceIcon />} onClick={() => console.log('Create dashboard clicked')}>
+              <Button
+                variant="primary"
+                icon={<RhUiAiExperienceIcon />}
+                onClick={() => console.log('Create dashboard clicked')}
+              >
                 {t('artifactLibrary.emptyState.primaryCta')}
               </Button>
-              <Button variant="secondary" icon={<RhUiAiExperienceIcon />} onClick={() => console.log('Code config file clicked')}>
+              <Button
+                variant="secondary"
+                icon={<RhUiAiExperienceIcon />}
+                onClick={() => console.log('Code config file clicked')}
+              >
                 {t('artifactLibrary.emptyState.secondaryCta')}
               </Button>
             </EmptyStateActions>
@@ -57,4 +65,3 @@ export const ArtifactLibrary: React.FC = () => {
     </div>
   );
 };
-

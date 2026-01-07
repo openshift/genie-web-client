@@ -1,2 +1,1 @@
 export { ArtifactLibrary } from './ArtifactLibrary';
-
