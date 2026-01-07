@@ -6,6 +6,7 @@ An AI-powered, extensible UI framework built on the OpenShift Console dynamic pl
 
 - **Node.js 20+** and **yarn** - For frontend development
 - **Python 3.11+** - For backend (Lightspeed services)
+- **Go 1.21+** - For obs-mcp server
 - **OpenShift CLI (`oc`)** - To connect to a cluster
 - **Podman 3.2.0+** or **Docker** - To run the console
 - **OpenAI API Key** - Or compatible LLM provider
@@ -20,6 +21,12 @@ The backend provides AI capabilities. See detailed instructions in [`backend/REA
 
 **Quick Start:**
 ```bash
+# First, start obs-mcp server (in one terminal)
+cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+go run cmd/obs-mcp/main.go
+# Runs on port 9100 - keep running
+
+# Then in another terminal, setup lightspeed-stack
 # Clone lightspeed-stack
 cd ~/Documents/GHRepos  # or your preferred location
 git clone https://github.com/lightspeed-core/lightspeed-stack.git

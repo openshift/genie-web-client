@@ -4,9 +4,9 @@ This directory contains the backend configuration needed to run Genie Web Client
 
 ## Prerequisites
 
-- **Python 3.11+** - For running OLS/Lightspeed services
+- **Python 3.11+** - For running Lightspeed services
 - **Node.js 20+** - Already required for frontend
-- **Go** - (Optional) If you need MCP servers
+- **Go 1.21+** - For running obs-mcp server
 - **OpenAI API Key** - Or compatible LLM provider
 
 ## Architecture
@@ -30,7 +30,22 @@ The Genie Web Client backend consists of:
 
 ## Quick Start
 
-### 1. Clone and Setup Lightspeed Stack
+### 1. Start the OBS-MCP Server
+
+The obs-mcp server provides observability tools (metrics, queries) to the AI.
+
+```bash
+cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+
+# Build and run
+go run cmd/obs-mcp/main.go
+
+# Runs on port 9100 - keep this terminal running
+```
+
+**Note:** Requires Go 1.21+ installed.
+
+### 2. Clone and Setup Lightspeed Stack
 
 ```bash
 # Clone the upstream lightspeed-stack repo (one time only, skip if you already have it)
@@ -48,7 +63,7 @@ uv sync
 
 **Tip:** If you want to keep your existing configs, copy these with different names like `lightspeed-stack-genie.yaml` instead.
 
-### 2. Configure Your API Key
+### 3. Configure Your API Key
 
 ```bash
 # Set your OpenAI API key
@@ -61,7 +76,7 @@ echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-### 3. Start the Backend
+### 4. Start the Backend
 
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
@@ -174,20 +189,26 @@ curl https://api.openai.com/v1/models \
 
 ### Full Stack Development
 
-**Terminal 1: Backend**
+**Terminal 1: OBS-MCP Server**
+```bash
+cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+go run cmd/obs-mcp/main.go
+```
+
+**Terminal 2: Backend**
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 export OPENAI_API_KEY="sk-..."
 uv run python -m src.lightspeed_stack
 ```
 
-**Terminal 2: Frontend Dev Server**
+**Terminal 3: Frontend Dev Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start
 ```
 
-**Terminal 3: Console**
+**Terminal 4: Console**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start-console
