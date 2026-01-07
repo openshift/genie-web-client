@@ -21,9 +21,15 @@ The backend provides AI capabilities. See detailed instructions in [`backend/REA
 
 **Quick Start:**
 ```bash
-# First, start obs-mcp server (in one terminal)
+# First, port-forward Prometheus (terminal 1)
+oc login  # Make sure you're logged in
+PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
+kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
+# Keep running
+
+# Second, start obs-mcp server (terminal 2)
 cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
-go run cmd/obs-mcp/main.go
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
 # Runs on port 9100 - keep running
 
 # Then in another terminal, setup lightspeed-stack

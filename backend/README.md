@@ -34,16 +34,26 @@ The Genie Web Client backend consists of:
 
 The obs-mcp server provides observability tools (metrics, queries) to the AI.
 
+**Prerequisites:**
+- Go 1.21+ installed
+- Logged into your OpenShift cluster (`oc login`)
+
+**Step A: Port-forward Prometheus (Terminal 1)**
+```bash
+# Port-forward thanos-querier for Prometheus access
+PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
+kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
+
+# Keep this running - Prometheus available at localhost:9090
+```
+
+**Step B: Start obs-mcp server (Terminal 2)**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
-
-# Build and run
-go run cmd/obs-mcp/main.go
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
 
 # Runs on port 9100 - keep this terminal running
 ```
-
-**Note:** Requires Go 1.21+ installed.
 
 ### 2. Clone and Setup Lightspeed Stack
 
@@ -189,26 +199,32 @@ curl https://api.openai.com/v1/models \
 
 ### Full Stack Development
 
-**Terminal 1: OBS-MCP Server**
+**Terminal 1: Prometheus Port-forward**
 ```bash
-cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
-go run cmd/obs-mcp/main.go
+PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
+kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 ```
 
-**Terminal 2: Backend**
+**Terminal 2: OBS-MCP Server**
+```bash
+cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
+```
+
+**Terminal 3: Backend**
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 export OPENAI_API_KEY="sk-..."
 uv run python -m src.lightspeed_stack
 ```
 
-**Terminal 3: Frontend Dev Server**
+**Terminal 4: Frontend Dev Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start
 ```
 
-**Terminal 4: Console**
+**Terminal 5: Console**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start-console
