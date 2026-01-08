@@ -7,11 +7,12 @@
         }
     }
 
-    .pf-v6-c-label {
+    /* TODO: Fix; impacting AI message label padding */
+    /* .pf-v6-c-label {
         --pf-v6-c-label--PaddingBlockStart: var(--pf-t--global--spacer--md, 1rem);
         --pf-v6-c-label--PaddingBlockEnd: var(--pf-t--global--spacer--md, 1rem);
         --pf-v6-c-label--PaddingInlineStart: var(--pf-t--global--spacer--md, 1rem);
         --pf-v6-c-label--PaddingInlineEnd: var(--pf-t--global--spacer--md, 1rem);
-    }
+    } */
 }
 
