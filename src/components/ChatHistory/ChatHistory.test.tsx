@@ -1,6 +1,7 @@
 import { render, screen, user, within, waitFor } from '../../unitTestUtils';
 import { ChatHistory } from './ChatHistory';
-import { Conversation } from '@redhat-cloud-services/ai-client-state';
+
+import { Conversation } from '../../hooks/AIState';
 import { getConversations } from './conversations.mock';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 
@@ -10,8 +11,7 @@ const mockUseIsInitializing = jest.fn();
 const mockCloseDrawer = jest.fn();
 const mockNavigate = jest.fn();
 
-jest.mock('@redhat-cloud-services/ai-react-state', () => ({
-  ...jest.requireActual('@redhat-cloud-services/ai-react-state'),
+jest.mock('../../hooks/AIState', () => ({
   useConversations: () => mockUseConversations(),
   useIsInitializing: () => mockUseIsInitializing(),
 }));

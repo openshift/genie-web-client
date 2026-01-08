@@ -1,17 +1,16 @@
-import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
 import { render, screen } from '../../unitTestUtils';
-import { stateManager } from '../utils/aiStateManager';
+import { AIProvider } from '../../hooks/AIState';
 import { Layout } from './Layout';
 import { DrawerProvider } from '../drawer';
 
 describe('Layout', () => {
   const renderWithProviders = (initialRoute = '/genie') =>
     render(
-      <AIStateProvider stateManager={stateManager}>
+      <AIProvider>
         <DrawerProvider>
           <Layout />
         </DrawerProvider>
-      </AIStateProvider>,
+      </AIProvider>,
       { initialEntries: [initialRoute] },
     );
 

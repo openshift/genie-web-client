@@ -6,9 +6,9 @@ import {
   EmptyStateFooter,
 } from '@patternfly/react-core';
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
-import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCallback, useEffect, useState } from 'react';
+import { useSendMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';

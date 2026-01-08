@@ -8,11 +8,10 @@ const mockUseSetActiveConversation = jest.fn();
 const mockUseSendMessage = jest.fn();
 const mockUseParams = jest.fn();
 
-jest.mock('@redhat-cloud-services/ai-react-state', () => ({
-  ...jest.requireActual('@redhat-cloud-services/ai-react-state'),
+jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
+  useSendMessage: () => mockUseSendMessage(),
   useSetActiveConversation: () => mockUseSetActiveConversation(),
-  useSendMessage: () => mockUseSendMessage,
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
