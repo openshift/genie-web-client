@@ -1,6 +1,6 @@
 import { createClientStateManager } from '@redhat-cloud-services/ai-client-state';
-// import { LightspeedClient } from '@redhat-cloud-services/lightspeed-client';
-import { OLSClient } from './olsClient';
+// import { OLSClient } from './olsClient';
+import { LightspeedClient } from '@redhat-cloud-services/lightspeed-client';
 
 /**
  * Fetch function wrapper that adds CSRF token for console proxy requests
@@ -48,8 +48,11 @@ const consoleFetchWithCSRF = (input: RequestInfo, init?: RequestInit): Promise<R
 };
 
 // Initialize state manager outside React scope
-const client = new OLSClient({
-  baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
+const client = new LightspeedClient({
+  // Local development
+  baseUrl: 'http://localhost:8080/',
+  // Deployed on cluster
+  // baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
   fetchFunction: consoleFetchWithCSRF,
 });
 
