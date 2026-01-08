@@ -7,7 +7,6 @@ apis:
   - vector_io
   - tool_runtime
   - inference
-  - telemetry
 
 benchmarks: []
 container_image: null
@@ -30,34 +29,24 @@ providers:
     - provider_id: gemini
       provider_type: remote::gemini
       config:
-        api_key: ${env.GOOGLE_API_KEY}
-    - provider_id: ollama
-      provider_type: remote::ollama
-      config:
-        url: http://localhost:11434
-        api_key: ignored
+        api_key: ${env.GOOGLE_API_KEY:=}
   agents:
     - config:
-        persistence_store:
-          db_path: .llama/distributions/ollama/agents_store.db
-          namespace: null
-          type: sqlite
-        responses_store:
-          db_path: .llama/distributions/ollama/responses_store.db
-          type: sqlite
+        persistence:
+          agent_state:
+            namespace: agents
+            backend: kv_default
+          responses:
+            table_name: responses
+            backend: sql_default
+            max_write_queue_size: 10000
+            num_writers: 4
       provider_id: meta-reference
       provider_type: inline::meta-reference
   tool_runtime:
     - provider_id: model-context-protocol
       provider_type: remote::model-context-protocol
       config: {}
-  telemetry:
-    - config:
-        service_name: "lightspeed-stack"
-        sinks: sqlite
-        sqlite_db_path: .llama/distributions/ollama/trace_store.db
-      provider_id: meta-reference
-      provider_type: inline::meta-reference
 server:
   auth: null
   host: null
@@ -66,6 +55,29 @@ server:
   tls_cafile: null
   tls_certfile: null
   tls_keyfile: null
+storage:
+  backends:
+    kv_default:
+      type: kv_sqlite
+      db_path: .llama/distributions/ollama/kv_store.db
+    sql_default:
+      type: sql_sqlite
+      db_path: .llama/distributions/ollama/sql_store.db
+  stores:
+    metadata:
+      namespace: registry
+      backend: kv_default
+    inference:
+      table_name: inference_store
+      backend: sql_default
+      max_write_queue_size: 10000
+      num_writers: 4
+    conversations:
+      table_name: openai_conversations
+      backend: sql_default
+    prompts:
+      namespace: prompts
+      backend: kv_default
 shields: []
 vector_dbs: []
 models:

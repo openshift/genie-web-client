@@ -17,6 +17,10 @@ user_data_collection:
   transcripts_storage: "/tmp/data/transcripts"
 authentication:
   module: "noop"
+conversation_cache:
+  type: "sqlite"
+  sqlite:
+    db_path: "/tmp/data/conversation-cache.db"
 inference:
   default_model: gpt-4o-mini
   default_provider: openai
