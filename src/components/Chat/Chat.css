@@ -1,10 +1,26 @@
 .pf-chatbot-container {
+    --genie-chat-max-width: 960px;
+
+    .pf-chatbot__header-container {
+        display: flex;
+        justify-content: center;
+    }
+
     .pf-chatbot__header {
         --pf-t--global--background--color--primary--default: transparent;
+        
+        width: 100%;
+        max-width: var(--genie-chat-max-width);
+        padding-inline: var(--pf-t--global--spacer--lg, 1.5rem);
 
         .pf-chatbot__header-main {
             align-items: center;
         }
+    }
+
+    .pf-v6-c-divider {
+        max-width: var(--genie-chat-max-width);
+        margin-inline: auto;
     }
 
     .pf-v6-c-label {
