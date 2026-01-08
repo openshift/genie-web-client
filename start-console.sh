@@ -6,7 +6,6 @@ CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
-# Plugin metadata is declared in package.json
 PLUGIN_NAME=${npm_package_consolePlugin_name}
 
 echo "Starting local OpenShift console..."
@@ -43,12 +42,18 @@ if [ -x "$(command -v podman)" ]; then
     if [ "$(uname -s)" = "Linux" ]; then
         # Use host networking on Linux since host.containers.internal is unreachable in some environments.
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://localhost:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm --network=host --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm --network=host --env-file <(set | grep BRIDGE) \
+    --env BRIDGE_PLUGIN_PROXY='{"services": [{"consoleAPIPath": "/api/proxy/plugin/lightspeed-console-plugin/ols/", "endpoint": "http://localhost:8080", "authorize": true}]}' \
+    $CONSOLE_IMAGE
     else
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.containers.internal:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) \
+    --env BRIDGE_PLUGIN_PROXY='{"services": [{"consoleAPIPath": "/api/proxy/plugin/lightspeed-console-plugin/ols/", "endpoint": "http://host.containers.internal:8080", "authorize": true}]}' \
+    $CONSOLE_IMAGE
     fi
 else
     BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.docker.internal:9001"
-    docker run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+    docker run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) \
+    --env BRIDGE_PLUGIN_PROXY='{"services": [{"consoleAPIPath": "/api/proxy/plugin/lightspeed-console-plugin/ols/", "endpoint": "http://host.docker.internal:8080", "authorize": true}]}' \
+    $CONSOLE_IMAGE
 fi

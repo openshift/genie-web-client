@@ -4,24 +4,6 @@ import { Home } from './Home';
 import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
 import { stateManager } from '../utils/aiStateManager';
 
-// Mock i18n to return predictable strings used in assertions
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      switch (key) {
-        case 'dashboard.emptyState.headingNoName':
-          return 'Every dashboard tells a story. What will yours say?';
-        case 'dashboard.emptyState.description':
-          return 'Begin with Genie — transform your OpenShift data into insight, and insight into action.';
-        case 'dashboard.emptyState.cta':
-          return 'Create your first dashboard';
-        default:
-          return key;
-      }
-    },
-  }),
-}));
-
 // Stub out MessageBar so it doesn't render (but remains a valid component)
 jest.mock('@patternfly/chatbot', () => ({
   // eslint-disable-next-line react/display-name
@@ -29,13 +11,13 @@ jest.mock('@patternfly/chatbot', () => ({
 }));
 
 describe('Home', () => {
-    const renderWithProviders = () =>
+  const renderWithProviders = () =>
     render(
       <AIStateProvider stateManager={stateManager}>
         <Home />
-      </AIStateProvider>
+      </AIStateProvider>,
     );
-  
+
   it('renders heading without username when none stored', () => {
     renderWithProviders();
     expect(

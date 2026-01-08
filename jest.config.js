@@ -52,6 +52,8 @@ module.exports = {
     '/dist/',
   ],
 
+  coverageReporters: ['html', 'json-summary', 'text-summary'],
+
   // Global configuration options for ts-jest
   globals: {
     'ts-jest': {

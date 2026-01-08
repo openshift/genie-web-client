@@ -23,6 +23,9 @@ export interface RouterOptions {
  * Custom render function that wraps components in MemoryRouter.
  * This eliminates the need to manually wrap components in MemoryRouter in each test.
  *
+ * Note: react-i18next is automatically mocked globally in setupTests.ts with real translations
+ * from locales/en/plugin__genie-web-client.json, so you don't need to mock it in individual tests.
+ *
  * @example
  * const { getByText } = renderWithRouter(<GeniePage />);
  * const { getByText } = renderWithRouter(<GeniePage />, { initialEntries: ['/genie'] });

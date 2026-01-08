@@ -6,18 +6,22 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { PlusIcon } from '@patternfly/react-icons';
+import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useNavigate } from 'react-router-dom-v5-compat';
+import { useChatBar } from '../ChatBarContext';
 
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const { t } = useTranslation('plugin__genie-web-client');
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
+  const { setShowChatBar } = useChatBar();
+
+  setShowChatBar(true);
 
   useEffect(() => {
     try {
@@ -42,7 +46,8 @@ export const Home: React.FC = () => {
       <EmptyStateFooter>
         <EmptyStateActions>
           <Button
-            icon={<PlusIcon />}
+            size="lg"
+            icon={<RhUiAiExperienceIcon />}
             onClick={() => {
               sendMessage('Can you help me create a new dashboard?', {
                 stream: true,
