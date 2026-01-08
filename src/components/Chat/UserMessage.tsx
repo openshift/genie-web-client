@@ -1,6 +1,7 @@
 import React from 'react';
 import { Message } from '@patternfly/chatbot';
 import { CopyIcon, EditIcon } from '@patternfly/react-icons';
+import { type Message as MessageType } from '@redhat-cloud-services/ai-client-state';
 
 // =============================================================================
 // USER MESSAGE COMPONENT
@@ -12,7 +13,7 @@ import { CopyIcon, EditIcon } from '@patternfly/react-icons';
 // =============================================================================
 
 export interface UserMessageProps {
-  message: any;
+  message: MessageType;
   isLastUserMessage: boolean;
   // TODO: Add these handlers when implementing edit functionality
   // onEdit?: (messageId: string, newContent: string) => void;
