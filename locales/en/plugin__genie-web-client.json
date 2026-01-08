@@ -75,5 +75,10 @@
   "newChat.quickResponses.explore.0.label": "Show the health of my cluster",
   "newChat.quickResponses.explore.1.label": "Create a dashboard for Pod status",
   "newChat.quickResponses.explore.2.label": "Find documentation for Service Mesh",
-  "newChat.quickResponses.explore.3.label": "Explain Deployment vs. DeploymentConfig"
+  "newChat.quickResponses.explore.3.label": "Explain Deployment vs. DeploymentConfig",
+  "artifactLibrary.ariaLabel": "Library",
+  "artifactLibrary.emptyState.heading": "Start something extraordinary.",
+  "artifactLibrary.emptyState.description": "Everything you create with Genie — charts or others share with you will live here. Begin with a dashboard, a snippet, or any artifact.",
+  "artifactLibrary.emptyState.primaryCta": "Create a dashboard",
+  "artifactLibrary.emptyState.secondaryCta": "Code a config file"
 }

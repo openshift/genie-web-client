@@ -44,7 +44,7 @@ describe('NewChat', () => {
     renderNewChat();
 
     const buildButton = screen.getByRole('button', { name: 'Build / Configure' });
-    await  user.click(buildButton);
+    await user.click(buildButton);
 
     expect(mockUseSendMessage).toHaveBeenCalled();
     const [prompt, options] = mockUseSendMessage.mock.calls[0];

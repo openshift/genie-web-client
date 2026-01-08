@@ -29,7 +29,7 @@ import {
   BellIcon,
   CommentDotsIcon,
   HomeIcon,
-  ImagesIcon,
+  RhUiCollectionIcon,
   PlusSquareIcon,
   QuestionCircleIcon,
   SearchIcon,
@@ -231,7 +231,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </ActionListGroup>
         <ActionListItem>
           <Tooltip content="Library">
-            <Button variant="plain" icon={<ImagesIcon />} aria-label="Library" />
+            <Button
+              variant="plain"
+              icon={<RhUiCollectionIcon />}
+              aria-label="Library"
+              onClick={() => navigate(`${mainGenieRoute}/${SubRoutes.Library}`)}
+              className={activeItem === SubRoutes.Library ? 'pf-m-current' : ''}
+            />
           </Tooltip>
         </ActionListItem>
       </ActionList>
