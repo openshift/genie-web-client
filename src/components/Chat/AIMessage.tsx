@@ -3,6 +3,7 @@ import { Message } from '@patternfly/chatbot';
 import { useTranslation } from 'react-i18next';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
 import { CopyIcon, RedoIcon, ThumbsUpIcon, ThumbsDownIcon, ShareIcon, VolumeUpIcon, FlagIcon } from '@patternfly/react-icons';
+import { useInProgress } from '@redhat-cloud-services/ai-react-state';
 
 // =============================================================================
 // AI MESSAGE COMPONENT
@@ -70,6 +71,13 @@ const AIMessageComponent: React.FunctionComponent<AIMessageProps> = ({
   return (
     <Message
       isLoading={messageIsLoading}
+      deepThinking={{
+        toggleContent: useInProgress() ? 'Thinking' : 'Thought process',
+        body: <p>Reasoning coming soon...</p>,
+        expandableSectionProps: {
+          isExpanded: useInProgress(),
+        },
+      }}
       role="bot"
       content={content}
       quickResponses={quickResponses}
