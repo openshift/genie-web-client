@@ -40,9 +40,9 @@ import { useChatBar } from '../ChatBarContext';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
+import { useSendMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
 import { Notifications } from '../notifications/Notifications';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
 import './Layout.css';
 

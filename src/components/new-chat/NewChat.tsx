@@ -13,9 +13,9 @@ import {
   RhUiAiExperienceIcon,
   RhUiAnalyzeIcon,
 } from '@patternfly/react-icons';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSendMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';

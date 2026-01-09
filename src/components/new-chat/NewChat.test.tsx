@@ -5,8 +5,7 @@ import { NewChat } from './NewChat';
 const mockUseSendMessage = jest.fn();
 const mockUseNavigate = jest.fn();
 
-jest.mock('@redhat-cloud-services/ai-react-state', () => ({
-  ...jest.requireActual('@redhat-cloud-services/ai-react-state'),
+jest.mock('../../hooks/AIState', () => ({
   useSendMessage: () => mockUseSendMessage,
 }));
 

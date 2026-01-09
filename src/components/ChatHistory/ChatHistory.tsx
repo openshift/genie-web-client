@@ -13,11 +13,10 @@ import {
   Skeleton,
 } from '@patternfly/react-core';
 import { PlusSquareIcon } from '@patternfly/react-icons';
-import type { Conversation } from '@redhat-cloud-services/ai-client-state';
-import { useConversations, useIsInitializing } from '@redhat-cloud-services/ai-react-state';
 import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
+import { Conversation, useConversations, useIsInitializing } from '../../hooks/AIState';
 import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';

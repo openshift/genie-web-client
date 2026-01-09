@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '../../unitTestUtils';
 import { Home } from './Home';
+import { AIProvider } from '../../hooks/AIState';
 
 // Stub out MessageBar so it doesn't render (but remains a valid component)
 jest.mock('@patternfly/chatbot', () => ({
@@ -9,8 +10,15 @@ jest.mock('@patternfly/chatbot', () => ({
 }));
 
 describe('Home', () => {
-  it('displays heading without username when none stored', () => {
-    render(<Home />);
+  const renderWithProviders = () =>
+    render(
+      <AIProvider>
+        <Home />
+      </AIProvider>,
+    );
+
+  it('renders heading without username when none stored', () => {
+    renderWithProviders();
     expect(
       screen.getByRole('heading', {
         name: /every dashboard tells a story\. what will yours say\?/i,
