@@ -100,7 +100,14 @@ This will start:
 - Llama Stack with OpenAI provider
 - Ready to accept requests from the UI
 
-**Note:** You can switch between different config profiles using the `-c` and `-i` flags.
+**Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach, you can also:
+```bash
+cd ~/Documents/GHRepos/lightspeed-stack
+source .venv/bin/activate
+python -m src.lightspeed_stack
+```
+
+**Tip:** You can switch between different config profiles using the `-c` and `-i` flags.
 
 **Keep this terminal running** - this is your backend.
 
