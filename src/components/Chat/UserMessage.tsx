@@ -1,16 +1,7 @@
-import React from 'react';
+import type { FunctionComponent } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { CopyIcon, EditIcon } from '@patternfly/react-icons';
-import { type Message as MessageType } from '@redhat-cloud-services/ai-client-state';
-
-// =============================================================================
-// USER MESSAGE COMPONENT
-// =============================================================================
-// User messages are static once sent, with conditional actions:
-// - If it's the LAST user message: shows Edit + Copy action buttons
-//   - Editing triggers regeneration of the following bot response
-// - If it's NOT the last user message: shows Copy action only (read-only)
-// =============================================================================
+import type { Message as MessageType } from '../../hooks/AIState';
 
 export interface UserMessageProps {
   message: MessageType;
@@ -20,16 +11,7 @@ export interface UserMessageProps {
   // onCopy?: (content: string) => void;
 }
 
-const arePropsEqual = (prevProps: UserMessageProps, nextProps: UserMessageProps) => {
-  // User messages rarely change - only re-render if content or position changes
-  return (
-    prevProps.message.id === nextProps.message.id &&
-    prevProps.isLastUserMessage === nextProps.isLastUserMessage &&
-    prevProps.message.answer === nextProps.message.answer
-  );
-};
-
-const UserMessageComponent: React.FunctionComponent<UserMessageProps> = ({
+export const UserMessage: FunctionComponent<UserMessageProps> = ({
   message,
   isLastUserMessage,
 }) => {
@@ -39,10 +21,12 @@ const UserMessageComponent: React.FunctionComponent<UserMessageProps> = ({
     .pop();
 
   // TODO: Implement user message actions
-  const handleEdit = () => { 
+  const handleEdit = (): void => {
     // ...regenerate the bot's last response
   };
-  const handleCopy = () => { navigator.clipboard.writeText(content); };
+  const handleCopy = (): void => {
+    navigator.clipboard.writeText(content);
+  };
 
   const copyAction = { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' };
   const editAction = { icon: <EditIcon />, onClick: handleEdit, label: 'Edit' };
@@ -55,5 +39,3 @@ const UserMessageComponent: React.FunctionComponent<UserMessageProps> = ({
     />
   );
 };
-
-export const UserMessage = React.memo(UserMessageComponent, arePropsEqual);

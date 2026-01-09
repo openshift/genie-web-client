@@ -1,4 +1,5 @@
-import React from 'react';
+import { useMemo } from 'react';
+import type { FunctionComponent } from 'react';
 import { Message } from '@patternfly/chatbot';
 import {
   CopyIcon,
@@ -9,13 +10,14 @@ import {
   VolumeUpIcon,
   FlagIcon,
 } from '@patternfly/react-icons';
-import { type Message as MessageType } from '@redhat-cloud-services/ai-client-state';
-import { type ToolCallState } from './useToolCalls';
+import type { Message as MessageType } from '../../hooks/AIState';
+import type { ToolCallState } from './useToolCalls';
 import { ToolCallsList } from './ToolCallsList';
+import { ArtifactRenderer } from '../artifacts';
+import type { Artifact } from '../../types/chat';
 
 export interface AIMessageProps {
   message: MessageType;
-  extraContent: React.ReactNode[] | undefined;
   onQuickResponse: (text: string) => void;
   isStreaming?: boolean;
   toolCalls?: ToolCallState[];
@@ -27,64 +29,44 @@ export interface AIMessageProps {
   // onReadAloud?: (content: string) => void;
 }
 
-const arePropsEqual = (prevProps: AIMessageProps, nextProps: AIMessageProps) => {
-  // AI messages update during streaming - compare content to detect changes
-  const prevContent = prevProps.message.answer || '';
-  const nextContent = nextProps.message.answer || '';
+/**
+ * Collect all artifacts from completed tool calls
+ */
+function collectArtifactsFromToolCalls(toolCalls: ToolCallState[]): Artifact[] {
+  return toolCalls
+    .filter((call) => call.status === 'completed' && call.artifacts)
+    .flatMap((call) => call.artifacts || []);
+}
 
-  // Compare tool calls by length and status (shallow comparison)
-  const prevToolCalls = prevProps.toolCalls || [];
-  const nextToolCalls = nextProps.toolCalls || [];
-
-  const toolCallsEqual =
-    prevToolCalls.length === nextToolCalls.length &&
-    prevToolCalls.every(
-      (call, i) =>
-        call.id === nextToolCalls[i]?.id &&
-        call.status === nextToolCalls[i]?.status,
-    );
-
-  return (
-    prevProps.message.id === nextProps.message.id &&
-    prevContent === nextContent &&
-    prevProps.extraContent === nextProps.extraContent &&
-    prevProps.isStreaming === nextProps.isStreaming &&
-    toolCallsEqual &&
-    prevProps.message.additionalAttributes?.quickResponses ===
-      nextProps.message.additionalAttributes?.quickResponses
-  );
-};
-
-const AIMessageComponent: React.FunctionComponent<AIMessageProps> = ({
+export const AIMessage: FunctionComponent<AIMessageProps> = ({
   message,
-  extraContent,
   onQuickResponse,
   isStreaming = false,
   toolCalls = [],
 }) => {
   const content = message.answer || '';
 
-  const handleCopy = () => {
+  const handleCopy = (): void => {
     navigator.clipboard.writeText(content);
   };
-  const handleRegenerate = () => {
+  const handleRegenerate = (): void => {
     console.log('Regenerate');
   };
-  const handleFeedback = (isPositive: boolean) => {
+  const handleFeedback = (isPositive: boolean): void => {
     console.log('Feedback', isPositive);
   };
-  const handleShare = () => {
+  const handleShare = (): void => {
     console.log('Share');
   };
-  const handleReadAloud = () => {
+  const handleReadAloud = (): void => {
     console.log('Read aloud');
   };
-  const handleReport = () => {
+  const handleReport = (): void => {
     console.log('Report');
   };
 
   // Memoize actions to prevent unnecessary re-renders
-  const actions = React.useMemo(
+  const actions = useMemo(
     () => ({
       copy: { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' },
       regenerate: {
@@ -113,11 +95,18 @@ const AIMessageComponent: React.FunctionComponent<AIMessageProps> = ({
     [content],
   );
 
-  // Combine tool calls with extra content
+  // Collect all artifacts from completed tool calls
+  const artifacts = useMemo(
+    () => collectArtifactsFromToolCalls(toolCalls),
+    [toolCalls],
+  );
+
+  // Build extra content with tool calls and artifacts
   const hasToolCalls = toolCalls.length > 0;
-  const combinedExtraContent = {
+  const hasArtifacts = artifacts.length > 0;
+  const extraContent = {
     beforeMainContent: hasToolCalls ? <ToolCallsList toolCalls={toolCalls} /> : null,
-    afterMainContent: extraContent,
+    afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
   };
 
   return (
@@ -125,10 +114,8 @@ const AIMessageComponent: React.FunctionComponent<AIMessageProps> = ({
       isLoading={isStreaming}
       role="bot"
       content={content}
-      extraContent={combinedExtraContent}
+      extraContent={extraContent}
       actions={actions}
     />
   );
 };
-
-export const AIMessage = React.memo(AIMessageComponent, arePropsEqual);

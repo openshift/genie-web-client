@@ -1,5 +1,4 @@
 import { createClientStateManager } from '@redhat-cloud-services/ai-client-state';
-// import { OLSClient } from './olsClient';
 import { LightspeedClient } from '@redhat-cloud-services/lightspeed-client';
 
 /**

@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { IStreamChunk } from '@redhat-cloud-services/ai-client-common';
-import {
+import type {
+  IStreamChunk,
   LightSpeedCoreAdditionalProperties,
   ToolCallEvent,
   ToolResultEvent,
-} from '@redhat-cloud-services/lightspeed-client';
+} from '../../hooks/AIState';
+import type { Artifact } from '../../types/chat';
+import { parseToolResultToArtifacts } from '../../utils/toolResultParsers';
 
 // =============================================================================
 // TOOL CALLS HOOK
@@ -31,6 +33,7 @@ export interface ToolCallState {
   status: 'running' | 'completed';
   arguments?: Record<string, unknown>;
   result?: unknown;
+  artifacts?: Artifact[];
 }
 
 export interface UseToolCallsResult {
@@ -115,21 +118,30 @@ export function useToolCalls(
             (c) => c.id === resultId && c.status === 'running',
           );
 
+          // Parse artifacts from the tool result
+          const toolName = callIndex !== -1 
+            ? updatedCalls[callIndex].name 
+            : (token?.tool_name || 'Unknown tool');
+            
+          const artifacts = parseToolResultToArtifacts(toolName, token?.response);
+
           if (callIndex !== -1) {
-            // Update existing call - keep arguments, add result, change status
+            // Update existing call - keep arguments, add result and artifacts, change status
             updatedCalls[callIndex] = {
               ...updatedCalls[callIndex],
               status: 'completed',
               result: token?.response,
+              artifacts,
               // arguments are preserved from the original entry
             };
           } else {
             // Result arrived before/without a matching call (edge case)
             updatedCalls.push({
               id: resultId,
-              name: token?.tool_name || 'Unknown tool',
+              name: toolName,
               status: 'completed',
               result: token?.response,
+              artifacts,
             });
           }
         });
