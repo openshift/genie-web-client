@@ -1,6 +1,7 @@
 import { render, screen, user, within, waitFor } from '../../unitTestUtils';
 import { ChatHistory } from './ChatHistory';
-import { Conversation } from '@redhat-cloud-services/ai-client-state';
+
+import { Conversation } from '../../hooks/AIState';
 import { getConversations } from './conversations.mock';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 
@@ -10,7 +11,7 @@ const mockUseIsInitializing = jest.fn();
 const mockCloseDrawer = jest.fn();
 const mockNavigate = jest.fn();
 
-jest.mock('@redhat-cloud-services/ai-react-state', () => ({
+jest.mock('../../hooks/AIState', () => ({
   useConversations: () => mockUseConversations(),
   useIsInitializing: () => mockUseIsInitializing(),
 }));
@@ -33,7 +34,7 @@ describe('ChatHistory', () => {
   });
 
   describe('Empty State', () => {
-    it('renders empty state when there are no conversations', () => {
+    it('displays empty state when there are no conversations', () => {
       mockUseConversations.mockReturnValue([]);
       mockUseIsInitializing.mockReturnValue(false);
 
@@ -71,7 +72,7 @@ describe('ChatHistory', () => {
   });
 
   describe('Loading State', () => {
-    it('renders loading skeletons when initializing', () => {
+    it('displays loading skeletons when initializing', () => {
       mockUseConversations.mockReturnValue([]);
       mockUseIsInitializing.mockReturnValue(true);
 
@@ -95,7 +96,7 @@ describe('ChatHistory', () => {
   });
 
   describe('Conversation Groups', () => {
-    it('renders conversations grouped by date', () => {
+    it('displays conversations grouped by date', () => {
       // Mock today's date - using Friday so that 5 days ago (Sunday) is still in the current week
       jest.useFakeTimers();
       jest.setSystemTime(new Date('2025-10-17T08:00:00.000Z'));
@@ -138,7 +139,7 @@ describe('ChatHistory', () => {
       expect(screen.queryByText('Older')).not.toBeInTheDocument();
     });
 
-    it('renders conversation titles as clickable links', () => {
+    it('displays conversation titles as clickable links', () => {
       const conversations: Conversation[] = [
         {
           id: 'test-id',
@@ -230,7 +231,7 @@ describe('ChatHistory', () => {
   });
 
   describe('Search Functionality', () => {
-    it('renders search input when not initializing', () => {
+    it('displays search input when not initializing', () => {
       const conversations: Conversation[] = [
         {
           id: '1',

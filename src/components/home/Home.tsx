@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   Button,
   EmptyState,
@@ -8,11 +7,11 @@ import {
 } from '@patternfly/react-core';
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
-import { mainGenieRoute, SubRoutes } from '../routeList';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
+import { useCallback, useEffect, useState } from 'react';
+import { useSendMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
+import { mainGenieRoute, SubRoutes } from '../routeList';
 
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
@@ -21,7 +20,9 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   const { setShowChatBar } = useChatBar();
 
-  setShowChatBar(true);
+  useEffect(() => {
+    setShowChatBar(true);
+  }, [setShowChatBar]);
 
   useEffect(() => {
     try {
@@ -38,6 +39,14 @@ export const Home: React.FC = () => {
     ? t('dashboard.emptyState.heading', { name: userName })
     : t('dashboard.emptyState.headingNoName');
 
+  const handleCreateDashboardClick = useCallback(() => {
+    sendMessage('Can you help me create a new dashboard?', {
+      stream: true,
+      requestOptions: {},
+    });
+    navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+  }, [sendMessage, navigate]);
+
   return (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
       <EmptyStateBody className="pf-v6-u-font-size-lg">
@@ -45,17 +54,7 @@ export const Home: React.FC = () => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button
-            size="lg"
-            icon={<RhUiAiExperienceIcon />}
-            onClick={() => {
-              sendMessage('Can you help me create a new dashboard?', {
-                stream: true,
-                requestOptions: {},
-              });
-              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-            }}
-          >
+          <Button size="lg" icon={<RhUiAiExperienceIcon />} onClick={handleCreateDashboardClick}>
             {t('dashboard.emptyState.cta')}
           </Button>
         </EmptyStateActions>

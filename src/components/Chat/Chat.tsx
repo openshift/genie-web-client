@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSetActiveConversation } from '@redhat-cloud-services/ai-react-state';
+import { useSetActiveConversation } from '../../hooks/AIState';
 import {
   Chatbot,
   ChatbotHeader,

@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import './NewChat.css';
-import { useTranslation } from 'react-i18next';
 import {
+  Button,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateActions,
-  Button,
 } from '@patternfly/react-core';
+import { MessageBar } from '@patternfly/chatbot';
 import {
   RhStandardBarGraphIcon,
   RhStandardBugIcon,
@@ -15,21 +13,25 @@ import {
   RhUiAiExperienceIcon,
   RhUiAnalyzeIcon,
 } from '@patternfly/react-icons';
-import { MessageBar } from '@patternfly/chatbot';
-import { mainGenieRoute, SubRoutes } from '../routeList';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
+import { useCallback, useEffect, useState, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSendMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';
+import { mainGenieRoute, SubRoutes } from '../routeList';
+import './NewChat.css';
 
-export const NewChat = () => {
+export const NewChat: React.FC = () => {
   const { setShowChatBar } = useChatBar();
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
 
-  setShowChatBar(false);
+  useEffect(() => {
+    setShowChatBar(false);
+  }, [setShowChatBar]);
 
   useEffect(() => {
     try {
@@ -46,9 +48,17 @@ export const NewChat = () => {
     ? t('newChat.heading', { name: userName })
     : t('newChat.headingNoName');
 
+  const handleSendMessage = useCallback(
+    (message: string | number) => {
+      sendMessage(message, { stream: true, requestOptions: {} });
+      navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+    },
+    [sendMessage, navigate],
+  );
+
   const suggestions: Array<{
     key: 'build' | 'automate' | 'troubleshoot' | 'analyze' | 'explore';
-    icon?: React.ReactNode;
+    icon?: ReactNode;
   }> = [
     { key: 'build', icon: <RhStandardBarGraphIcon /> },
     { key: 'automate', icon: <RhStandardCommandLineIcon /> },
@@ -63,10 +73,7 @@ export const NewChat = () => {
       <MessageBar
         aria-label={t('newChat.promptPlaceholder') as string}
         placeholder={t('newChat.promptPlaceholder') as string}
-        onSendMessage={(message: string | number) => {
-          sendMessage(message, { stream: true, requestOptions: {} });
-          navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-        }}
+        onSendMessage={handleSendMessage}
       />
       <EmptyStateFooter>
         <EmptyStateActions>

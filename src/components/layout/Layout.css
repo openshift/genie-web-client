@@ -31,6 +31,13 @@
   /* Utility toolbar specific styles */
 }
 
+/* Active state for sidebar action buttons (e.g., Library button) */
+.pf-v6-c-compass__sidebar .pf-v6-c-button.pf-m-current {
+  --pf-v6-c-button--m-plain--Color: var(--pf-v6-global--Color--100, #000);
+
+  background-color: var(--pf-v6-global--BackgroundColor--action--plain--clicked, #0000000d);
+}
+
 .global-layout-empty-state {
   margin: auto;
 

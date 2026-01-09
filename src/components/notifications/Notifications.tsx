@@ -1,16 +1,15 @@
-import * as React from 'react';
-import { useTranslation } from 'react-i18next';
-import './Notifications.css';
 import {
   EmptyState,
-  NotificationDrawerList,
-  NotificationDrawerListItem,
-  NotificationDrawerListItemHeader,
-  NotificationDrawerListItemBody,
   EmptyStateBody,
   NotificationDrawer,
   NotificationDrawerBody,
+  NotificationDrawerList,
+  NotificationDrawerListItem,
+  NotificationDrawerListItemBody,
+  NotificationDrawerListItemHeader,
 } from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
+import './Notifications.css';
 
 interface NotificationItem {
   id: string;
@@ -20,7 +19,7 @@ interface NotificationItem {
   variant?: 'info' | 'success' | 'custom' | 'danger' | 'warning';
 }
 
-const Notifications: React.FC = () => {
+export const Notifications: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
 
   // Mock data to simulate API response
@@ -105,5 +104,3 @@ const Notifications: React.FC = () => {
     </NotificationDrawer>
   );
 };
-
-export default Notifications;

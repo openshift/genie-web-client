@@ -1,4 +1,4 @@
-import { Conversation } from '@redhat-cloud-services/ai-client-state';
+import { Conversation } from '../../hooks/AIState';
 import { groupByDate } from './dateHelpers';
 
 describe('dateHelpers', () => {

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '../../unitTestUtils';
+import { renderWithoutProviders, screen, waitFor } from '../../unitTestUtils';
 import { Chat } from './Chat';
 import { ChatBarProvider, useChatBar } from '../ChatBarContext';
 
@@ -8,10 +8,10 @@ const mockUseSetActiveConversation = jest.fn();
 const mockUseSendMessage = jest.fn();
 const mockUseParams = jest.fn();
 
-jest.mock('@redhat-cloud-services/ai-react-state', () => ({
+jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
+  useSendMessage: () => mockUseSendMessage(),
   useSetActiveConversation: () => mockUseSetActiveConversation(),
-  useSendMessage: () => mockUseSendMessage,
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
@@ -30,7 +30,7 @@ describe('Chat', () => {
   const renderChat = () => {
     // NOTE:  This may cause a "Warning: React does not recognize the `isPrimary` prop on a DOM element" warning when running tests
     // This is due to a bug in PatternFly' Message component that incorrect passes the prop down to the HTML
-    return render(
+    return renderWithoutProviders(
       <ChatBarProvider>
         <Chat />
       </ChatBarProvider>,
@@ -135,7 +135,7 @@ describe('Chat', () => {
   });
 
   describe('Message Rendering', () => {
-    it('renders user messages correctly', async () => {
+    it('displays user messages correctly', async () => {
       const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
       mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
       mockUseMessages.mockReturnValue([
@@ -155,7 +155,7 @@ describe('Chat', () => {
       });
     });
 
-    it('renders bot messages correctly', async () => {
+    it('displays bot messages correctly', async () => {
       const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
       mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
       mockUseMessages.mockReturnValue([
@@ -248,7 +248,8 @@ describe('Chat', () => {
       renderChat();
 
       await waitFor(() => {
-        // The content is split and has a leading space, so we check the message element directly
+        // NOTE: getByTestId is used because we need to check the textContent of the message element
+        // which may contain whitespace that getByText cannot match exactly
         const message = screen.getByTestId('message');
         expect(message.textContent).toBe(' Actual answer content');
         expect(screen.queryByText('Some prefix text')).not.toBeInTheDocument();
@@ -275,7 +276,7 @@ describe('Chat', () => {
       });
     });
 
-    it('renders multiple messages in order', async () => {
+    it('displays multiple messages in order', async () => {
       const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
       mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
       mockUseMessages.mockReturnValue([
@@ -362,7 +363,7 @@ describe('Chat', () => {
         return <div data-testid="chat-bar-visibility">{String(showChatBar)}</div>;
       };
 
-      render(
+      renderWithoutProviders(
         <ChatBarProvider>
           <TestComponent />
           <Chat />
@@ -375,6 +376,8 @@ describe('Chat', () => {
       await waitFor(
         () => {
           expect(mockSetActiveConversation).toHaveBeenCalled();
+          // NOTE: getByTestId is used because the TestComponent renders visibility as text content
+          // in a data-testid element, and we need to verify the boolean value as a string
           const visibilityElement = screen.getByTestId('chat-bar-visibility');
           expect(visibilityElement.textContent).toBe('true');
         },
@@ -394,7 +397,7 @@ describe('Chat', () => {
         return <div data-testid="chat-bar-visibility">{String(showChatBar)}</div>;
       };
 
-      render(
+      renderWithoutProviders(
         <ChatBarProvider>
           <TestComponent />
           <Chat />
@@ -407,6 +410,8 @@ describe('Chat', () => {
       await waitFor(
         () => {
           expect(mockSetActiveConversation).toHaveBeenCalled();
+          // NOTE: getByTestId is used because the TestComponent renders visibility as text content
+          // in a data-testid element, and we need to verify the boolean value as a string
           const visibilityElement = screen.getByTestId('chat-bar-visibility');
           expect(visibilityElement.textContent).toBe('false');
         },
@@ -427,7 +432,7 @@ describe('Chat', () => {
       expect(mockSetActiveConversation).not.toHaveBeenCalled();
     });
 
-    it('renders messages even without conversationId', () => {
+    it('displays messages even without conversationId', () => {
       mockUseMessages.mockReturnValue([
         {
           id: '1',
@@ -459,7 +464,8 @@ describe('Chat', () => {
       renderChat();
 
       await waitFor(() => {
-        // The name "Genie" should be set in the data-name attribute
+        // NOTE: getByTestId is used because we need to verify data attributes (data-name, data-role)
+        // which are not accessible through standard RTL queries
         const message = screen.getByTestId('message');
         expect(message).toHaveAttribute('data-name', 'Genie');
         expect(message).toHaveAttribute('data-role', 'bot');
@@ -481,7 +487,8 @@ describe('Chat', () => {
       renderChat();
 
       await waitFor(() => {
-        // The name "You" should be set in the data-name attribute
+        // NOTE: getByTestId is used because we need to verify data attributes (data-name, data-role)
+        // which are not accessible through standard RTL queries
         const message = screen.getByTestId('message');
         expect(message).toHaveAttribute('data-name', 'You');
         expect(message).toHaveAttribute('data-role', 'user');
