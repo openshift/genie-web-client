@@ -15,6 +15,7 @@ import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
+import { useToolCalls } from './useToolCalls';
 
 function isGenerateUIEvent(token: any) {
   return token?.tool_name?.startsWith?.('generate_ui') && token?.response;
@@ -68,6 +69,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const sendMessage = useSendMessage();
     const streamChunk =
       useStreamChunk<LightSpeedCoreAdditionalProperties>();
+    const { toolCallsByMessage } = useToolCalls(streamChunk);
     const inProgress = useInProgress();
     const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +106,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     // Find the last bot message index for streaming indicator
     const lastBotMessageIndex = useMemo(() => {
       for (let i = messages.length - 1; i >= 0; i--) {
-        if ((messages[i] as any).role === 'bot') {
+        if ((messages[i]).role === 'bot') {
           return i;
         }
       }
@@ -114,6 +116,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const renderedMessages = useMemo(
       () =>
         messages.map((msg, index) => {
+          // TODO: Add type for message
           const message = msg as any;
           const isBot = message.role === 'bot';
 
@@ -127,6 +130,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
                 extraContent={components[msg.id]}
                 onQuickResponse={handleQuickResponse}
                 isStreaming={isStreaming}
+                toolCalls={toolCallsByMessage[msg.id]}
               />
             );
           }
@@ -139,7 +143,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
             />
           );
         }),
-      [messages, components, handleQuickResponse, lastUserMessageIndex, lastBotMessageIndex, inProgress],
+      [messages, components, handleQuickResponse, lastUserMessageIndex, lastBotMessageIndex, inProgress, toolCallsByMessage],
     );
 
     return (
