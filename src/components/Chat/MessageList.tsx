@@ -17,6 +17,7 @@ import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { useToolCalls } from './useToolCalls';
 
+// TODO: Move this to a better location; just trying to get the UI working for now
 function isGenerateUIEvent(token: any) {
   return token?.tool_name?.startsWith?.('generate_ui') && token?.response;
 }
@@ -156,6 +157,3 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     );
   },
 );
-
-MessageList.displayName = 'MessageList';
-
