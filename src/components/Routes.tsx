@@ -8,7 +8,7 @@ import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';
 import { ArtifactLibrary } from './artifact-library';
 
-export const GenieRoutes = () => {
+const GenieRoutes = () => {
   return (
     <Routes>
       <Route element={<GeniePage />}>
@@ -27,3 +27,5 @@ export const GenieRoutes = () => {
     </Routes>
   );
 };
+
+export default GenieRoutes;
