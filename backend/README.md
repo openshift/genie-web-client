@@ -55,7 +55,7 @@ git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
 
 # Start the server
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
 
 # Runs on port 9100 - keep this terminal running
 ```
@@ -220,7 +220,7 @@ kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 **Terminal 2: OBS-MCP Server**
 ```bash
 cd ~/Documents/GHRepos/obs-mcp
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
 ```
 
 **Terminal 3: Backend**

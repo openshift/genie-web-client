@@ -32,7 +32,7 @@ kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
 # Runs on port 9100 - keep running
 
 # Then in another terminal, setup lightspeed-stack
