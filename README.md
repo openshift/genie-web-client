@@ -5,8 +5,8 @@ An AI-powered, extensible UI framework built on the OpenShift Console dynamic pl
 ## Prerequisites
 
 - **Node.js 20+** and **yarn** - For frontend development
-- **Python 3.11+** - For backend (Lightspeed services)
-- **Go 1.21+** - For obs-mcp server
+- **Python 3.12+** (requires >=3.12, <3.14) - For backend (Lightspeed services). See [lightspeed-stack requirements](https://github.com/lightspeed-core/lightspeed-stack/blob/main/pyproject.toml#L21)
+- **Go 1.24.6+** - For obs-mcp server. See [obs-mcp requirements](https://github.com/rhobs/obs-mcp/blob/main/go.mod#L3)
 - **OpenShift CLI (`oc`)** - To connect to a cluster
 - **Podman 3.2.0+** or **Docker** - To run the console
 - **OpenAI API Key** - Or compatible LLM provider
@@ -72,6 +72,14 @@ yarn run start-console
 ```
 
 **Access the app:** http://localhost:9000/genie
+
+### Testing MCP Tool Calls
+
+Once everything is running, you can test obs-mcp integration with these queries:
+
+- "What alerts are firing in the cluster?"
+- "Show me CPU usage metrics"
+- "What pods are running in the openshift-monitoring namespace?"
 
 ## Development
 
@@ -182,6 +190,31 @@ yarn test-cypress
 # Run Cypress in headless mode
 yarn test-cypress-headless
 ```
+
+## Troubleshooting
+
+### "No module named 'mcp'" Error
+
+If you get this error when starting lightspeed-stack:
+
+```
+ModuleNotFoundError: No module named 'mcp'
+```
+
+**Solution:** Install the required dependencies:
+
+```bash
+cd ~/Documents/GHRepos/lightspeed-stack
+uv pip install mcp
+# Or install all optional dependencies:
+uv pip install pandas psycopg2-binary redis aiosqlite pillow "mcp>=1.23.0" scikit-learn pymongo matplotlib
+```
+
+This happens because `uv sync` only installs dependencies from `pyproject.toml`, but llama-stack requires additional packages for MCP support.
+
+### Other Issues
+
+For backend-specific troubleshooting (port conflicts, API keys, etc.), see [`backend/README.md`](./backend/README.md#troubleshooting).
 
 ## Contributing
 

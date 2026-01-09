@@ -4,9 +4,9 @@ This directory contains the backend configuration needed to run Genie Web Client
 
 ## Prerequisites
 
-- **Python 3.11+** - For running Lightspeed services
+- **Python 3.12+** (requires >=3.12, <3.14) - For running Lightspeed services. See [lightspeed-stack requirements](https://github.com/lightspeed-core/lightspeed-stack/blob/main/pyproject.toml#L21)
 - **Node.js 20+** - Already required for frontend
-- **Go 1.21+** - For running obs-mcp server
+- **Go 1.24.6+** - For running obs-mcp server. See [obs-mcp requirements](https://github.com/rhobs/obs-mcp/blob/main/go.mod#L3)
 - **OpenAI API Key** - Or compatible LLM provider
 
 ## Architecture
@@ -35,7 +35,7 @@ The Genie Web Client backend consists of:
 The obs-mcp server provides observability tools (metrics, queries) to the AI.
 
 **Prerequisites:**
-- Go 1.21+ installed
+- Go 1.24.6+ installed
 - Logged into your OpenShift cluster (`oc login`)
 
 **Clone and start obs-mcp server (Terminal 1)**
@@ -121,6 +121,14 @@ lsof -i :8080 | grep LISTEN
 curl http://localhost:8080/health
 ```
 
+### Testing MCP Tool Calls
+
+Once the full stack is running (backend + frontend + console), test obs-mcp integration with these queries:
+
+- "What alerts are firing in the cluster?"
+- "Show me CPU usage metrics"
+- "What pods are running in the openshift-monitoring namespace?"
+
 ## Configuration Files
 
 ### `lightspeed-stack.yaml`
@@ -176,6 +184,25 @@ Install `uv` (Python package installer):
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
+### "No module named 'mcp'" Error
+
+If you get this error when starting lightspeed-stack:
+
+```
+ModuleNotFoundError: No module named 'mcp'
+```
+
+**Solution:** Install the required dependencies:
+
+```bash
+cd ~/Documents/GHRepos/lightspeed-stack
+uv pip install mcp
+# Or install all optional dependencies:
+uv pip install pandas psycopg2-binary redis aiosqlite pillow "mcp>=1.23.0" scikit-learn pymongo matplotlib
+```
+
+This happens because `uv sync` only installs dependencies from `pyproject.toml`, but llama-stack requires additional packages for MCP support.
 
 ### Backend not responding
 
