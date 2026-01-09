@@ -47,9 +47,14 @@ kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 # Keep this running - Prometheus available at localhost:9090
 ```
 
-**Step B: Start obs-mcp server (Terminal 2)**
+**Step B: Clone and start obs-mcp server (Terminal 2)**
 ```bash
-cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+# Clone the obs-mcp repo (one time only, skip if you already have it)
+cd ~/Documents/GHRepos  # or wherever you keep repos
+git clone https://github.com/rhobs/obs-mcp.git
+cd obs-mcp
+
+# Start the server
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
 
 # Runs on port 9100 - keep this terminal running
@@ -214,7 +219,7 @@ kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 
 **Terminal 2: OBS-MCP Server**
 ```bash
-cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+cd ~/Documents/GHRepos/obs-mcp
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
 ```
 

@@ -27,8 +27,11 @@ PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instanc
 kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
 # Keep running
 
-# Second, start obs-mcp server (terminal 2)
-cd ~/Documents/GHRepos/genie-web-client/backend/obs-mcp
+# Second, clone and start obs-mcp server (terminal 2)
+# Clone obs-mcp (one time only, skip if you already have it)
+cd ~/Documents/GHRepos  # or wherever you keep repos
+git clone https://github.com/rhobs/obs-mcp.git
+cd obs-mcp
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100
 # Runs on port 9100 - keep running
 
