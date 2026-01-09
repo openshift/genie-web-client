@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, ReactNode, FormEvent } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
@@ -41,11 +40,11 @@ import { useChatBar } from '../ChatBarContext';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
-import './Layout.css';
-import Notifications from '../notifications/Notifications';
-import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { ChatHistory } from '../ChatHistory';
+import { Notifications } from '../notifications/Notifications';
+import { useSendMessage } from '@redhat-cloud-services/ai-react-state';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
+import './Layout.css';
 
 const CreateNavItem = ({
   subRoute,
@@ -71,10 +70,10 @@ const CreateNavItem = ({
 };
 
 interface LayoutProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout = ({ children }: LayoutProps) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
   const { showChatBar } = useChatBar();
   const navigate = useNavigate();
@@ -143,14 +142,48 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     [openDrawer, storeTriggerElement],
   );
 
+  const handleHomeClick = useCallback(() => {
+    navigate(mainGenieRoute);
+  }, [navigate]);
+
+  const handleSendMessage = useCallback(
+    (value: string) => {
+      sendMessage(value, { stream: true, requestOptions: {} });
+      navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+    },
+    [sendMessage, navigate],
+  );
+
+  const handleNewChatClick = useCallback(() => {
+    navigate(`${mainGenieRoute}/${ChatNew}`);
+  }, [navigate]);
+
+  const handleChatHistoryClick = useCallback(() => {
+    handleDrawerOpen('chatHistory');
+  }, [handleDrawerOpen]);
+
+  const handleNotificationsClick = useCallback(() => {
+    handleDrawerOpen('notifications');
+  }, [handleDrawerOpen]);
+
+  const handleActivityClick = useCallback(() => {
+    handleDrawerOpen('activity');
+  }, [handleDrawerOpen]);
+
+  const handleHelpClick = useCallback(() => {
+    handleDrawerOpen('help');
+  }, [handleDrawerOpen]);
+
   const onNavSelect = (
-    _event: React.FormEvent<HTMLInputElement>,
+    _event: FormEvent<HTMLInputElement>,
     selectedItem: {
       groupId: number | string;
       itemId: number | string;
       to: string;
     },
-  ) => setActiveItem(selectedItem.itemId);
+  ): void => {
+    setActiveItem(selectedItem.itemId);
+  };
 
   const location = useLocation();
 
@@ -171,12 +204,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navContent = (
     <div className="global-layout-nav">
       <CompassPanel isPill>
-        <Button
-          variant="plain"
-          icon={<HomeIcon />}
-          aria-label="Home"
-          onClick={() => navigate(mainGenieRoute)}
-        />
+        <Button variant="plain" icon={<HomeIcon />} aria-label="Home" onClick={handleHomeClick} />
         <Nav onSelect={onNavSelect} aria-label="Nav" variant="horizontal">
           <NavList>
             <CreateNavItem
@@ -214,7 +242,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<PlusSquareIcon />}
                 aria-label="New Chat"
-                onClick={() => navigate(`${mainGenieRoute}/${ChatNew}`)}
+                onClick={handleNewChatClick}
               />
             </Tooltip>
           </ActionListItem>
@@ -224,7 +252,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<CommentDotsIcon />}
                 aria-label="Chat History"
-                onClick={() => handleDrawerOpen('chatHistory')}
+                onClick={handleChatHistoryClick}
               />
             </Tooltip>
           </ActionListItem>
@@ -254,7 +282,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<BellIcon />}
                 aria-label="Notifications"
-                onClick={() => handleDrawerOpen('notifications')}
+                onClick={handleNotificationsClick}
               />
             </Tooltip>
           </ActionListItem>
@@ -264,7 +292,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<WaveSquareIcon />}
                 aria-label="Activity"
-                onClick={() => handleDrawerOpen('activity')}
+                onClick={handleActivityClick}
               />
             </Tooltip>
           </ActionListItem>
@@ -274,7 +302,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant="plain"
                 icon={<QuestionCircleIcon />}
                 aria-label="Help"
-                onClick={() => handleDrawerOpen('help')}
+                onClick={handleHelpClick}
               />
             </Tooltip>
           </ActionListItem>
@@ -288,13 +316,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <CompassMainFooter>
       <CompassMessageBar>
         <CompassPanel isPill hasNoPadding>
-          <MessageBar
-            ref={messageBarRef}
-            onSendMessage={(value: string) => {
-              sendMessage(value, { stream: true, requestOptions: {} });
-              navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-            }}
-          />
+          <MessageBar ref={messageBarRef} onSendMessage={handleSendMessage} />
         </CompassPanel>
       </CompassMessageBar>
     </CompassMainFooter>
@@ -304,7 +326,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <DrawerPanelContent>
       <DrawerHead>
         <div className="drawer-heading">
-          {drawerState.icon && <span className="drawer-heading__icon">{drawerState.icon}</span>}
+          {drawerState.icon ? (
+            <span className="drawer-heading__icon">{drawerState.icon}</span>
+          ) : null}
           <span className="drawer-heading__text">{drawerState.heading}</span>
         </div>
         <DrawerActions>

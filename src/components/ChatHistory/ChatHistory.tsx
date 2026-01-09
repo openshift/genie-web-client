@@ -1,28 +1,27 @@
 import {
-  EmptyStateActions,
+  Alert,
+  AlertVariant,
   Button,
   ButtonVariant,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
   EmptyStateVariant,
   EmptyStateFooter,
-  Skeleton,
   List,
   ListItem,
-  AlertVariant,
-  Alert,
+  Skeleton,
 } from '@patternfly/react-core';
 import { PlusSquareIcon } from '@patternfly/react-icons';
-import { Conversation } from '@redhat-cloud-services/ai-client-state';
-import { useDrawer } from '../drawer';
-
+import type { Conversation } from '@redhat-cloud-services/ai-client-state';
 import { useConversations, useIsInitializing } from '@redhat-cloud-services/ai-react-state';
-import { mainGenieRoute, ChatNew, SubRoutes } from '../routeList';
-import { useNavigate } from 'react-router-dom-v5-compat';
-import { groupByDate } from './dateHelpers';
-import { ChatHistorySearch } from './ChatHistorySearch';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom-v5-compat';
+import { useDrawer } from '../drawer';
+import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
+import { ChatHistorySearch } from './ChatHistorySearch';
+import { groupByDate } from './dateHelpers';
 
 /**
  * Filters conversations by search term (case-insensitive, matches anywhere in title)
@@ -53,6 +52,13 @@ const ChatHistoryGroup = ({
   const { t } = useTranslation('plugin__genie-web-client');
   const title = t(`chatHistory.group.${titleKey}`);
 
+  const handleClick = useCallback(
+    (conversation: Conversation) => {
+      onClick(conversation);
+    },
+    [onClick],
+  );
+
   if (!isLoading && conversations.length === 0) {
     return null;
   }
@@ -68,7 +74,7 @@ const ChatHistoryGroup = ({
               <Button
                 variant={ButtonVariant.link}
                 role="link"
-                onClick={() => onClick(conversation)}
+                onClick={() => handleClick(conversation)}
                 isBlock
                 style={{ justifyContent: 'flex-start' }} /* temp styling until we add actions */
               >
@@ -86,6 +92,12 @@ const EmptyStateComponent: React.FC = () => {
   const navigate = useNavigate();
   const { closeDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
+
+  const handleNewChatClick = useCallback(() => {
+    closeDrawer();
+    navigate(`${mainGenieRoute}/${ChatNew}`);
+  }, [closeDrawer, navigate]);
+
   return (
     <EmptyState
       variant={EmptyStateVariant.lg}
@@ -95,14 +107,7 @@ const EmptyStateComponent: React.FC = () => {
       <EmptyStateBody>{t('chatHistory.emptyState.description')}</EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button
-            variant="primary"
-            icon={<PlusSquareIcon />}
-            onClick={() => {
-              closeDrawer();
-              navigate(`${mainGenieRoute}/${ChatNew}`);
-            }}
-          >
+          <Button variant="primary" icon={<PlusSquareIcon />} onClick={handleNewChatClick}>
             {t('chatHistory.emptyState.cta')}
           </Button>
         </EmptyStateActions>
