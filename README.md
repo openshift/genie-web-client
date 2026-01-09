@@ -21,18 +21,17 @@ The backend provides AI capabilities. See detailed instructions in [`backend/REA
 
 **Quick Start:**
 ```bash
-# First, port-forward Prometheus (terminal 1)
-oc login  # Make sure you're logged in
-PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
-kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
-# Keep running
+# First, clone and start obs-mcp server (terminal 1)
+# Make sure you're logged into your OpenShift cluster
+oc login
 
-# Second, clone and start obs-mcp server (terminal 2)
 # Clone obs-mcp (one time only, skip if you already have it)
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
+
+# Start obs-mcp (auto-discovers Prometheus in the cluster)
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 # Runs on port 9100 - keep running
 
 # Then in another terminal, setup lightspeed-stack
@@ -56,7 +55,7 @@ uv run python -m src.lightspeed_stack
 
 In separate terminal windows, run:
 
-**Terminal 1: Plugin Dev Server**
+**Terminal 3: Plugin Dev Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn install
@@ -64,7 +63,7 @@ yarn run start
 # Runs on port 9001 - keep running
 ```
 
-**Terminal 2: OpenShift Console**
+**Terminal 4: OpenShift Console**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 oc login  # Connect to your cluster

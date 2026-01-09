@@ -38,27 +38,20 @@ The obs-mcp server provides observability tools (metrics, queries) to the AI.
 - Go 1.21+ installed
 - Logged into your OpenShift cluster (`oc login`)
 
-**Step A: Port-forward Prometheus (Terminal 1)**
-```bash
-# Port-forward thanos-querier for Prometheus access
-PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
-kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
-
-# Keep this running - Prometheus available at localhost:9090
-```
-
-**Step B: Clone and start obs-mcp server (Terminal 2)**
+**Clone and start obs-mcp server (Terminal 1)**
 ```bash
 # Clone the obs-mcp repo (one time only, skip if you already have it)
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
 
-# Start the server
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
+# Start the server (auto-discovers Prometheus in the cluster)
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 
 # Runs on port 9100 - keep this terminal running
 ```
+
+**Note:** The `--guardrails none` flag allows broader queries for local development. In production, you may want to use the default guardrails.
 
 ### 2. Clone and Setup Lightspeed Stack
 
@@ -211,32 +204,26 @@ curl https://api.openai.com/v1/models \
 
 ### Full Stack Development
 
-**Terminal 1: Prometheus Port-forward**
-```bash
-PROM_POD=$(kubectl get pods -n openshift-monitoring -l app.kubernetes.io/instance=thanos-querier -o jsonpath="{.items[0].metadata.name}")
-kubectl port-forward -n openshift-monitoring $PROM_POD 9090:9090
-```
-
-**Terminal 2: OBS-MCP Server**
+**Terminal 1: OBS-MCP Server**
 ```bash
 cd ~/Documents/GHRepos/obs-mcp
-go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig
+go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 ```
 
-**Terminal 3: Backend**
+**Terminal 2: Backend**
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 export OPENAI_API_KEY="sk-..."
 uv run python -m src.lightspeed_stack
 ```
 
-**Terminal 4: Frontend Dev Server**
+**Terminal 3: Frontend Dev Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start
 ```
 
-**Terminal 5: Console**
+**Terminal 4: Console**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start-console
