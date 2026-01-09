@@ -39,14 +39,14 @@
   padding-top: 32px;
 }
 
-/* first card image - bigger size due to less content */
-.onboarding-img-first {
+/* large image size for pages with less content */
+.onboarding-img--large {
   max-width: 350px;
   height: 263px;
 }
 
-/* last card image - smaller size due to more content */
-.onboarding-img-last {
+/* small image size for pages with more content */
+.onboarding-img--small {
   max-width: 240px;
   height: 163px;
 }
