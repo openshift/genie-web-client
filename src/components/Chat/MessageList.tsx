@@ -3,7 +3,7 @@ import { MessageBox } from '@patternfly/chatbot';
 import type { Message } from '../../hooks/AIState';
 import {
   useMessages,
-  useSendMessage,
+  useSendStreamMessage,
   useStreamChunk,
   useInProgress,
 } from '../../hooks/AIState';
@@ -22,7 +22,7 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = React.memo(
   ({ isLoading, isValidConversationId }) => {
     const messages = useMessages();
-    const sendMessage = useSendMessage();
+    const sendStreamMessage = useSendStreamMessage();
     const streamChunk =
       useStreamChunk<LightSpeedCoreAdditionalProperties>();
     const { toolCallsByMessage } = useToolCalls(streamChunk);
@@ -30,8 +30,8 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const bottomRef = useRef<HTMLDivElement>(null);
 
     const handleQuickResponse = useCallback(
-      (text: string) => sendMessage(text, { stream: true }),
-      [sendMessage],
+      (text: string) => sendStreamMessage(text),
+      [sendStreamMessage],
     );
 
     // Find the last user message index for edit functionality

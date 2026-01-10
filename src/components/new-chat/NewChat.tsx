@@ -15,7 +15,7 @@ import {
 } from '@patternfly/react-icons';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSendMessage } from '../../hooks/AIState';
+import { useSendStreamMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';
@@ -26,7 +26,7 @@ export const NewChat: React.FC = () => {
   const { setShowChatBar } = useChatBar();
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
-  const sendMessage = useSendMessage();
+  const sendStreamMessage = useSendStreamMessage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,10 +50,10 @@ export const NewChat: React.FC = () => {
 
   const handleSendMessage = useCallback(
     (message: string | number) => {
-      sendMessage(message, { stream: true, requestOptions: {} });
+      sendStreamMessage(message);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [sendMessage, navigate],
+    [sendStreamMessage, navigate],
   );
 
   const suggestions: Array<{
@@ -84,8 +84,7 @@ export const NewChat: React.FC = () => {
               icon={icon}
               onClick={() => {
                 const prompt = t(getIntroPromptKey(key));
-                sendMessage(prompt, {
-                  stream: true,
+                sendStreamMessage(prompt, {
                   requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
                 });
                 navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
@@ -103,8 +102,7 @@ export const NewChat: React.FC = () => {
               icon={icon}
               onClick={() => {
                 const prompt = t(getIntroPromptKey(key));
-                sendMessage(prompt, {
-                  stream: true,
+                sendStreamMessage(prompt, {
                   requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
                 });
                 navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);

@@ -40,7 +40,7 @@ import { useChatBar } from '../ChatBarContext';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
-import { useSendMessage } from '../../hooks/AIState';
+import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
 import { Notifications } from '../notifications/Notifications';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
@@ -78,7 +78,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const { showChatBar } = useChatBar();
   const navigate = useNavigate();
 
-  const sendMessage = useSendMessage();
+  const sendStreamMessage = useSendStreamMessage();
 
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
@@ -148,10 +148,10 @@ export const Layout = ({ children }: LayoutProps) => {
 
   const handleSendMessage = useCallback(
     (value: string) => {
-      sendMessage(value, { stream: true, requestOptions: {} });
+      sendStreamMessage(value);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [sendMessage, navigate],
+    [sendStreamMessage, navigate],
   );
 
   const handleNewChatClick = useCallback(() => {
