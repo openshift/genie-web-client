@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import type { FunctionComponent } from 'react';
+import { useMemo, FunctionComponent, memo, useCallback } from 'react';
 import { Message } from '@patternfly/chatbot';
 import {
   CopyIcon,
@@ -38,84 +37,92 @@ function collectArtifactsFromToolCalls(toolCalls: ToolCallState[]): Artifact[] {
     .flatMap((call) => call.artifacts || []);
 }
 
-export const AIMessage: FunctionComponent<AIMessageProps> = ({
-  message,
-  onQuickResponse,
-  isStreaming = false,
-  toolCalls = [],
-}) => {
-  const content = message.answer || '';
+export const AIMessage: FunctionComponent<AIMessageProps> = memo(
+  ({ message, onQuickResponse, isStreaming = false, toolCalls = [] }) => {
+    const content = message.answer || '';
 
-  const handleCopy = (): void => {
-    navigator.clipboard.writeText(content);
-  };
-  const handleRegenerate = (): void => {
-    console.log('Regenerate');
-  };
-  const handleFeedback = (isPositive: boolean): void => {
-    console.log('Feedback', isPositive);
-  };
-  const handleShare = (): void => {
-    console.log('Share');
-  };
-  const handleReadAloud = (): void => {
-    console.log('Read aloud');
-  };
-  const handleReport = (): void => {
-    console.log('Report');
-  };
+    const handleCopy = useCallback((): void => {
+      navigator.clipboard.writeText(content);
+    }, [content]);
 
-  // Memoize actions to prevent unnecessary re-renders
-  const actions = useMemo(
-    () => ({
-      copy: { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' },
-      regenerate: {
-        icon: <RedoIcon />,
-        onClick: handleRegenerate,
-        label: 'Regenerate',
-      },
-      positive: {
-        icon: <ThumbsUpIcon />,
-        onClick: () => handleFeedback(true),
-        label: 'Good response',
-      },
-      negative: {
-        icon: <ThumbsDownIcon />,
-        onClick: () => handleFeedback(false),
-        label: 'Bad response',
-      },
-      share: { icon: <ShareIcon />, onClick: handleShare, label: 'Share' },
-      listen: {
-        icon: <VolumeUpIcon />,
-        onClick: handleReadAloud,
-        label: 'Read aloud',
-      },
-      report: { icon: <FlagIcon />, onClick: handleReport, label: 'Report' },
-    }),
-    [content],
-  );
+    const handleRegenerate = useCallback((): void => {
+      console.log('Regenerate');
+    }, []);
 
-  // Collect all artifacts from completed tool calls
-  const artifacts = useMemo(
-    () => collectArtifactsFromToolCalls(toolCalls),
-    [toolCalls],
-  );
+    const handleFeedback = useCallback((isPositive: boolean): void => {
+      console.log('Feedback', isPositive);
+    }, []);
 
-  // Build extra content with tool calls and artifacts
-  const hasToolCalls = toolCalls.length > 0;
-  const hasArtifacts = artifacts.length > 0;
-  const extraContent = {
-    beforeMainContent: hasToolCalls ? <ToolCallsList toolCalls={toolCalls} /> : null,
-    afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
-  };
+    const handleShare = useCallback((): void => {
+      console.log('Share');
+    }, []);
 
-  return (
-    <Message
-      isLoading={isStreaming}
-      role="bot"
-      content={content}
-      extraContent={extraContent}
-      actions={actions}
-    />
-  );
-};
+    const handleReadAloud = useCallback((): void => {
+      console.log('Read aloud');
+    }, []);
+
+    const handleReport = useCallback((): void => {
+      console.log('Report');
+    }, []);
+
+    const actions = useMemo(
+      () => ({
+        copy: { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' },
+        regenerate: {
+          icon: <RedoIcon />,
+          onClick: handleRegenerate,
+          label: 'Regenerate',
+        },
+        positive: {
+          icon: <ThumbsUpIcon />,
+          onClick: () => handleFeedback(true),
+          label: 'Good response',
+        },
+        negative: {
+          icon: <ThumbsDownIcon />,
+          onClick: () => handleFeedback(false),
+          label: 'Bad response',
+        },
+        share: { icon: <ShareIcon />, onClick: handleShare, label: 'Share' },
+        listen: {
+          icon: <VolumeUpIcon />,
+          onClick: handleReadAloud,
+          label: 'Read aloud',
+        },
+        report: { icon: <FlagIcon />, onClick: handleReport, label: 'Report' },
+      }),
+      [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
+    );
+
+    const artifacts = useMemo(
+      () => collectArtifactsFromToolCalls(toolCalls),
+      [toolCalls],
+    );
+
+    const hasToolCalls = toolCalls.length > 0;
+    const hasArtifacts = artifacts.length > 0;
+    const extraContent = {
+      beforeMainContent: hasToolCalls ? <ToolCallsList toolCalls={toolCalls} /> : null,
+      afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
+    };
+
+    return (
+      <Message
+        isLoading={isStreaming}
+        role="bot"
+        content={content}
+        extraContent={extraContent}
+        actions={actions}
+      />
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.isStreaming === nextProps.isStreaming &&
+      prevProps.message.answer === nextProps.message.answer &&
+      prevProps.toolCalls === nextProps.toolCalls // Shallow reference check is sufficient
+    );
+  },
+);
+
+AIMessage.displayName = 'AIMessage';
