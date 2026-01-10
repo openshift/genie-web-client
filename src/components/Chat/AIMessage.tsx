@@ -9,11 +9,14 @@ import {
   VolumeUpIcon,
   FlagIcon,
 } from '@patternfly/react-icons';
+import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
 import type { ToolCallState } from './useToolCalls';
 import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact } from '../../types/chat';
+import { toMessageQuickResponses } from '../new-chat/suggestions';
+import type { GenieAdditionalProperties } from '../new-chat/suggestions';
 
 export interface AIMessageProps {
   message: MessageType;
@@ -39,7 +42,12 @@ function collectArtifactsFromToolCalls(toolCalls: ToolCallState[]): Artifact[] {
 
 export const AIMessage: FunctionComponent<AIMessageProps> = memo(
   ({ message, onQuickResponse, isStreaming = false, toolCalls = [] }) => {
+    const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
+
+    // Extract quick responses from message additionalAttributes
+    const additionalAttrs = message.additionalAttributes as GenieAdditionalProperties | undefined;
+    const quickResponsesPayload = additionalAttrs?.quickResponses;
 
     const handleCopy = useCallback((): void => {
       navigator.clipboard.writeText(content);
@@ -99,6 +107,12 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       [toolCalls],
     );
 
+    // Convert quick responses payload to PatternFly Message format
+    const quickResponses = useMemo(
+      () => toMessageQuickResponses(quickResponsesPayload?.items, t, onQuickResponse),
+      [quickResponsesPayload?.items, t, onQuickResponse],
+    );
+
     const hasToolCalls = toolCalls.length > 0;
     const hasArtifacts = artifacts.length > 0;
     const extraContent = {
@@ -113,6 +127,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         content={content}
         extraContent={extraContent}
         actions={actions}
+        quickResponses={quickResponses}
       />
     );
   },

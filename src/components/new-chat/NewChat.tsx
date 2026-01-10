@@ -15,9 +15,9 @@ import {
 } from '@patternfly/react-icons';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSendStreamMessage } from '../../hooks/AIState';
+import { useSendStreamMessage, useInjectBotMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { buildQuickResponsesPayload, getIntroPromptKey } from './suggestions';
+import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import './NewChat.css';
@@ -27,6 +27,7 @@ export const NewChat: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   const sendStreamMessage = useSendStreamMessage();
+  const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,6 +57,24 @@ export const NewChat: React.FC = () => {
     [sendStreamMessage, navigate],
   );
 
+  const handleSuggestionClick = useCallback(
+    (key: SuggestionKey) => {
+      const introMessage = t(getIntroPromptKey(key));
+      const quickResponsesPayload = buildQuickResponsesPayload(key);
+
+      // Inject a bot message with quick responses (no API call)
+      injectBotMessage({
+        answer: introMessage,
+        additionalAttributes: {
+          quickResponses: quickResponsesPayload,
+        },
+      });
+
+      navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+    },
+    [t, injectBotMessage, navigate],
+  );
+
   const suggestions: Array<{
     key: 'build' | 'automate' | 'troubleshoot' | 'analyze' | 'explore';
     icon?: ReactNode;
@@ -82,13 +101,7 @@ export const NewChat: React.FC = () => {
               key={key}
               variant="tertiary"
               icon={icon}
-              onClick={() => {
-                const prompt = t(getIntroPromptKey(key));
-                sendStreamMessage(prompt, {
-                  requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
-                });
-                navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-              }}
+              onClick={() => handleSuggestionClick(key)}
             >
               {t(`newChat.suggestion.${key}`)}
             </Button>
@@ -100,13 +113,7 @@ export const NewChat: React.FC = () => {
               key={key}
               variant="tertiary"
               icon={icon}
-              onClick={() => {
-                const prompt = t(getIntroPromptKey(key));
-                sendStreamMessage(prompt, {
-                  requestPayload: { quickResponses: buildQuickResponsesPayload(key) },
-                });
-                navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-              }}
+              onClick={() => handleSuggestionClick(key)}
             >
               {t(`newChat.suggestion.${key}`)}
             </Button>
