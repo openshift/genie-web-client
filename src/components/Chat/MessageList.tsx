@@ -7,12 +7,12 @@ import {
   useStreamChunk,
   useInProgress,
 } from '../../hooks/AIState';
-import type { LightSpeedCoreAdditionalProperties } from '../../hooks/AIState';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { useToolCalls } from './useToolCalls';
+import { GenieAdditionalProperties } from 'src/types/chat';
 
 interface MessageListProps {
   isLoading: boolean;
@@ -24,7 +24,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const messages = useMessages();
     const sendStreamMessage = useSendStreamMessage();
     const streamChunk =
-      useStreamChunk<LightSpeedCoreAdditionalProperties>();
+      useStreamChunk<GenieAdditionalProperties>();
     const { toolCallsByMessage } = useToolCalls(streamChunk);
     const inProgress = useInProgress();
     const bottomRef = useRef<HTMLDivElement>(null);

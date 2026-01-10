@@ -1,3 +1,6 @@
+import { QuickResponsesPayload } from "src/components/new-chat/suggestions";
+import { LightSpeedCoreAdditionalProperties } from "src/hooks/AIState";
+
 // Exploring types based on designs
 export interface Conversation {
   id: string;
@@ -86,3 +89,8 @@ export interface CodeArtifact extends BaseArtifact {
 }
 
 export type Artifact = DashboardArtifact | WidgetArtifact | CodeArtifact;
+
+export type GenieAdditionalProperties = LightSpeedCoreAdditionalProperties & {
+  quickResponses?: QuickResponsesPayload;
+  [key: string]: unknown;
+};

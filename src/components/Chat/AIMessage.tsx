@@ -14,12 +14,11 @@ import type { Message as MessageType } from '../../hooks/AIState';
 import type { ToolCallState } from './useToolCalls';
 import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
-import type { Artifact } from '../../types/chat';
+import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
-import type { GenieAdditionalProperties } from '../new-chat/suggestions';
 
 export interface AIMessageProps {
-  message: MessageType;
+  message: MessageType<GenieAdditionalProperties>;
   onQuickResponse: (text: string) => void;
   isStreaming?: boolean;
   toolCalls?: ToolCallState[];
@@ -46,7 +45,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const content = message.answer || '';
 
     // Extract quick responses from message additionalAttributes
-    const additionalAttrs = message.additionalAttributes as GenieAdditionalProperties | undefined;
+    const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
 
     const handleCopy = useCallback((): void => {

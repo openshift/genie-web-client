@@ -10,15 +10,6 @@ export interface QuickResponsesPayload {
   items: QuickResponseItem[];
 }
 
-/**
- * Extended additional properties that include quick responses for injected bot messages.
- * Uses index signature to satisfy Record<string, unknown> constraint from ai-client-state.
- */
-export interface GenieAdditionalProperties {
-  quickResponses?: QuickResponsesPayload;
-  [key: string]: unknown;
-}
-
 export const quickResponseKeyMap: Record<SuggestionKey, string[]> = {
   build: [
     'newChat.quickResponses.build.0.label',
