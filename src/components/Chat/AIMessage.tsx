@@ -122,6 +122,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     return (
       <Message
+        name='Genie'
         isLoading={isStreaming}
         role="bot"
         content={content}

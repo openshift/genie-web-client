@@ -37,7 +37,7 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
       [isLastUserMessage, copyAction, editAction],
     );
 
-    return <Message role="user" content={content} actions={actions} />;
+    return <Message name='You' role="user" content={content} actions={actions} />;
   },
   (prevProps, nextProps) =>
     prevProps.isLastUserMessage === nextProps.isLastUserMessage &&

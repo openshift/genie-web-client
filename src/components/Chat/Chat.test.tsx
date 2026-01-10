@@ -6,12 +6,18 @@ import { ChatBarProvider, useChatBar } from '../ChatBarContext';
 const mockUseMessages = jest.fn();
 const mockUseSetActiveConversation = jest.fn();
 const mockUseSendMessage = jest.fn();
+const mockUseSendStreamMessage = jest.fn();
+const mockUseStreamChunk = jest.fn();
+const mockUseInProgress = jest.fn();
 const mockUseParams = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
   useSendMessage: () => mockUseSendMessage(),
   useSetActiveConversation: () => mockUseSetActiveConversation(),
+  useSendStreamMessage: () => mockUseSendStreamMessage(),
+  useStreamChunk: () => mockUseStreamChunk(),
+  useInProgress: () => mockUseInProgress(),
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
@@ -19,11 +25,33 @@ jest.mock('react-router-dom-v5-compat', () => ({
   useParams: () => mockUseParams(),
 }));
 
+// Mock MessageList to isolate Chat component testing
+jest.mock('./MessageList', () => ({
+  MessageList: ({ isLoading, isValidConversationId }: { isLoading: boolean; isValidConversationId: boolean }) => {
+    if (isLoading) {
+      return <div data-testid="message-list-loading">Loading conversation</div>;
+    }
+    if (!isValidConversationId) {
+      return (
+        <div data-testid="message-list-not-found">
+          <div>Conversation not found</div>
+          <div>The conversation you are looking for was not found or no longer exists.</div>
+          <button>Start a new chat</button>
+        </div>
+      );
+    }
+    return <div data-testid="message-list">Messages rendered</div>;
+  },
+}));
+
 describe('Chat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseMessages.mockReturnValue([]);
     mockUseSetActiveConversation.mockReturnValue(jest.fn().mockResolvedValue(undefined));
+    mockUseSendStreamMessage.mockReturnValue(jest.fn());
+    mockUseStreamChunk.mockReturnValue(undefined);
+    mockUseInProgress.mockReturnValue(false);
     mockUseParams.mockReturnValue({});
   });
 
@@ -134,218 +162,56 @@ describe('Chat', () => {
     });
   });
 
-  describe('Message Rendering', () => {
-    it('displays user messages correctly', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
+  describe('MessageList Integration', () => {
+    it('passes isLoading to MessageList during async operation', async () => {
+      let resolvePromise: (() => void) | undefined;
+      const mockSetActiveConversation = jest.fn(
+        () =>
+          new Promise<void>((resolve) => {
+            resolvePromise = resolve;
+          }),
+      );
       mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'Hello, how are you?',
-          timestamp: '2025-01-15T10:00:00.000Z',
-        },
-      ]);
+      mockUseMessages.mockReturnValue([]);
       mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
 
       renderChat();
 
+      // MessageList should show loading state
       await waitFor(() => {
-        expect(screen.getByText('Hello, how are you?')).toBeInTheDocument();
+        expect(screen.getByTestId('message-list-loading')).toBeInTheDocument();
+      });
+
+      // Resolve the promise to clean up
+      if (resolvePromise) {
+        await waitFor(() => resolvePromise());
+      }
+    });
+
+    it('passes isValidConversationId=false to MessageList when conversation not found', async () => {
+      const mockSetActiveConversation = jest.fn().mockRejectedValue(new Error('Not found'));
+      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
+      mockUseMessages.mockReturnValue([]);
+      mockUseParams.mockReturnValue({ conversationId: 'invalid-conversation-id' });
+
+      renderChat();
+
+      // MessageList should show not found state
+      await waitFor(() => {
+        expect(screen.getByTestId('message-list-not-found')).toBeInTheDocument();
       });
     });
 
-    it('displays bot messages correctly', async () => {
+    it('renders MessageList when conversation is valid', async () => {
       const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
       mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'bot',
-          answer: 'I am doing well, thank you!',
-          timestamp: '2025-01-15T10:00:01.000Z',
-        },
-      ]);
+      mockUseMessages.mockReturnValue([]);
       mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
 
       renderChat();
 
       await waitFor(() => {
-        expect(screen.getByText('I am doing well, thank you!')).toBeInTheDocument();
-      });
-    });
-
-    it('handles messages with query field', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          query: 'What is the weather?',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('What is the weather?')).toBeInTheDocument();
-      });
-    });
-
-    it('handles messages with answer field', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'bot',
-          answer: 'The weather is sunny today.',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('The weather is sunny today.')).toBeInTheDocument();
-      });
-    });
-
-    it('handles messages with content field', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          content: 'This is content',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('This is content')).toBeInTheDocument();
-      });
-    });
-
-    it('splits content at the separator string', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'bot',
-          answer:
-            'Some prefix text =====The following is the user query that was asked: Actual answer content',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        // NOTE: getByTestId is used because we need to check the textContent of the message element
-        // which may contain whitespace that getByText cannot match exactly
-        const message = screen.getByTestId('message');
-        expect(message.textContent).toBe(' Actual answer content');
-        expect(screen.queryByText('Some prefix text')).not.toBeInTheDocument();
-      });
-    });
-
-    it('handles empty content', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'bot',
-          answer: '',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      // Component should render without error even with empty content
-      await waitFor(() => {
-        expect(mockUseMessages).toHaveBeenCalled();
-      });
-    });
-
-    it('displays multiple messages in order', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'First message',
-        },
-        {
-          id: '2',
-          role: 'bot',
-          answer: 'Second message',
-        },
-        {
-          id: '3',
-          role: 'user',
-          message: 'Third message',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('First message')).toBeInTheDocument();
-        expect(screen.getByText('Second message')).toBeInTheDocument();
-        expect(screen.getByText('Third message')).toBeInTheDocument();
-      });
-    });
-
-    it('uses timestamp from message if available', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      const timestamp = '2025-01-15T10:30:00.000Z';
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'Test message',
-          timestamp,
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test message')).toBeInTheDocument();
-      });
-    });
-
-    it('uses createdAt if timestamp is not available', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      const createdAt = '2025-01-15T11:00:00.000Z';
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'Test message',
-          createdAt,
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test message')).toBeInTheDocument();
+        expect(screen.getByTestId('message-list')).toBeInTheDocument();
       });
     });
   });
@@ -432,67 +298,14 @@ describe('Chat', () => {
       expect(mockSetActiveConversation).not.toHaveBeenCalled();
     });
 
-    it('displays messages even without conversationId', () => {
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'Test message without conversation',
-        },
-      ]);
+    it('renders MessageList without conversationId', () => {
+      mockUseMessages.mockReturnValue([]);
       mockUseParams.mockReturnValue({});
 
       renderChat();
 
-      expect(screen.getByText('Test message without conversation')).toBeInTheDocument();
-    });
-  });
-
-  describe('Message Name Display', () => {
-    it('sets name to "Genie" for bot messages', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'bot',
-          answer: 'Bot response',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        // NOTE: getByTestId is used because we need to verify data attributes (data-name, data-role)
-        // which are not accessible through standard RTL queries
-        const message = screen.getByTestId('message');
-        expect(message).toHaveAttribute('data-name', 'Genie');
-        expect(message).toHaveAttribute('data-role', 'bot');
-      });
-    });
-
-    it('sets name to "You" for user messages', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([
-        {
-          id: '1',
-          role: 'user',
-          message: 'User message',
-        },
-      ]);
-      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
-
-      renderChat();
-
-      await waitFor(() => {
-        // NOTE: getByTestId is used because we need to verify data attributes (data-name, data-role)
-        // which are not accessible through standard RTL queries
-        const message = screen.getByTestId('message');
-        expect(message).toHaveAttribute('data-name', 'You');
-        expect(message).toHaveAttribute('data-role', 'user');
-      });
+      // MessageList should render since isValidConversationId defaults to true
+      expect(screen.getByTestId('message-list')).toBeInTheDocument();
     });
   });
 });
