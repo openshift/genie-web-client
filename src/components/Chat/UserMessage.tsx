@@ -1,4 +1,4 @@
-import type { FunctionComponent } from 'react';
+import { FunctionComponent, memo, useCallback, useMemo } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { CopyIcon, EditIcon } from '@patternfly/react-icons';
 import type { Message as MessageType } from '../../hooks/AIState';
@@ -6,36 +6,43 @@ import type { Message as MessageType } from '../../hooks/AIState';
 export interface UserMessageProps {
   message: MessageType;
   isLastUserMessage: boolean;
-  // TODO: Add these handlers when implementing edit functionality
   // onEdit?: (messageId: string, newContent: string) => void;
   // onCopy?: (content: string) => void;
 }
 
-export const UserMessage: FunctionComponent<UserMessageProps> = ({
-  message,
-  isLastUserMessage,
-}) => {
-  let content = message.answer || '';
-  content = content
-    .split('=====The following is the user query that was asked:')
-    .pop();
+export const UserMessage: FunctionComponent<UserMessageProps> = memo(
+  ({ message, isLastUserMessage }) => {
+    const content = message.answer || '';
+    
+    const handleEdit = useCallback((): void => {
+      // ...regenerate the bot's last response
+    }, []);
 
-  // TODO: Implement user message actions
-  const handleEdit = (): void => {
-    // ...regenerate the bot's last response
-  };
-  const handleCopy = (): void => {
-    navigator.clipboard.writeText(content);
-  };
+    const handleCopy = useCallback((): void => {
+      navigator.clipboard.writeText(content);
+    }, [content]);
 
-  const copyAction = { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' };
-  const editAction = { icon: <EditIcon />, onClick: handleEdit, label: 'Edit' };
+    const copyAction = useMemo(
+      () => ({ icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' }),
+      [handleCopy],
+    );
 
-  return (
-    <Message
-      role="user"
-      content={content}
-      actions={isLastUserMessage ? { copy: copyAction, edit: editAction } : { copy: copyAction }}
-    />
-  );
-};
+    const editAction = useMemo(
+      () => ({ icon: <EditIcon />, onClick: handleEdit, label: 'Edit' }),
+      [handleEdit],
+    );
+
+    const actions = useMemo(
+      () => (isLastUserMessage ? { copy: copyAction, edit: editAction } : { copy: copyAction }),
+      [isLastUserMessage, copyAction, editAction],
+    );
+
+    return <Message role="user" content={content} actions={actions} />;
+  },
+  (prevProps, nextProps) =>
+    prevProps.isLastUserMessage === nextProps.isLastUserMessage &&
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.answer === nextProps.message.answer,
+);
+
+UserMessage.displayName = 'UserMessage';

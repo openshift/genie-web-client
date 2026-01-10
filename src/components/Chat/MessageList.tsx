@@ -81,7 +81,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
             />
           );
         }),
-      [messages, handleQuickResponse, lastUserMessageIndex, lastBotMessageIndex, inProgress, toolCallsByMessage],
+      [messages, handleQuickResponse, lastUserMessageIndex, lastBotMessageIndex, inProgress],
     );
 
     return (
