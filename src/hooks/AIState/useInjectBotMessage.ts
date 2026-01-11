@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react';
 import { AIStateContext } from '@redhat-cloud-services/ai-react-state';
-import type { GenieAdditionalProperties } from '../../components/new-chat/suggestions';
+import type { GenieAdditionalProperties } from 'src/types/chat';
 
 export interface InjectBotMessageOptions {
   answer: string;

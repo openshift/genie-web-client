@@ -1,7 +1,7 @@
 import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
 import { AIMessage } from './AIMessage';
 import type { Message } from '../../hooks/AIState';
-import type { GenieAdditionalProperties } from '../new-chat/suggestions';
+import type { GenieAdditionalProperties } from 'src/types/chat';
 
 // Mock clipboard API
 const mockWriteText = jest.fn();
