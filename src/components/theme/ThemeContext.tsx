@@ -11,6 +11,9 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'genie-theme-preference';
+const PREFERS_DARK_SCHEME = '(prefers-color-scheme: dark)';
+const PF_THEME_LIGHT = 'pf-v6-theme-light';
+const PF_THEME_DARK = 'pf-v6-theme-dark';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -19,7 +22,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (stored === 'light' || stored === 'dark') return stored;
 
     // fall back to system preference
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (window.matchMedia(PREFERS_DARK_SCHEME).matches) {
       return 'dark';
     }
     return 'light';
@@ -27,8 +30,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     // apply theme class to html element
-    document.documentElement.classList.remove('pf-v6-theme-light', 'pf-v6-theme-dark');
-    document.documentElement.classList.add(`pf-v6-theme-${theme}`);
+    document.documentElement.classList.remove(PF_THEME_LIGHT, PF_THEME_DARK);
+    document.documentElement.classList.add(theme === 'dark' ? PF_THEME_DARK : PF_THEME_LIGHT);
 
     // save preference
     localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -36,7 +39,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // listen for OS theme changes
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia(PREFERS_DARK_SCHEME);
     const handleChange = (e: MediaQueryListEvent) => {
       // only update if user hasn't set a preference
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
