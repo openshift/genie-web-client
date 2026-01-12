@@ -15,6 +15,8 @@ const PREFERS_DARK_SCHEME = '(prefers-color-scheme: dark)';
 const PF_THEME_LIGHT = 'pf-v6-theme-light';
 const PF_THEME_DARK = 'pf-v6-theme-dark';
 
+const getDarkSchemeMQ = () => window.matchMedia(PREFERS_DARK_SCHEME);
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     // check localStorage first
@@ -22,7 +24,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (stored === 'light' || stored === 'dark') return stored;
 
     // fall back to system preference
-    if (window.matchMedia(PREFERS_DARK_SCHEME).matches) {
+    if (getDarkSchemeMQ().matches) {
       return 'dark';
     }
     return 'light';
@@ -39,7 +41,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // listen for OS theme changes
   useEffect(() => {
-    const mediaQuery = window.matchMedia(PREFERS_DARK_SCHEME);
+    const mediaQuery = getDarkSchemeMQ();
     const handleChange = (e: MediaQueryListEvent) => {
       // only update if user hasn't set a preference
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
