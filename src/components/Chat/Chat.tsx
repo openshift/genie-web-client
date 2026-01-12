@@ -3,18 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { useSendMessage, useMessages, useSetActiveConversation } from '../../hooks/AIState';
 import {
   Chatbot,
-  ChatbotHeader,
-  ChatbotHeaderTitle,
-  ChatbotHeaderActions,
-  ChatbotHeaderOptionsDropdown,
   ChatbotContent,
   MessageBox,
   Message,
   ChatbotDisplayMode,
-  ChatbotHeaderMain,
 } from '@patternfly/chatbot';
-import { Button, Divider, DropdownItem, DropdownList } from '@patternfly/react-core';
-import { RhStandardThoughtBubbleIcon, RhUiShareAltIcon } from '@patternfly/react-icons';
 import { useParams } from 'react-router-dom-v5-compat';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
@@ -22,6 +15,7 @@ import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
 import { useTranslation } from 'react-i18next';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import EditableChatHeader from './EditableChatHeader';
 
 export const Chat: React.FunctionComponent = () => {
   const bottomRef = React.createRef<HTMLDivElement>();
@@ -92,25 +86,9 @@ export const Chat: React.FunctionComponent = () => {
 
   return (
     <Chatbot displayMode={ChatbotDisplayMode.embedded}>
-      <ChatbotHeader>
-        <ChatbotHeaderMain>
-          <RhStandardThoughtBubbleIcon />
-          <ChatbotHeaderTitle>title</ChatbotHeaderTitle>
-        </ChatbotHeaderMain>
-        <ChatbotHeaderActions>
-          <Button variant="primary" icon={<RhUiShareAltIcon />} aria-label={t('chat.share')}>
-            {t('chat.share')}
-          </Button>
-          <ChatbotHeaderOptionsDropdown isCompact tooltipProps={{ content: 'More actions' }}>
-            <DropdownList>
-              <DropdownItem value="rename">{t('chat.rename')}</DropdownItem>
-            </DropdownList>
-          </ChatbotHeaderOptionsDropdown>
-        </ChatbotHeaderActions>
-      </ChatbotHeader>
-      <Divider />
       <ChatbotContent>
         <MessageBox>
+          <EditableChatHeader />
           {isLoading && messages.length === 0 && <ChatLoading />}
           {!isValidConversationId && <ConversationNotFound />}
           {formatMessages()}
