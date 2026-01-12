@@ -16,7 +16,6 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
-import './EditableChatHeader.css';
 
 export const EditableChatHeader: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -38,15 +37,14 @@ export const EditableChatHeader: React.FC = () => {
   };
 
   return (
-    <ChatbotHeader className="editable-chat-header">
+    <ChatbotHeader>
       <ChatbotHeaderMain>
         <span className="chat-header-icon">
           <RhStandardThoughtBubbleIcon />
         </span>
-        <div className="chat-header-title">
           {isEditing ? (
             <Tooltip trigger="manual" isVisible={!!error} position="top" content={error}>
-              <div className="chat-title-editor">
+              <>
                 <TextInputGroup>
                   <TextInputGroupMain
                     value={title}
@@ -94,7 +92,7 @@ export const EditableChatHeader: React.FC = () => {
                     />
                   </ActionListItem>
                 </ActionList>
-              </div>
+              </>
             </Tooltip>
           ) : (
             <Button
@@ -106,7 +104,6 @@ export const EditableChatHeader: React.FC = () => {
               {title}
             </Button>
           )}
-        </div>
       </ChatbotHeaderMain>
       <ChatbotHeaderActions>
         {!isEditing && (

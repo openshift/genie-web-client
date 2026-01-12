@@ -11,7 +11,6 @@ import {
   Message,
   ChatbotDisplayMode,
 } from '@patternfly/chatbot';
-import { Divider } from '@patternfly/react-core';
 import { useParams } from 'react-router-dom-v5-compat';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
@@ -90,10 +89,9 @@ export const Chat: React.FunctionComponent = () => {
 
   return (
     <Chatbot displayMode={ChatbotDisplayMode.embedded}>
-      <EditableChatHeader />
-      <Divider />
       <ChatbotContent>
         <MessageBox>
+          <EditableChatHeader />
           {isLoading && messages.length === 0 && <ChatLoading />}
           {!isValidConversationId && <ConversationNotFound />}
           {formatMessages()}
