@@ -1,18 +1,11 @@
 .pf-chatbot-container {
     .pf-chatbot__header {
         --pf-t--global--background--color--primary--default: transparent;
+        border-bottom: 1px solid var(--pf-t--global--border--color--200);
 
         .pf-chatbot__header-main {
             align-items: center;
         }
     }
-
-    /* TODO: Fix; impacting AI message label padding */
-    /* .pf-v6-c-label {
-        --pf-v6-c-label--PaddingBlockStart: var(--pf-t--global--spacer--md, 1rem);
-        --pf-v6-c-label--PaddingBlockEnd: var(--pf-t--global--spacer--md, 1rem);
-        --pf-v6-c-label--PaddingInlineStart: var(--pf-t--global--spacer--md, 1rem);
-        --pf-v6-c-label--PaddingInlineEnd: var(--pf-t--global--spacer--md, 1rem);
-    } */
 }
 

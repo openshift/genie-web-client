@@ -13,6 +13,7 @@ import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { useToolCalls } from './useToolCalls';
 import { GenieAdditionalProperties } from 'src/types/chat';
+import { EditableChatHeader } from './EditableChatHeader';
 
 interface MessageListProps {
   isLoading: boolean;
@@ -86,6 +87,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
 
     return (
       <MessageBox>
+        <EditableChatHeader />
         {isLoading && messages.length === 0 ? <ChatLoading /> : null}
         {!isValidConversationId ? <ConversationNotFound /> : null}
         {renderedMessages}
