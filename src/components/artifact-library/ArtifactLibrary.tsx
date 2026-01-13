@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -9,15 +9,75 @@ import {
   Button,
   Label,
 } from '@patternfly/react-core';
-import { RhUiCollectionIcon, RhUiAiExperienceIcon } from '@patternfly/react-icons';
+import { RhUiCollectionIcon, RhUiAiExperienceIcon, RhUiRefreshIcon } from '@patternfly/react-icons';
+import ErrorState from '@patternfly/react-component-groups/dist/dynamic/ErrorState';
 import { useTranslation } from 'react-i18next';
+import './ArtifactLibrary.css';
 
-export const ArtifactLibrary: React.FC = () => {
+export type Artifact = { id: string };
+export const artifactApi = {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async fetchArtifacts(): Promise<Artifact[]> {
+    return [];
+  },
+};
+
+export const ArtifactLibrary = () => {
   const { t } = useTranslation('plugin__genie-web-client');
 
-  // TODO: replace with actual artifact fetching logic when API is available
-  const artifacts: never[] = [];
-  const isLoading = false;
+  // Temporary fetch wiring; will be replaced when API is finalized
+  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const retryRef = useRef<HTMLButtonElement>(null);
+
+  const refreshArtifacts = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      const result = await artifactApi.fetchArtifacts();
+      setArtifacts(result || []);
+      setIsError(false);
+    } catch {
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refreshArtifacts();
+  }, []);
+
+  useEffect(() => {
+    if (isError) {
+      retryRef.current?.focus();
+    }
+  }, [isError]);
+
+  // error state
+  if (!isLoading && isError) {
+    return (
+      <Bullseye>
+        <div className="artifact-library-error" role="alert">
+          <ErrorState
+            titleText={t('artifactLibrary.error.heading')}
+            bodyText={t('artifactLibrary.error.description')}
+            customFooter={
+              <Button
+                ref={retryRef}
+                autoFocus
+                variant="primary"
+                icon={<RhUiRefreshIcon />}
+                onClick={() => void refreshArtifacts()}
+              >
+                {t('artifactLibrary.error.retry')}
+              </Button>
+            }
+          />
+        </div>
+      </Bullseye>
+    );
+  }
 
   // empty state - no artifacts saved yet
   if (!isLoading && artifacts.length === 0) {
