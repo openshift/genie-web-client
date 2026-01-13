@@ -11,11 +11,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'genie-theme-preference';
-const PREFERS_DARK_SCHEME = '(prefers-color-scheme: dark)';
 const PF_THEME_LIGHT = 'pf-v6-theme-light';
 const PF_THEME_DARK = 'pf-v6-theme-dark';
-
-const getDarkSchemeMQ = () => window.matchMedia(PREFERS_DARK_SCHEME);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -23,8 +20,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
 
-    // fall back to system preference
-    if (getDarkSchemeMQ().matches) {
+    // fall back to console's current theme
+    if (document.documentElement.classList.contains(PF_THEME_DARK)) {
       return 'dark';
     }
     return 'light';
@@ -35,29 +32,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     document.documentElement.classList.remove(PF_THEME_LIGHT, PF_THEME_DARK);
     document.documentElement.classList.add(theme === 'dark' ? PF_THEME_DARK : PF_THEME_LIGHT);
   }, [theme]);
-
-  // listen for OS theme changes
-  useEffect(() => {
-    const mediaQuery = getDarkSchemeMQ();
-    const handleChange = (e: MediaQueryListEvent) => {
-      // only update if user hasn't set a preference
-      const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (!stored) {
-        setThemeState(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    // modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-    // older browser fallback
-    else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
-    }
-  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';

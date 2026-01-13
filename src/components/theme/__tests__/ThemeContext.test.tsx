@@ -165,21 +165,9 @@ describe('ThemeContext', () => {
     expect(document.documentElement.classList.contains('pf-v6-theme-dark')).toBe(true);
   });
 
-  it('should respect system preference when no localStorage value exists', () => {
-    // mock dark mode system preference
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: jest.fn().mockImplementation((query) => ({
-        matches: query === '(prefers-color-scheme: dark)',
-        media: query,
-        onchange: null,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
-    });
+  it('should detect console dark theme when no localStorage value exists', () => {
+    // simulate console having dark theme set
+    document.documentElement.classList.add('pf-v6-theme-dark');
 
     render(
       <ThemeProvider>
