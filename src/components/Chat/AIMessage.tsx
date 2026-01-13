@@ -132,6 +132,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     );
   },
   (prevProps, nextProps) => {
+    // Always re-render if message ID changes (shouldn't happen with proper keys, but safety check)
+    if (prevProps.message.id !== nextProps.message.id) {
+      return false;
+    }
+    // Re-render if any of these change
     return (
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.message.answer === nextProps.message.answer &&
