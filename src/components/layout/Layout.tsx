@@ -39,6 +39,8 @@ import { useChatBar } from '../ChatBarContext';
 import { ThemeToggle, useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
+import CompassBgLight from '../../assets/images/compass-bg-light.svg';
+import CompassBgDark from '../../assets/images/compass-bg-dark.svg';
 
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
@@ -363,6 +365,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <Compass
+      className="pf-v6-theme-glass"
       header={header}
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
@@ -380,6 +383,8 @@ export const Layout = ({ children }: LayoutProps) => {
         isExpanded: drawerState.isOpen,
         position: drawerState.position,
       }}
+      backgroundSrcLight={CompassBgLight}
+      backgroundSrcDark={CompassBgDark}
     >
       {children}
     </Compass>

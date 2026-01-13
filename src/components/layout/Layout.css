@@ -1,3 +1,41 @@
+/* Glass theme enhancements for Compass layout */
+.pf-v6-c-compass.pf-v6-theme-glass {
+  /* Customize glass effect intensity */
+  --pf-t--global--light--glass--background--color--glass--opacity: 80%;
+  --pf-t--global--light--glass--background--color--glass--filter: blur(16px);
+  --pf-t--global--dark--glass--background--color--glass--opacity: 75%;
+  --pf-t--global--dark--glass--background--color--glass--filter: blur(16px);
+
+  /* Ensure background covers full viewport */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Enhanced panel styling for glass effect */
+.pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-compass__panel {
+  /* Subtle border enhancement for glass panels */
+  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.2);
+  --pf-v6-c-compass__panel--BoxShadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Dark theme glass panel adjustments */
+:root:where(.pf-v6-theme-dark) .pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-compass__panel {
+  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.08);
+  --pf-v6-c-compass__panel--BoxShadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Drawer panel glass styling */
+.pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-drawer__panel {
+  background-color: var(--pf-t--global--background--color--glass--default);
+  backdrop-filter: var(--pf-t--global--background--color--glass--filter);
+}
+
 .global-layout-header {
   /* Header specific styles */
 }
