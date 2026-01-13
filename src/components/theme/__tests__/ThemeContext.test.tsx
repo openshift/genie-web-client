@@ -165,7 +165,7 @@ describe('ThemeContext', () => {
     expect(document.documentElement.classList.contains('pf-v6-theme-dark')).toBe(true);
   });
 
-  it('should detect console dark theme when no localStorage value exists', () => {
+  it('should detect console dark theme and save to localStorage on first load', () => {
     // simulate console having dark theme set
     document.documentElement.classList.add('pf-v6-theme-dark');
 
@@ -176,5 +176,20 @@ describe('ThemeContext', () => {
     );
 
     expect(screen.getByTestId('current-theme')).toHaveTextContent('dark');
+    // should save detected theme to localStorage
+    expect(localStorage.getItem('genie-theme-preference')).toBe('dark');
+  });
+
+  it('should save light theme to localStorage on first load when console is light', () => {
+    // no dark theme class means console is light
+    render(
+      <ThemeProvider>
+        <TestComponent />
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByTestId('current-theme')).toHaveTextContent('light');
+    // should save detected theme to localStorage
+    expect(localStorage.getItem('genie-theme-preference')).toBe('light');
   });
 });

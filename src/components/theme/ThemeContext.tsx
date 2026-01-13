@@ -20,11 +20,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
 
-    // fall back to console's current theme
-    if (document.documentElement.classList.contains(PF_THEME_DARK)) {
-      return 'dark';
-    }
-    return 'light';
+    // first time user: detect console's theme and save it
+    const detectedTheme = document.documentElement.classList.contains(PF_THEME_DARK)
+      ? 'dark'
+      : 'light';
+    localStorage.setItem(THEME_STORAGE_KEY, detectedTheme);
+    return detectedTheme;
   });
 
   useEffect(() => {
