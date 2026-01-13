@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Gradient definitions for the abstract shapes -->
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="grad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dbeafe;stop-opacity:0.6" />
+      <stop offset="50%" style="stop-color:#e0e7ff;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#fae8ff;stop-opacity:0.3" />
+    </linearGradient>
+    
+    <linearGradient id="grad3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef3c7;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#fed7aa;stop-opacity:0.2" />
+    </linearGradient>
+    
+    <linearGradient id="grad4" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#c7d2fe;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#ddd6fe;stop-opacity:0.2" />
+    </linearGradient>
+    
+    <radialGradient id="radial1" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:#bfdbfe;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#bfdbfe;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="radial2" cx="80%" cy="70%" r="50%">
+      <stop offset="0%" style="stop-color:#c4b5fd;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#c4b5fd;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Subtle noise filter for texture -->
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="multiply" />
+    </filter>
+  </defs>
+  
+  <!-- Base background -->
+  <rect width="100%" height="100%" fill="url(#grad1)"/>
+  
+  <!-- Abstract flowing shapes -->
+  <ellipse cx="200" cy="150" rx="400" ry="300" fill="url(#radial1)" />
+  <ellipse cx="1700" cy="800" rx="500" ry="400" fill="url(#radial2)" />
+  
+  <!-- Organic blob shapes -->
+  <path d="M-100,600 Q200,400 400,500 T800,450 T1200,550 T1600,400 T2000,500 L2000,1100 L-100,1100 Z" 
+        fill="url(#grad2)" opacity="0.7"/>
+  
+  <path d="M-100,200 Q300,100 600,200 T1100,150 T1500,250 T1920,100 L1920,0 L-100,0 Z" 
+        fill="url(#grad3)" opacity="0.6"/>
+  
+  <!-- Floating circles for depth -->
+  <circle cx="1600" cy="200" r="150" fill="url(#grad4)" opacity="0.5"/>
+  <circle cx="300" cy="800" r="200" fill="url(#grad4)" opacity="0.4"/>
+  <circle cx="1000" cy="300" r="100" fill="url(#grad2)" opacity="0.3"/>
+  
+  <!-- Subtle geometric accents -->
+  <path d="M1800,0 L1920,0 L1920,300 Z" fill="#e0e7ff" opacity="0.3"/>
+  <path d="M0,900 L0,1080 L200,1080 Z" fill="#dbeafe" opacity="0.4"/>
+  
+  <!-- Very subtle grid pattern for structure -->
+  <g stroke="#94a3b8" stroke-width="0.5" opacity="0.08">
+    <line x1="0" y1="270" x2="1920" y2="270"/>
+    <line x1="0" y1="540" x2="1920" y2="540"/>
+    <line x1="0" y1="810" x2="1920" y2="810"/>
+    <line x1="480" y1="0" x2="480" y2="1080"/>
+    <line x1="960" y1="0" x2="960" y2="1080"/>
+    <line x1="1440" y1="0" x2="1440" y2="1080"/>
+  </g>
+</svg>
