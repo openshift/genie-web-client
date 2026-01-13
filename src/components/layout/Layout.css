@@ -1,37 +1,43 @@
 /* Glass theme enhancements for Compass layout */
 .pf-v6-c-compass.pf-v6-theme-glass {
-  /* Customize glass effect intensity - more transparent to show background */
-  --pf-t--global--light--glass--background--color--glass--opacity: 40%;
-  --pf-t--global--light--glass--background--color--glass--filter: blur(24px);
-  --pf-t--global--dark--glass--background--color--glass--opacity: 35%;
-  --pf-t--global--dark--glass--background--color--glass--filter: blur(24px);
-
   /* Ensure background covers full viewport */
   background-position: center;
   background-repeat: no-repeat;
 }
 
-/* Enhanced panel styling for glass effect */
+/* Glass effect for panels - explicitly set backdrop-filter and transparent background */
 .pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-compass__panel {
-  /* Subtle border enhancement for glass panels */
-  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.35);
+  /* Force glass effect with explicit values */
+  --pf-v6-c-compass__panel--BackgroundColor: rgba(255, 255, 255, 0.4);
+  --pf-v6-c-compass__panel--BackdropFilter: blur(24px);
+  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.5);
   --pf-v6-c-compass__panel--BoxShadow: 
-    0 8px 32px 0 rgba(31, 38, 135, 0.15),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+    0 8px 32px 0 rgba(31, 38, 135, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+  
+  /* Ensure backdrop-filter is applied */
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
 }
 
 /* Dark theme glass panel adjustments */
 :root:where(.pf-v6-theme-dark) .pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-compass__panel {
-  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.12);
+  --pf-v6-c-compass__panel--BackgroundColor: rgba(30, 30, 30, 0.4);
+  --pf-v6-c-compass__panel--BorderColor: rgba(255, 255, 255, 0.15);
   --pf-v6-c-compass__panel--BoxShadow: 
-    0 8px 32px 0 rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Drawer panel glass styling */
 .pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-drawer__panel {
-  background-color: var(--pf-t--global--background--color--glass--default);
-  backdrop-filter: var(--pf-t--global--background--color--glass--filter);
+  background-color: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+:root:where(.pf-v6-theme-dark) .pf-v6-c-compass.pf-v6-theme-glass .pf-v6-c-drawer__panel {
+  background-color: rgba(30, 30, 30, 0.4);
 }
 
 .global-layout-header {
