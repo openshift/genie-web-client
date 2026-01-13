@@ -37,7 +37,8 @@ export const ArtifactLibrary = () => {
       const result = await artifactApi.fetchArtifacts();
       setArtifacts(result || []);
       setIsError(false);
-    } catch {
+    } catch (error) {
+      console.error('Failed to fetch artifacts:', error);
       setIsError(true);
     } finally {
       setIsLoading(false);
@@ -85,7 +86,7 @@ export const ArtifactLibrary = () => {
       <Bullseye>
         <EmptyState variant={EmptyStateVariant.lg}>
           {/* TODO: Add branded thumbnail graphic/icon above text when provided by design team */}
-          <div style={{ marginBottom: 'var(--pf-v6-global--spacer--md)' }}>
+          <div className="pf-v6-u-mb-md">
             <Label icon={<RhUiCollectionIcon />}>{t('artifactLibrary.ariaLabel')}</Label>
           </div>
           <h1 className="pf-v6-u-font-size-2xl pf-v6-u-mb-md">
