@@ -34,9 +34,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // apply theme class to html element
     document.documentElement.classList.remove(PF_THEME_LIGHT, PF_THEME_DARK);
     document.documentElement.classList.add(theme === 'dark' ? PF_THEME_DARK : PF_THEME_LIGHT);
-
-    // save preference
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
   // listen for OS theme changes
@@ -63,11 +60,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setThemeState(newTheme);
+    // save user's explicit choice
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
   };
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
+    // save user's explicit choice
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
   };
 
   return (
