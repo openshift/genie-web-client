@@ -201,6 +201,14 @@ export const Layout = ({ children }: LayoutProps) => {
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
+  // Enable PatternFly glass theme by adding class to document root
+  useEffect(() => {
+    document.documentElement.classList.add('pf-v6-theme-glass');
+    return () => {
+      document.documentElement.classList.remove('pf-v6-theme-glass');
+    };
+  }, []);
+
   // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
   // Header components
@@ -365,7 +373,6 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <Compass
-      className="pf-v6-theme-glass"
       header={header}
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
