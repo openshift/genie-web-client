@@ -9,19 +9,25 @@ import * as path from 'path';
 
 expect.extend(toHaveNoViolations);
 
-// mock window.matchMedia for theme tests
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
+// Mock aiStateManager to prevent real API calls during tests
+// This prevents the "fetch is not defined" error when the state manager tries to initialize
+jest.mock('./components/utils/aiStateManager', () => {
+  const mockStateManager = {
+    init: jest.fn().mockResolvedValue(undefined),
+    getState: jest.fn().mockReturnValue({
+      conversations: {},
+      activeConversationId: null,
+      messages: [],
+      isInitializing: false,
+    }),
+    notifyAll: jest.fn(),
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+  };
+
+  return {
+    stateManager: mockStateManager,
+  };
 });
 
 // Mock aiStateManager to prevent real API calls during tests
