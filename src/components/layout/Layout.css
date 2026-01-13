@@ -1,10 +1,10 @@
 /* Glass theme enhancements for Compass layout */
 .pf-v6-c-compass.pf-v6-theme-glass {
   /* Customize glass effect intensity - more transparent to show background */
-  --pf-t--global--light--glass--background--color--glass--opacity: 60%;
-  --pf-t--global--light--glass--background--color--glass--filter: blur(20px);
-  --pf-t--global--dark--glass--background--color--glass--opacity: 55%;
-  --pf-t--global--dark--glass--background--color--glass--filter: blur(20px);
+  --pf-t--global--light--glass--background--color--glass--opacity: 40%;
+  --pf-t--global--light--glass--background--color--glass--filter: blur(24px);
+  --pf-t--global--dark--glass--background--color--glass--opacity: 35%;
+  --pf-t--global--dark--glass--background--color--glass--filter: blur(24px);
 
   /* Ensure background covers full viewport */
   background-position: center;
