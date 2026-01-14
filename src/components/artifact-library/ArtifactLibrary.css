@@ -1,0 +1,8 @@
+.artifact-library-error {
+    --pf-v6-c-empty-state__title-text--FontSize: var(--pf-v6-global--FontSize--xl, 1.5rem);
+}
+
+/* Hide the default icon rendered by PatternFly ErrorState/EmptyState */
+.artifact-library-error .pf-v6-c-empty-state__icon {
+    display: none;
+}

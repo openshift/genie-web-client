@@ -42,68 +42,68 @@ export const EditableChatHeader: React.FC = () => {
         <span className="chat-header-icon">
           <RhStandardThoughtBubbleIcon />
         </span>
-          {isEditing ? (
-            <Tooltip trigger="manual" isVisible={!!error} position="top" content={error}>
-              <>
-                <TextInputGroup>
-                  <TextInputGroupMain
-                    value={title}
-                    onChange={handleInputChange}
-                    aria-label="Edit conversation title"
-                    aria-invalid={!!error}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const next = title.trim();
-                        if (!next) {
-                          setError('Title cannot be empty.');
-                          return;
-                        }
-                        setIsEditing(false);
+        {isEditing ? (
+          <Tooltip trigger="manual" isVisible={!!error} position="top" content={error}>
+            <>
+              <TextInputGroup>
+                <TextInputGroupMain
+                  value={title}
+                  onChange={handleInputChange}
+                  aria-label="Edit conversation title"
+                  aria-invalid={!!error}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const next = title.trim();
+                      if (!next) {
+                        setError('Title cannot be empty.');
+                        return;
                       }
+                      setIsEditing(false);
+                    }
+                  }}
+                />
+              </TextInputGroup>
+              <ActionList isIconList>
+                <ActionListItem>
+                  <Button
+                    variant="plain"
+                    aria-label="Cancel title edit"
+                    icon={<TimesIcon />}
+                    onClick={() => {
+                      setIsEditing(false);
+                      setTitle(originalTitleRef.current);
+                      setError(undefined);
                     }}
                   />
-                </TextInputGroup>
-                <ActionList isIconList>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Cancel title edit"
-                      icon={<TimesIcon />}
-                      onClick={() => {
-                        setIsEditing(false);
-                        setTitle(originalTitleRef.current);
-                        setError(undefined);
-                      }}
-                    />
-                  </ActionListItem>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Save title"
-                      icon={<CheckIcon />}
-                      onClick={() => {
-                        const next = title.trim();
-                        if (!next) {
-                          setError('Title cannot be empty.');
-                          return;
-                        }
-                        setIsEditing(false);
-                      }}
-                    />
-                  </ActionListItem>
-                </ActionList>
-              </>
-            </Tooltip>
-          ) : (
-            <Button
-              variant="plain"
-              isInline
-              onClick={onEditClick}
-              aria-label="Edit conversation title"
-            >
-              {title}
-            </Button>
-          )}
+                </ActionListItem>
+                <ActionListItem>
+                  <Button
+                    variant="plain"
+                    aria-label="Save title"
+                    icon={<CheckIcon />}
+                    onClick={() => {
+                      const next = title.trim();
+                      if (!next) {
+                        setError('Title cannot be empty.');
+                        return;
+                      }
+                      setIsEditing(false);
+                    }}
+                  />
+                </ActionListItem>
+              </ActionList>
+            </>
+          </Tooltip>
+        ) : (
+          <Button
+            variant="plain"
+            isInline
+            onClick={onEditClick}
+            aria-label="Edit conversation title"
+          >
+            {title}
+          </Button>
+        )}
       </ChatbotHeaderMain>
       <ChatbotHeaderActions>
         {!isEditing && (
