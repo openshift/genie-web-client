@@ -11,22 +11,47 @@ This directory contains the backend configuration needed to run Genie Web Client
 
 ## Architecture
 
-The Genie Web Client backend consists of:
+The Genie Web Client local development stack:
 
 ```
-┌─────────────────────────────────────────────┐
-│  Lightspeed Stack (Port 8080)               │
-│  ├── Lightspeed Core Service (LCS)          │
-│  └── Llama Stack (LLM provider)             │
-└─────────────────────────────────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        ▼                     ▼
-┌─────────────┐      ┌─────────────┐
-│  MCP Servers│      │ Your UI     │
-│  (Optional) │      │ (Port 9001) │
-└─────────────┘      └─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  Browser: http://localhost:9000/genie                   │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  OpenShift Console (Port 9000)                          │
+│  ├── Hosts the Genie plugin                             │
+│  └── Proxies API calls to backend                       │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  Frontend Dev Server (Port 9001)                        │
+│  └── Serves Genie UI (React/TypeScript)                 │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  Lightspeed Stack (Port 8080)                           │
+│  ├── Lightspeed Core Service (LCS) - REST API           │
+│  └── Llama Stack (LLM orchestration) → OpenAI API       │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  obs-mcp (Port 9100)                                    │
+│  └── Observability MCP Server (metrics, queries)        │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  OpenShift Cluster (via kubeconfig)                     │
+│  └── Prometheus (metrics data)                          │
+└─────────────────────────────────────────────────────────┘
 ```
+
+**Data Flow:** User query → Console (9000) → Backend (8080) → obs-mcp (9100) → Prometheus → Response
 
 ## Quick Start
 
