@@ -8,7 +8,7 @@ export interface ChatBarContextValue {
 const ChatBarContext = createContext<ChatBarContextValue | undefined>(undefined);
 
 export const ChatBarProvider = ({ children }: { children: ReactNode }) => {
-  const [showChatBar, setShowChatBarState] = useState(false);
+  const [showChatBar, setShowChatBarState] = useState(true);
 
   const setShowChatBar = useCallback((value: boolean) => {
     setShowChatBarState(value);

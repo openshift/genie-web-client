@@ -6,7 +6,6 @@ import {
   ChatbotDisplayMode,
 } from '@patternfly/chatbot';
 import { useParams } from 'react-router-dom-v5-compat';
-import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
 import { MessageList } from './MessageList';
 
@@ -15,7 +14,6 @@ export const Chat: React.FunctionComponent = () => {
   const setActiveConversation = useSetActiveConversation();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
-  const { setShowChatBar } = useChatBar();
   useEffect(() => {
     if (conversationId) {
       const setConversation = async () => {
@@ -33,10 +31,6 @@ export const Chat: React.FunctionComponent = () => {
       setConversation();
     }
   }, [conversationId, setActiveConversation]);
-
-  useEffect(() => {
-    setShowChatBar(isValidConversationId);
-  }, [isValidConversationId, setShowChatBar]);
 
   return (
     <Chatbot displayMode={ChatbotDisplayMode.embedded}>
