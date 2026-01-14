@@ -38,20 +38,34 @@ The Genie Web Client local development stack:
 │  └── Llama Stack (LLM orchestration) → OpenAI API       │
 └─────────────────────────────────────────────────────────┘
                           │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│  obs-mcp (Port 9100)                                    │
-│  └── Observability MCP Server (metrics, queries)        │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
+          ┌───────────────┼───────────────┐
+          ▼               ▼               ▼
+┌─────────────────┐ ┌───────────┐ ┌─────────────────┐
+│  obs-mcp (9100) │ │ kube-mcp  │ │ layout-manager  │
+│  Metrics/Prom   │ │ K8s APIs  │ │ Dashboard mgmt  │
+└─────────────────┘ └───────────┘ └─────────────────┘
+          │               │               │
+          ▼               ▼               ▼
 ┌─────────────────────────────────────────────────────────┐
 │  OpenShift Cluster (via kubeconfig)                     │
-│  └── Prometheus (metrics data)                          │
+│  ├── Prometheus (metrics)                               │
+│  ├── Kubernetes API (resources)                         │
+│  └── Console API (dashboards)                           │
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Data Flow:** User query → Console (9000) → Backend (8080) → obs-mcp (9100) → Prometheus → Response
+### MCP Servers
+
+| Server | Port | Purpose |
+|--------|------|---------|
+| **obs-mcp** | 9100 | Prometheus metrics queries |
+| **kube-mcp** | - | Kubernetes resource queries |
+| **layout-manager** | - | Dashboard layout management |
+| **ngui-mcp** | - | Next-gen UI components |
+
+> **Note:** For basic local development, only `obs-mcp` is required. Other MCP servers are optional and used for advanced features. See the [old POC repo](https://github.com/jhadvig/genie-plugin) for additional MCP server setup.
+
+**Data Flow:** User query → Console (9000) → Backend (8080) → MCP Servers → OpenShift Cluster → Response
 
 ## Quick Start
 
