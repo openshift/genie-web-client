@@ -15,9 +15,9 @@
 
   .pf-v6-c-compass__panel {
     backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 1px 2px 0 #0000000d !important;
   }
 
   :root:where(.pf-v6-theme-dark) .pf-v6-c-compass__panel {
@@ -26,7 +26,7 @@
 
   .pf-v6-c-drawer__panel {
     backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
     box-shadow: var(--pf-t--global--box-shadow--sm) !important;
   }
