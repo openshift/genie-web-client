@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback } from 'react';
 import { Message } from '@patternfly/chatbot';
 import {
@@ -101,10 +102,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
     );
 
-    const artifacts = useMemo(
-      () => collectArtifactsFromToolCalls(toolCalls),
-      [toolCalls],
-    );
+    const artifacts = useMemo(() => collectArtifactsFromToolCalls(toolCalls), [toolCalls]);
 
     // Convert quick responses payload to PatternFly Message format
     const quickResponses = useMemo(
@@ -121,7 +119,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     return (
       <Message
-        name='Genie'
+        name="Genie"
         isLoading={isStreaming}
         role="bot"
         content={content}
