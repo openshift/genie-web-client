@@ -8,7 +8,7 @@ import {
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { useSendMessage } from '../../hooks/AIState';
+import { useSendStreamMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
@@ -16,7 +16,7 @@ import { mainGenieRoute, SubRoutes } from '../routeList';
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const { t } = useTranslation('plugin__genie-web-client');
-  const sendMessage = useSendMessage();
+  const sendStreamMessage = useSendStreamMessage();
   const navigate = useNavigate();
   const { setShowChatBar } = useChatBar();
 
@@ -40,12 +40,9 @@ export const Home: React.FC = () => {
     : t('dashboard.emptyState.headingNoName');
 
   const handleCreateDashboardClick = useCallback(() => {
-    sendMessage('Can you help me create a new dashboard?', {
-      stream: true,
-      requestOptions: {},
-    });
+    sendStreamMessage('Can you help me create a new dashboard?');
     navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-  }, [sendMessage, navigate]);
+  }, [sendStreamMessage, navigate]);
 
   return (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>

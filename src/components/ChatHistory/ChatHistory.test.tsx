@@ -12,6 +12,7 @@ const mockCloseDrawer = jest.fn();
 const mockNavigate = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
+  ...jest.requireActual('../../hooks/AIState'),
   useConversations: () => mockUseConversations(),
   useIsInitializing: () => mockUseIsInitializing(),
 }));

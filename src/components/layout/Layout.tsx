@@ -37,16 +37,18 @@ import {
 import { useDrawer } from '../drawer';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 import { useChatBar } from '../ChatBarContext';
-import { ThemeToggle } from '../theme';
+import { ThemeToggle, useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
+import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 import CompassBgLight from '../../assets/images/compass-bg-light.svg';
 import CompassBgDark from '../../assets/images/compass-bg-dark.svg';
 
-import { useSendMessage } from '../../hooks/AIState';
+import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
 import { Notifications } from '../notifications/Notifications';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
+import { THEME_DARK } from '../theme/ThemeContext';
 import './Layout.css';
 
 const CreateNavItem = ({
@@ -80,8 +82,9 @@ export const Layout = ({ children }: LayoutProps) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
   const { showChatBar } = useChatBar();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
-  const sendMessage = useSendMessage();
+  const sendStreamMessage = useSendStreamMessage();
 
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
 
@@ -151,10 +154,10 @@ export const Layout = ({ children }: LayoutProps) => {
 
   const handleSendMessage = useCallback(
     (value: string) => {
-      sendMessage(value, { stream: true, requestOptions: {} });
+      sendStreamMessage(value);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [sendMessage, navigate],
+    [sendStreamMessage, navigate],
   );
 
   const handleNewChatClick = useCallback(() => {
@@ -209,7 +212,13 @@ export const Layout = ({ children }: LayoutProps) => {
   // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
   // Header components
-  const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
+  const genieLogo = (
+    <Brand
+      src={theme === THEME_DARK ? RedHatLogoWhite : RedHatLogo}
+      alt="Genie Logo"
+      widths={{ default: '120px' }}
+    />
+  );
   const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
 
   const navContent = (

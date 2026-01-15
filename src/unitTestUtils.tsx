@@ -1,9 +1,9 @@
-import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
 import { ReactElement, ReactNode } from 'react';
 import { axe } from 'jest-axe';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom-v5-compat';
 import { render, RenderOptions } from '@testing-library/react';
+import { AIStateProvider } from './hooks/AIState';
 import { ChatBarProvider } from './components/ChatBarContext';
 import { stateManager } from './components/utils/aiStateManager';
 export * from '@testing-library/react';
