@@ -2,15 +2,18 @@ import { render, screen } from '../../unitTestUtils';
 import { AIProvider } from '../../hooks/AIState';
 import { Layout } from './Layout';
 import { DrawerProvider } from '../drawer';
+import { ThemeProvider } from '../theme';
 
 describe('Layout', () => {
   const renderWithProviders = (initialRoute = '/genie') =>
     render(
-      <AIProvider>
-        <DrawerProvider>
-          <Layout />
-        </DrawerProvider>
-      </AIProvider>,
+      <ThemeProvider>
+        <AIProvider>
+          <DrawerProvider>
+            <Layout />
+          </DrawerProvider>
+        </AIProvider>
+      </ThemeProvider>,
       { initialEntries: [initialRoute] },
     );
 

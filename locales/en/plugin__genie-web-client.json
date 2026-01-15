@@ -80,5 +80,8 @@
   "artifactLibrary.emptyState.heading": "Start something extraordinary.",
   "artifactLibrary.emptyState.description": "Everything you create with Genie — charts or others share with you will live here. Begin with a dashboard, a snippet, or any artifact.",
   "artifactLibrary.emptyState.primaryCta": "Create a dashboard",
-  "artifactLibrary.emptyState.secondaryCta": "Code a config file"
+  "artifactLibrary.emptyState.secondaryCta": "Code a config file",
+  "artifactLibrary.error.heading": "Could not load artifacts.",
+  "artifactLibrary.error.description": "A problem occurred while retrieving your library artifacts.",
+  "artifactLibrary.error.retry": "Retry"
 }

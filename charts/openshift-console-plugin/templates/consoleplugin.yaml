@@ -24,3 +24,11 @@ spec:
           namespace: openshift-lightspeed
           port: 8443
         type: Service
+    - alias: dashboard-mcp
+      authorization: UserToken
+      endpoint:
+        service:
+          name: acm-search-mcp-server-service
+          namespace: acm-search
+          port: 80
+        type: Service

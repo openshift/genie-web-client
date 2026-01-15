@@ -37,13 +37,16 @@ import {
 import { useDrawer } from '../drawer';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 import { useChatBar } from '../ChatBarContext';
+import { ThemeToggle, useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
+import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
 import AvatarImg from '../../assets/images/avatar.svg';
 
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
 import { Notifications } from '../notifications/Notifications';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
+import { THEME_DARK } from '../theme/ThemeContext';
 import './Layout.css';
 
 const CreateNavItem = ({
@@ -77,6 +80,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
   const { showChatBar } = useChatBar();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const sendStreamMessage = useSendStreamMessage();
 
@@ -198,7 +202,13 @@ export const Layout = ({ children }: LayoutProps) => {
   // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
   // Header components
-  const genieLogo = <Brand src={RedHatLogo} alt="Genie Logo" widths={{ default: '120px' }} />;
+  const genieLogo = (
+    <Brand
+      src={theme === THEME_DARK ? RedHatLogoWhite : RedHatLogo}
+      alt="Genie Logo"
+      widths={{ default: '120px' }}
+    />
+  );
   const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
 
   const navContent = (
@@ -276,6 +286,9 @@ export const Layout = ({ children }: LayoutProps) => {
     <CompassPanel isPill>
       <ActionList isIconList isVertical>
         <ActionListGroup>
+          <ActionListItem>
+            <ThemeToggle />
+          </ActionListItem>
           <ActionListItem>
             <Tooltip content="Notifications">
               <Button
