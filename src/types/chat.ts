@@ -1,5 +1,5 @@
-import { QuickResponsesPayload } from "src/components/new-chat/suggestions";
-import { LightSpeedCoreAdditionalProperties } from "src/hooks/AIState";
+import { QuickResponsesPayload } from 'src/components/new-chat/suggestions';
+import { LightSpeedCoreAdditionalProperties } from 'src/hooks/AIState';
 
 // Exploring types based on designs
 export interface Conversation {
@@ -31,15 +31,15 @@ export interface ConversationState {
 export interface ChatState {
   messages: Message[];
   isReasoning: boolean;
-  reasoning: string; 
+  reasoning: string;
 
   sendMessage(message: string): Promise<void>;
 }
 
 export interface BaseMessage {
-    id: string;
-    content: string;
-    createdAt: Date;
+  id: string;
+  content: string;
+  createdAt: Date;
 }
 
 export interface UserMessage extends BaseMessage {

@@ -27,7 +27,13 @@ jest.mock('react-router-dom-v5-compat', () => ({
 
 // Mock MessageList to isolate Chat component testing
 jest.mock('./MessageList', () => ({
-  MessageList: ({ isLoading, isValidConversationId }: { isLoading: boolean; isValidConversationId: boolean }) => {
+  MessageList: ({
+    isLoading,
+    isValidConversationId,
+  }: {
+    isLoading: boolean;
+    isValidConversationId: boolean;
+  }) => {
     if (isLoading) {
       return <div data-testid="message-list-loading">Loading conversation</div>;
     }

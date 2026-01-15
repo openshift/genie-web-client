@@ -51,9 +51,7 @@ function isCompleteToolCall(call: ToolCallEvent): boolean {
 export function useToolCalls(
   streamChunk: IStreamChunk<LightSpeedCoreAdditionalProperties> | undefined,
 ): UseToolCallsResult {
-  const [toolCallsByMessage, setToolCallsByMessage] = useState<
-    Record<string, ToolCallState[]>
-  >({});
+  const [toolCallsByMessage, setToolCallsByMessage] = useState<Record<string, ToolCallState[]>>({});
 
   // Track which tool call IDs we've already processed to avoid duplicates
   const processedToolCallIds = useRef<Set<number>>(new Set());
@@ -64,13 +62,15 @@ export function useToolCalls(
 
     const messageId = streamChunk.messageId;
     const toolCalls = streamChunk.additionalAttributes?.toolCalls as ToolCallEvent[] | undefined;
-    const toolResults = streamChunk.additionalAttributes?.toolResults as ToolResultEvent[] | undefined;
+    const toolResults = streamChunk.additionalAttributes?.toolResults as
+      | ToolResultEvent[]
+      | undefined;
 
     let hasUpdates = false;
 
     setToolCallsByMessage((prev) => {
       const existingCalls = prev[messageId] || [];
-      let updatedCalls = [...existingCalls];
+      const updatedCalls = [...existingCalls];
 
       // Process COMPLETE tool calls only (those with tool_name)
       if (toolCalls) {
@@ -84,7 +84,10 @@ export function useToolCalls(
           // Skip if we've already processed this tool call
           if (processedToolCallIds.current.has(callId)) return;
 
-          const token = call.data?.token as { tool_name: string; arguments?: Record<string, unknown> };
+          const token = call.data?.token as {
+            tool_name: string;
+            arguments?: Record<string, unknown>;
+          };
 
           // Add new complete tool call
           processedToolCallIds.current.add(callId);
@@ -119,10 +122,9 @@ export function useToolCalls(
           );
 
           // Parse artifacts from the tool result
-          const toolName = callIndex !== -1 
-            ? updatedCalls[callIndex].name 
-            : (token?.tool_name || 'Unknown tool');
-            
+          const toolName =
+            callIndex !== -1 ? updatedCalls[callIndex].name : token?.tool_name || 'Unknown tool';
+
           const artifacts = parseToolResultToArtifacts(toolName, token?.response);
 
           if (callIndex !== -1) {
