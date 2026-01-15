@@ -9,6 +9,21 @@ import * as path from 'path';
 
 expect.extend(toHaveNoViolations);
 
+// mock window.matchMedia for theme tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 // Load real translations from the JSON file for use in tests
 // Resolve path relative to project root (where jest.config.js is located)
 const translationsPath = path.resolve(process.cwd(), 'locales/en/plugin__genie-web-client.json');

@@ -39,6 +39,18 @@
   padding-top: 32px;
 }
 
+/* large image size for pages with less content */
+.onboarding-img--large {
+  max-width: 350px;
+  height: 263px;
+}
+
+/* small image size for pages with more content */
+.onboarding-img--small {
+  max-width: 240px;
+  height: 163px;
+}
+
 /* add space between pagination dots and buttons */
 .genie-onboarding-modal .pf-v6-c-flex:last-child {
   margin-top: 24px !important;
