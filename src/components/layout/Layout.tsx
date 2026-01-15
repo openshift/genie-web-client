@@ -201,7 +201,7 @@ export const Layout = ({ children }: LayoutProps) => {
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
-  // Enable PatternFly glass theme by adding class to document root
+  // add glass theme class to root
   useEffect(() => {
     document.documentElement.classList.add('pf-v6-theme-glass');
     return () => {
