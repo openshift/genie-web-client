@@ -114,7 +114,13 @@ export const OnboardingModal: React.FC = () => {
     const content = (
       <Stack hasGutter>
         <StackItem>
-          <img src={imageMap[page.image]} alt={page.alt} className={`onboarding-img${page.imageSize ? ` onboarding-img--${page.imageSize}` : ''}`} />
+          <img
+            src={imageMap[page.image]}
+            alt={page.alt}
+            className={`onboarding-img${
+              page.imageSize ? ` onboarding-img--${page.imageSize}` : ''
+            }`}
+          />
         </StackItem>
         {page.label && (
           <StackItem>
