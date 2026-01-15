@@ -8,6 +8,39 @@
   background-repeat: no-repeat;
 }
 
+/* Accessibility: Respect user's reduced transparency preference */
+/* When enabled, revert glass surfaces to opaque and reduce shadows */
+@media (prefers-reduced-transparency: reduce) {
+  /* Override glass tokens to use solid backgrounds */
+  :root.pf-v6-theme-glass {
+    --pf-t--global--background--color--glass--filter: none;
+    --pf-t--global--background--color--glass--opacity: 1;
+    --pf-t--global--background--color--glass--default: var(--pf-t--global--background--color--primary--default);
+  }
+
+  /* Remove backdrop-filter and use solid background for panels */
+  .pf-v6-c-compass__panel {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+    /* Reduce shadow intensity in opaque fallback state */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Dark theme opaque fallback */
+  :root:where(.pf-v6-theme-dark) .pf-v6-c-compass__panel {
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+  }
+
+  /* Drawer panel opaque fallback */
+  .pf-v6-c-drawer__panel {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+    box-shadow: var(--pf-t--global--box-shadow--sm) !important;
+  }
+}
+
 .global-layout-header {
   /* Header specific styles */
 }
