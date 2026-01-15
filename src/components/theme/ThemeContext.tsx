@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+export const THEME_DARK = 'dark';
+export const THEME_LIGHT = 'light';
+
+type Theme = typeof THEME_LIGHT | typeof THEME_DARK;
 
 interface ThemeContextType {
   theme: Theme;
@@ -18,12 +21,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>(() => {
     // check localStorage first
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
+    if (stored === THEME_LIGHT || stored === THEME_DARK) return stored;
 
     // first time user: detect console's theme and save it
     const detectedTheme = document.documentElement.classList.contains(PF_THEME_DARK)
-      ? 'dark'
-      : 'light';
+      ? THEME_DARK
+      : THEME_LIGHT;
     localStorage.setItem(THEME_STORAGE_KEY, detectedTheme);
     return detectedTheme;
   });
@@ -31,11 +34,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     // apply theme class to html element
     document.documentElement.classList.remove(PF_THEME_LIGHT, PF_THEME_DARK);
-    document.documentElement.classList.add(theme === 'dark' ? PF_THEME_DARK : PF_THEME_LIGHT);
+    document.documentElement.classList.add(theme === THEME_DARK ? PF_THEME_DARK : PF_THEME_LIGHT);
   }, [theme]);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
+    const newTheme = theme === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
     setThemeState(newTheme);
     // save user's explicit choice
     localStorage.setItem(THEME_STORAGE_KEY, newTheme);
