@@ -24,6 +24,27 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock aiStateManager to prevent real API calls during tests
+// This prevents the "fetch is not defined" error when the state manager tries to initialize
+jest.mock('./components/utils/aiStateManager', () => {
+  const mockStateManager = {
+    init: jest.fn().mockResolvedValue(undefined),
+    getState: jest.fn().mockReturnValue({
+      conversations: {},
+      activeConversationId: null,
+      messages: [],
+      isInitializing: false,
+    }),
+    notifyAll: jest.fn(),
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+  };
+
+  return {
+    stateManager: mockStateManager,
+  };
+});
+
 // Load real translations from the JSON file for use in tests
 // Resolve path relative to project root (where jest.config.js is located)
 const translationsPath = path.resolve(process.cwd(), 'locales/en/plugin__genie-web-client.json');

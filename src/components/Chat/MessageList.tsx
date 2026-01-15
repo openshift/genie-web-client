@@ -20,12 +20,13 @@ interface MessageListProps {
   isValidConversationId: boolean;
 }
 
+// eslint-disable-next-line react/display-name
 export const MessageList: React.FC<MessageListProps> = React.memo(
+  // eslint-disable-next-line react/prop-types
   ({ isLoading, isValidConversationId }) => {
     const messages = useMessages();
     const sendStreamMessage = useSendStreamMessage();
-    const streamChunk =
-      useStreamChunk<GenieAdditionalProperties>();
+    const streamChunk = useStreamChunk<GenieAdditionalProperties>();
     const { toolCallsByMessage } = useToolCalls(streamChunk);
     const inProgress = useInProgress();
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -63,26 +64,37 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
           if (isBot) {
             // Only the last bot message can be streaming
             const isStreaming = inProgress && index === lastBotMessageIndex;
+            // Use role + message.id + index as key to ensure uniqueness
+            // (message.id can be duplicated between user/bot in same conversation)
+            const toolCalls = toolCallsByMessage[message.id];
             return (
               <AIMessage
-                key={message.id}
+                key={`bot-${message.id}-${index}`}
                 message={message}
                 onQuickResponse={handleQuickResponse}
                 isStreaming={isStreaming}
-                toolCalls={toolCallsByMessage[message.id]}
+                toolCalls={toolCalls}
               />
             );
           }
 
+          // Use role + message.id + index as key to ensure uniqueness
           return (
             <UserMessage
-              key={message.id}
+              key={`user-${message.id}-${index}`}
               message={message}
               isLastUserMessage={index === lastUserMessageIndex}
             />
           );
         }),
-      [messages, handleQuickResponse, lastUserMessageIndex, lastBotMessageIndex, inProgress],
+      [
+        messages,
+        handleQuickResponse,
+        lastUserMessageIndex,
+        lastBotMessageIndex,
+        inProgress,
+        toolCallsByMessage,
+      ],
     );
 
     return (

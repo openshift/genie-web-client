@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSetActiveConversation } from '../../hooks/AIState';
-import {
-  Chatbot,
-  ChatbotContent,
-  ChatbotDisplayMode,
-} from '@patternfly/chatbot';
+import { Chatbot, ChatbotContent, ChatbotDisplayMode } from '@patternfly/chatbot';
 import { useParams } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
@@ -42,6 +38,7 @@ export const Chat: React.FunctionComponent = () => {
     <Chatbot displayMode={ChatbotDisplayMode.embedded}>
       <ChatbotContent>
         <MessageList
+          key={conversationId}
           isLoading={isLoading}
           isValidConversationId={isValidConversationId}
         />

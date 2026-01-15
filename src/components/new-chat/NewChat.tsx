@@ -15,7 +15,11 @@ import {
 } from '@patternfly/react-icons';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSendStreamMessage, useInjectBotMessage } from '../../hooks/AIState';
+import {
+  useSendStreamMessage,
+  useCreateNewConversation,
+  useInjectBotMessage,
+} from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
 import { useChatBar } from '../ChatBarContext';
@@ -29,6 +33,7 @@ export const NewChat: React.FC = () => {
   const sendStreamMessage = useSendStreamMessage();
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
+  const createNewConversation = useCreateNewConversation();
 
   useEffect(() => {
     setShowChatBar(false);
@@ -44,6 +49,13 @@ export const NewChat: React.FC = () => {
       // local storage not available
     }
   }, []);
+
+  useEffect(() => {
+    const initializeConversation = async () => {
+      await createNewConversation();
+    };
+    initializeConversation();
+  }, [createNewConversation]);
 
   const titleText = userName
     ? t('newChat.heading', { name: userName })
