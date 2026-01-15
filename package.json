@@ -15,7 +15,8 @@
     "start": "yarn webpack serve --progress",
     "start-console": "./start-console.sh",
     "i18n": "./i18n-scripts/build-i18n.sh && node ./i18n-scripts/set-english-defaults.js",
-    "lint": "yarn eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
+    "lint": "yarn eslint src integration-tests && stylelint 'src/**/*.css' --allow-empty-input",
+    "lint:fix": "yarn eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -29,10 +30,10 @@
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
-      "eslint --fix"
+      "eslint"
     ],
     "src/**/*.css": [
-      "stylelint --fix --allow-empty-input"
+      "stylelint --allow-empty-input"
     ]
   },
   "resolutions": {
