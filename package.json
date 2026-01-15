@@ -101,9 +101,9 @@
   },
   "dependencies": {
     "@openshift-console/dynamic-plugin-sdk": "1.4.0",
-    "@patternfly/react-component-groups": "6.4.0-prerelease.7",
     "@patternfly/chatbot": "6.5.0-prerelease.15",
     "@patternfly/patternfly": "6.5.0-prerelease.27",
+    "@patternfly/react-component-groups": "6.4.0-prerelease.7",
     "@patternfly/react-core": "6.5.0-prerelease.16",
     "@patternfly/react-icons": "6.5.0-prerelease.8",
     "@patternfly/react-table": "6.5.0-prerelease.11",
@@ -112,6 +112,7 @@
     "@redhat-cloud-services/ai-react-state": "^0.15.0",
     "@redhat-cloud-services/lightspeed-client": "^0.15.0",
     "date-fns":"^4.1.0",
+    "@rhngui/patternfly-react-renderer": "^1.0.1",
     "pluralize": "^8.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

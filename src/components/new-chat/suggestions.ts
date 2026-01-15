@@ -1,5 +1,15 @@
 export type SuggestionKey = 'build' | 'automate' | 'troubleshoot' | 'analyze' | 'explore';
 
+export interface QuickResponseItem {
+  id: string;
+  labelKey: string;
+}
+
+export interface QuickResponsesPayload {
+  key: string;
+  items: QuickResponseItem[];
+}
+
 export const quickResponseKeyMap: Record<SuggestionKey, string[]> = {
   build: [
     'newChat.quickResponses.build.0.label',

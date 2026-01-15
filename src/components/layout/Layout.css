@@ -15,7 +15,6 @@
 
   .pf-v6-c-compass__panel {
     backdrop-filter: none !important;
-    backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
     box-shadow: 0 1px 2px 0 #0000000d !important;
   }
@@ -25,7 +24,6 @@
   }
 
   .pf-v6-c-drawer__panel {
-    backdrop-filter: none !important;
     backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
     box-shadow: var(--pf-t--global--box-shadow--sm) !important;
