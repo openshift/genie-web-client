@@ -1,8 +1,5 @@
-// import { createContext, useContext, useState } from 'react';
-
 import { stateManager } from '../../components/utils/aiStateManager';
-
-import { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
+import { AIStateProvider } from './types';
 
 // Sample content in case we need to store information in a custom context
 

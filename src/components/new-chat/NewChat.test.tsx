@@ -2,11 +2,14 @@ import { render, screen, user } from '../../unitTestUtils';
 import { NewChat } from './NewChat';
 
 // Mocks
-const mockUseSendMessage = jest.fn();
+const mockSendStreamMessage = jest.fn();
+const mockInjectBotMessage = jest.fn();
 const mockUseNavigate = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
-  useSendMessage: () => mockUseSendMessage,
+  ...jest.requireActual('../../hooks/AIState'),
+  useSendStreamMessage: () => mockSendStreamMessage,
+  useInjectBotMessage: () => mockInjectBotMessage,
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
@@ -17,7 +20,6 @@ jest.mock('react-router-dom-v5-compat', () => ({
 describe('NewChat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseSendMessage.mockResolvedValue(undefined);
   });
 
   const renderNewChat = () => render(<NewChat />);
@@ -40,22 +42,21 @@ describe('NewChat', () => {
     expect(screen.getByRole('button', { name: "Explore what's possible" })).toBeInTheDocument();
   });
 
-  it('sends message with quick responses payload when a suggestion is clicked', async () => {
+  it('injects bot message with quick responses when a suggestion is clicked', async () => {
     renderNewChat();
 
     const buildButton = screen.getByRole('button', { name: 'Build / Configure' });
     await user.click(buildButton);
 
-    expect(mockUseSendMessage).toHaveBeenCalled();
-    const [prompt, options] = mockUseSendMessage.mock.calls[0];
+    expect(mockInjectBotMessage).toHaveBeenCalled();
+    const [options] = mockInjectBotMessage.mock.calls[0];
 
-    // Prompt resolved from i18n intro key
-    expect(typeof prompt).toBe('string');
-    expect(prompt.length).toBeGreaterThan(0);
+    // Answer is the intro message resolved from i18n
+    expect(typeof options.answer).toBe('string');
+    expect(options.answer.length).toBeGreaterThan(0);
 
-    // Options include stream and quick responses payload
-    expect(options?.stream).toBe(true);
-    const qr = options?.requestPayload?.quickResponses;
+    // additionalAttributes includes quick responses payload
+    const qr = options.additionalAttributes?.quickResponses;
     expect(qr?.key).toBe('build');
     expect(Array.isArray(qr?.items)).toBe(true);
     expect(qr?.items?.length).toBe(4);
