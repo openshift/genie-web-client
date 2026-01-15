@@ -83,5 +83,17 @@
   "artifactLibrary.emptyState.secondaryCta": "Code a config file",
   "artifactLibrary.error.heading": "Could not load artifacts.",
   "artifactLibrary.error.description": "A problem occurred while retrieving your library artifacts.",
-  "artifactLibrary.error.retry": "Retry"
+  "artifactLibrary.error.retry": "Retry",
+  "appMenu.title": "Red Hat applications",
+  "appMenu.hybridCloudConsole": "Hybrid Cloud Console",
+  "appMenu.openShiftClusterManager": "OpenShift Cluster Manager",
+  "appMenu.openOpenShiftConsole": "Open Cluster Console",
+  "userAccount.menu.title": "User account menu",
+  "userAccount.menu.personalize": "Personalize",
+  "userAccount.menu.settings": "Settings",
+  "userAccount.menu.help": "Help",
+  "userAccount.menu.sendFeedback": "Send feedback",
+  "userAccount.menu.about": "About Aladdin",
+  "userAccount.menu.legal": "Legal agreements",
+  "userAccount.menu.logout": "Log out"
 }
