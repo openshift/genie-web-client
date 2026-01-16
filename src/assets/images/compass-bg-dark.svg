@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- gradient definitions -->
+    <linearGradient id="darkGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c1222;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1f35;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="darkGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1d4ed8;stop-opacity:0.5" />
+      <stop offset="50%" style="stop-color:#4338ca;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.35" />
+    </linearGradient>
+    
+    <linearGradient id="darkGrad3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#b45309;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:0.2" />
+    </linearGradient>
+    
+    <linearGradient id="darkGrad4" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.45" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.35" />
+    </linearGradient>
+    
+    <radialGradient id="darkRadial1" cx="40%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="darkRadial2" cx="75%" cy="75%" r="45%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.45" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="darkRadial3" cx="85%" cy="20%" r="35%">
+      <stop offset="0%" style="stop-color:#db2777;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#db2777;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- glow effect -->
+    <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.25" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- base background -->
+  <rect width="100%" height="100%" fill="url(#darkGrad1)"/>
+  
+  <!-- large ambient glows - top-left kept clear for logo safe zone -->
+  <ellipse cx="600" cy="450" rx="500" ry="400" fill="url(#darkRadial1)" />
+  <ellipse cx="1600" cy="850" rx="600" ry="450" fill="url(#darkRadial2)" />
+  <ellipse cx="1700" cy="150" rx="400" ry="300" fill="url(#darkRadial3)" />
+  
+  <!-- flowing organic shapes -->
+  <path d="M-100,650 Q300,450 550,550 T950,480 T1350,580 T1700,450 T2020,550 L2020,1100 L-100,1100 Z" 
+        fill="url(#darkGrad2)" opacity="0.7"/>
+  
+  <path d="M-100,180 Q400,80 700,180 T1200,120 T1600,200 T1920,80 L1920,0 L-100,0 Z" 
+        fill="url(#darkGrad3)" opacity="0.6"/>
+  
+  <!-- floating accent circles -->
+  <circle cx="1550" cy="250" r="180" fill="url(#darkGrad4)" opacity="0.55"/>
+  <circle cx="250" cy="750" r="220" fill="url(#darkGrad4)" opacity="0.45"/>
+  <circle cx="900" cy="350" r="120" fill="url(#glow1)" opacity="0.6"/>
+  <circle cx="1200" cy="700" r="150" fill="url(#darkRadial1)" opacity="0.35"/>
+  
+  <!-- accent points -->
+  <circle cx="450" cy="380" r="4" fill="#60a5fa" opacity="0.7"/>
+  <circle cx="1350" cy="550" r="3" fill="#a78bfa" opacity="0.6"/>
+  <circle cx="750" cy="180" r="3" fill="#60a5fa" opacity="0.5"/>
+  <circle cx="1050" cy="780" r="4" fill="#a78bfa" opacity="0.6"/>
+  <circle cx="180" cy="550" r="3" fill="#60a5fa" opacity="0.4"/>
+  <circle cx="1650" cy="420" r="3" fill="#818cf8" opacity="0.5"/>
+  <circle cx="600" cy="650" r="2" fill="#f472b6" opacity="0.4"/>
+  <circle cx="1400" cy="200" r="2" fill="#f472b6" opacity="0.35"/>
+  
+  <!-- geometric accents -->
+  <path d="M1750,0 L1920,0 L1920,350 Z" fill="#312e81" opacity="0.4"/>
+  <path d="M0,850 L0,1080 L250,1080 Z" fill="#1e3a8a" opacity="0.4"/>
+</svg>

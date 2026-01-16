@@ -38,4 +38,3 @@ export {
 export { createClientStateManager } from '@redhat-cloud-services/ai-client-state';
 
 export { AIStateProvider } from '@redhat-cloud-services/ai-react-state';
-
