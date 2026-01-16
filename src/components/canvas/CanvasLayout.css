@@ -1,0 +1,26 @@
+.canvas-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.canvas-layout__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--pf-t--global--z-index--sm, 100);
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+}
+
+.canvas-layout__content {
+  overflow-y: auto;
+}
+
+.canvas-layout__footer {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--pf-t--global--z-index--sm, 100);
+  border-top: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+}
+

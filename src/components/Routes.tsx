@@ -7,6 +7,7 @@ import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { Chat } from './Chat/Chat';
 import { ArtifactLibrary } from './artifact-library';
+import { CanvasPreview } from './canvas';
 
 const GenieRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const GenieRoutes = () => {
           <Route path=":conversationId" element={<Chat />} />
         </Route>
         <Route path={SubRoutes.Library} element={<ArtifactLibrary />} />
+        <Route path={SubRoutes.Canvas} element={<CanvasPreview />} />
         <Route path={SubRoutes.AIandAutomation} element={<></>} />
         <Route path={SubRoutes.Insights} element={<></>} />
         <Route path={SubRoutes.Security} element={<></>} />
