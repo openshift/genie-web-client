@@ -24,9 +24,7 @@ export const ToolResultCard: React.FunctionComponent<ToolResultCardProps> = ({
       key={toolId}
       toggleContent={
         <span>
-          {isLoading && (
-            <Spinner size="sm" />
-          )}
+          {isLoading && <Spinner size="sm" />}
           {isLoading ? `Executing: ${displayName}` : `Tool Response: ${displayName}`}
         </span>
       }

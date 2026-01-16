@@ -9,7 +9,7 @@
 /* add extra space at top using patternfly spacing variables */
 .genie-onboarding-modal .pf-v6-c-modal-box__body {
   padding-block: var(--pf-v6-global--spacer--2xl) var(--pf-v6-global--spacer--lg);
-  padding-inline: 96px 96px;
+  padding-inline: var(--pf-t--global--spacer--3xl);
 }
 
 /* control spacing between stacked elements */
