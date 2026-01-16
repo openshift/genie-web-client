@@ -1,6 +1,6 @@
-/* glass theme via pf-v6-theme-glass class on :root */
+/* glass theme - scoped to genie-layout to prevent style bleeding */
 
-.pf-v6-c-compass {
+.genie-layout.pf-v6-c-compass {
   background-position: center;
   background-repeat: no-repeat;
 }
@@ -13,17 +13,17 @@
     --pf-t--global--background--color--glass--default: var(--pf-t--global--background--color--primary--default);
   }
 
-  .pf-v6-c-compass__panel {
+  .genie-layout .pf-v6-c-compass__panel {
     backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
     box-shadow: var(--pf-t--global--box-shadow--sm) !important;
   }
 
-  :root:where(.pf-v6-theme-dark) .pf-v6-c-compass__panel {
+  :root:where(.pf-v6-theme-dark) .genie-layout .pf-v6-c-compass__panel {
     background-color: var(--pf-t--global--background--color--primary--default) !important;
   }
 
-  .pf-v6-c-drawer__panel {
+  .genie-layout .pf-v6-c-drawer__panel {
     backdrop-filter: none !important;
     background-color: var(--pf-t--global--background--color--primary--default) !important;
     box-shadow: var(--pf-t--global--box-shadow--sm) !important;
@@ -51,7 +51,7 @@
 }
 
 /* active state for sidebar buttons */
-.pf-v6-c-compass__sidebar .pf-v6-c-button.pf-m-current {
+.genie-layout .pf-v6-c-compass__sidebar .pf-v6-c-button.pf-m-current {
   --pf-v6-c-button--m-plain--Color: var(--pf-v6-global--Color--100, #000);
 
   background-color: var(--pf-v6-global--BackgroundColor--action--plain--clicked, #0000000d);
@@ -65,8 +65,7 @@
   }
 }
 
-
-.pf-v6-c-drawer__panel {
+.genie-layout .pf-v6-c-drawer__panel {
   & .drawer-heading {
     display: flex;
     align-items: center;

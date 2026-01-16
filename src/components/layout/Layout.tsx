@@ -51,6 +51,8 @@ import { useDrawerFocusManagement } from './useDrawerFocusManagement';
 import { THEME_DARK } from '../theme/ThemeContext';
 import './Layout.css';
 
+const PF_GLASS_THEME_CLASS = 'pf-v6-theme-glass';
+
 const CreateNavItem = ({
   subRoute,
   title,
@@ -203,9 +205,9 @@ export const Layout = ({ children }: LayoutProps) => {
 
   // add glass theme class to root
   useEffect(() => {
-    document.documentElement.classList.add('pf-v6-theme-glass');
+    document.documentElement.classList.add(PF_GLASS_THEME_CLASS);
     return () => {
-      document.documentElement.classList.remove('pf-v6-theme-glass');
+      document.documentElement.classList.remove(PF_GLASS_THEME_CLASS);
     };
   }, []);
 
@@ -364,6 +366,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <Compass
+      className="genie-layout"
       header={header}
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
