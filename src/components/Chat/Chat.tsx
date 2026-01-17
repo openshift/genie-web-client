@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
 import { MessageList } from './MessageList';
+import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
 
 export const Chat: React.FunctionComponent = () => {
   const { conversationId } = useParams();
@@ -35,14 +36,17 @@ export const Chat: React.FunctionComponent = () => {
   }, [isValidConversationId, setShowChatBar]);
 
   return (
-    <Chatbot displayMode={ChatbotDisplayMode.embedded}>
-      <ChatbotContent>
-        <MessageList
-          key={conversationId}
-          isLoading={isLoading}
-          isValidConversationId={isValidConversationId}
-        />
-      </ChatbotContent>
-    </Chatbot>
+    <BadResponseModalProvider>
+      <Chatbot displayMode={ChatbotDisplayMode.embedded}>
+        <ChatbotContent>
+          <MessageList
+            key={conversationId}
+            isLoading={isLoading}
+            isValidConversationId={isValidConversationId}
+          />
+        </ChatbotContent>
+        <BadResponseModal />
+      </Chatbot>
+    </BadResponseModalProvider>
   );
 };
