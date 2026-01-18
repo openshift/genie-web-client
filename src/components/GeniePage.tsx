@@ -7,6 +7,7 @@ import { Layout } from './layout';
 import { OnboardingModal } from './onboarding';
 import { ThemeProvider } from './theme';
 import './genie.css';
+import { ToastAlertProvider } from './toast-alerts/ToastAlertProvider';
 
 export const GeniePage = () => {
   return (
@@ -15,7 +16,9 @@ export const GeniePage = () => {
         <AIProvider>
           <ChatBarProvider>
             <DrawerProvider>
-              <Layout />
+              <ToastAlertProvider>
+                <Layout />
+              </ToastAlertProvider>
             </DrawerProvider>
           </ChatBarProvider>
         </AIProvider>

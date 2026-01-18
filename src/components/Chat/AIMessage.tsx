@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback } from 'react';
 import { Message } from '@patternfly/chatbot';
 import {
@@ -16,6 +17,7 @@ import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { useBadResponseModal } from './feedback/BadResponseModal';
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -43,7 +45,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
   ({ message, onQuickResponse, isStreaming = false, toolCalls = [] }) => {
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
-
+    const { badResponseModalToggle } = useBadResponseModal();
     // Extract quick responses from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
@@ -56,9 +58,15 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       console.log('Regenerate');
     }, []);
 
-    const handleFeedback = useCallback((isPositive: boolean): void => {
-      console.log('Feedback', isPositive);
-    }, []);
+    const handleFeedback = useCallback(
+      (isPositive: boolean): void => {
+        console.log('Feedback', isPositive);
+        if (!isPositive) {
+          badResponseModalToggle(message);
+        }
+      },
+      [badResponseModalToggle, message],
+    );
 
     const handleShare = useCallback((): void => {
       console.log('Share');
@@ -101,10 +109,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
     );
 
-    const artifacts = useMemo(
-      () => collectArtifactsFromToolCalls(toolCalls),
-      [toolCalls],
-    );
+    const artifacts = useMemo(() => collectArtifactsFromToolCalls(toolCalls), [toolCalls]);
 
     // Convert quick responses payload to PatternFly Message format
     const quickResponses = useMemo(
@@ -121,7 +126,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     return (
       <Message
-        name='Genie'
+        name="Genie"
         isLoading={isStreaming}
         role="bot"
         content={content}
