@@ -61,8 +61,6 @@ The Genie Web Client local development stack:
 | **kube-mcp** | 8081 | Kubernetes resource queries |
 | **ngui-mcp** | 9200 | Next-gen UI component generation |
 
-> **Note:** For basic local development, only `obs-mcp` is required. The `kube-mcp` and `ngui-mcp` servers enable advanced features like Kubernetes queries and dynamic UI generation.
-
 **Data Flow:** User query → Console (9000) → Backend (8080) → MCP Servers → OpenShift Cluster → Response
 
 ## Quick Start
@@ -90,7 +88,7 @@ go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --inse
 
 **Note:** The `--guardrails none` flag allows broader queries for local development. In production, you may want to use the default guardrails.
 
-### 2. (Optional) Start Kube MCP Server
+### 2. Start Kube MCP Server
 
 The kube-mcp server provides Kubernetes resource queries to the AI.
 
@@ -99,7 +97,7 @@ The kube-mcp server provides Kubernetes resource queries to the AI.
 npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
 ```
 
-### 3. (Optional) Start NGUI MCP Server
+### 3. Start NGUI MCP Server
 
 The ngui-mcp server enables dynamic UI component generation.
 
@@ -239,9 +237,7 @@ The provided `lightspeed-stack.yaml` includes all three MCP servers. You can ena
    ```
 3. Restart the backend
 
-**Minimum setup:** Only `obs-mcp` is required for basic observability features.
-
-**Full setup:** All three MCP servers enable:
+All three MCP servers are required for full Genie functionality:
 - `obs-mcp` - Prometheus metrics queries
 - `kube-mcp` - Kubernetes resource queries  
 - `ngui-mcp` - Dynamic UI component generation
@@ -317,12 +313,12 @@ cd ~/Documents/GHRepos/obs-mcp
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 ```
 
-**Terminal 2: Kube-MCP Server (Optional)**
+**Terminal 2: Kube-MCP Server**
 ```bash
 npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
 ```
 
-**Terminal 3: NGUI-MCP Server (Optional)**
+**Terminal 3: NGUI-MCP Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 podman run --rm -it -p 9200:9200 \
