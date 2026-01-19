@@ -1,12 +1,26 @@
-.pf-chatbot-container {
-    .pf-chatbot__header {
-        --pf-t--global--background--color--primary--default: transparent;
+/* scoped to genie-layout to prevent style bleeding */
+.genie-layout .pf-chatbot-container {
+    /* make chatbot background transparent to work with glass theme */
+    background-color: transparent;
+}
 
-        border-bottom: 1px solid var(--pf-t--global--border--color--200);
+.genie-layout .pf-chatbot__header {
+    --pf-t--global--background--color--primary--default: transparent;
 
-        .pf-chatbot__header-main {
-            align-items: center;
-        }
-    }
+    border-bottom: 1px solid var(--pf-t--global--border--color--200);
+}
+
+.genie-layout .pf-chatbot__header-main {
+    align-items: center;
+}
+
+.genie-layout .pf-chatbot__content {
+    /* transparent background for chat content area */
+    background-color: transparent;
+}
+
+.genie-layout .pf-chatbot__messagebox {
+    /* transparent background for message box */
+    background-color: transparent;
 }
 

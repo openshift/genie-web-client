@@ -65,19 +65,18 @@
   }
 }
 
-.genie-layout .pf-v6-c-drawer__panel {
-  & .drawer-heading {
-    display: flex;
-    align-items: center;
-    gap: var(--pf-v5-global--spacer--md, 1rem);
-  
-    & .drawer-heading__icon {
-      display: flex;
-      align-items: center;
-    }
-  
-    & .drawer-heading__text {
-      flex: 1;
-    }
-  }
+/* drawer heading styles */
+.drawer-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--md);
+}
+
+.drawer-heading__icon {
+  display: flex;
+  align-items: center;
+}
+
+.drawer-heading__text {
+  flex: 1;
 }
