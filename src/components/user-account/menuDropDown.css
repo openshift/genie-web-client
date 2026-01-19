@@ -1,0 +1,9 @@
+.user-account-menu-dropdown{
+  right: 15px !important;
+  left: auto !important;
+}
+
+.user-account-menu-dropdown[style*="transform"] {
+  transform: translateY(68px) !important;
+}
+
