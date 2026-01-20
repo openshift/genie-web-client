@@ -78,7 +78,7 @@
   "newChat.quickResponses.explore.3.label": "Explain Deployment vs. DeploymentConfig",
   "artifactLibrary.ariaLabel": "Library",
   "artifactLibrary.emptyState.heading": "Start something extraordinary.",
-  "artifactLibrary.emptyState.description": "Everything you create with Genie — charts or others share with you will live here. Begin with a dashboard, a snippet, or any artifact.",
+  "artifactLibrary.emptyState.description": "Everything you create with Genie—or that others share with you—will live here. Begin with a dashboard, a snippet, or any artifact.",
   "artifactLibrary.emptyState.primaryCta": "Create a dashboard",
   "artifactLibrary.emptyState.secondaryCta": "Code a config file",
   "artifactLibrary.error.heading": "Could not load artifacts.",
