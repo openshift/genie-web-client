@@ -116,10 +116,51 @@ podman run --rm -it -p 9200:9200 \
 
 **Note:** Run this command from the `genie-web-client` directory so it can find the config file.
 
-### 4. Clone and Setup Lightspeed Stack
+### 4. Configure Your API Key
 
 ```bash
-# Clone the upstream lightspeed-stack repo (one time only, skip if you already have it)
+# Set your OpenAI API key
+export OPENAI_API_KEY="sk-your-api-key-here"
+```
+
+**Tip:** Add this to your `~/.zshrc` or `~/.bashrc` to persist it:
+```bash
+echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### 5. Start the Backend (Lightspeed Stack)
+
+You have two options for running the backend. **Option A (Podman)** is recommended for faster setup.
+
+#### Option A: Run with Podman (Recommended)
+
+This is the easiest way to get started - no need to clone repos or install Python dependencies.
+
+**Start lightspeed-stack with Podman (Terminal 4)**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+podman run --rm -it -p 8080:8080 \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  --env OPENAI_API_KEY=$OPENAI_API_KEY \
+  quay.io/lightspeed-core/lightspeed-stack:0.3.0
+```
+
+This will start:
+- Lightspeed Core Service on port 8080
+- Llama Stack with OpenAI provider
+- Ready to accept requests from the UI
+
+**Keep this terminal running** - this is your backend.
+
+#### Option B: Run from Source
+
+Use this option if you want to develop or debug the lightspeed-stack itself.
+
+**Clone and setup (one time only)**
+```bash
+# Clone the upstream lightspeed-stack repo
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/lightspeed-core/lightspeed-stack.git
 cd lightspeed-stack
@@ -134,34 +175,13 @@ uv sync
 
 **Tip:** If you want to keep your existing configs, copy these with different names like `lightspeed-stack-genie.yaml` instead.
 
-### 5. Configure Your API Key
-
-```bash
-# Set your OpenAI API key
-export OPENAI_API_KEY="sk-your-api-key-here"
-```
-
-**Tip:** Add this to your `~/.zshrc` or `~/.bashrc` to persist it:
-```bash
-echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### 6. Start the Backend
-
+**Start the backend**
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 uv run python -m src.lightspeed_stack
 ```
 
-This uses the `lightspeed-stack.yaml` and `run.yaml` files you copied from the genie-web-client repo.
-
-This will start:
-- Lightspeed Core Service on port 8080
-- Llama Stack with OpenAI provider
-- Ready to accept requests from the UI
-
-**Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach, you can also:
+**Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach:
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 source .venv/bin/activate
@@ -332,11 +352,15 @@ podman run --rm -it -p 9200:9200 \
    quay.io/next-gen-ui/mcp:dev
 ```
 
-**Terminal 4: Backend**
+**Terminal 4: Backend (Podman - Recommended)**
 ```bash
-cd ~/Documents/GHRepos/lightspeed-stack
+cd ~/Documents/GHRepos/genie-web-client
 export OPENAI_API_KEY="sk-..."
-uv run python -m src.lightspeed_stack
+podman run --rm -it -p 8080:8080 \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  --env OPENAI_API_KEY=$OPENAI_API_KEY \
+  quay.io/lightspeed-core/lightspeed-stack:0.3.0
 ```
 
 **Terminal 5: Frontend Dev Server**
@@ -363,9 +387,9 @@ Once everything is running, try these queries:
 ### Backend-Only Changes
 
 If you're only modifying backend config:
-1. Stop the backend (Ctrl+C in Terminal 1)
-2. Edit `lightspeed-stack.yaml` or `run.yaml` in ~/Documents/GHRepos/lightspeed-stack/
-3. Restart: `uv run python -m src.lightspeed_stack`
+1. Stop the backend (Ctrl+C in Terminal 4)
+2. Edit `lightspeed-stack.yaml` or `run.yaml` in `backend/lightspeed-stack/`
+3. Restart the backend (use the same Podman or Python command from section 5)
 
 The UI will automatically reconnect.
 
