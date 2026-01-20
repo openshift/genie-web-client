@@ -101,10 +101,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
     );
 
-    const artifacts = useMemo(
-      () => collectArtifactsFromToolCalls(toolCalls),
-      [toolCalls],
-    );
+    const artifacts = useMemo(() => collectArtifactsFromToolCalls(toolCalls), [toolCalls]);
 
     // Convert quick responses payload to PatternFly Message format
     const quickResponses = useMemo(
@@ -121,7 +118,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     return (
       <Message
-        name='Genie'
+        name="Genie"
         isLoading={isStreaming}
         role="bot"
         content={content}
@@ -132,6 +129,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     );
   },
   (prevProps, nextProps) => {
+    // Always re-render if message ID changes (shouldn't happen with proper keys, but safety check)
+    if (prevProps.message.id !== nextProps.message.id) {
+      return false;
+    }
+    // Re-render if any of these change
     return (
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.message.answer === nextProps.message.answer &&

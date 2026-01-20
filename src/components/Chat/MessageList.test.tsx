@@ -24,7 +24,13 @@ jest.mock('./ConversationNotFound', () => ({
 }));
 
 jest.mock('./UserMessage', () => ({
-  UserMessage: ({ message, isLastUserMessage }: { message: { id: string; answer: string }; isLastUserMessage: boolean }) => (
+  UserMessage: ({
+    message,
+    isLastUserMessage,
+  }: {
+    message: { id: string; answer: string };
+    isLastUserMessage: boolean;
+  }) => (
     <div data-testid={`user-message-${message.id}`} data-is-last={isLastUserMessage}>
       {message.answer}
     </div>
@@ -32,7 +38,13 @@ jest.mock('./UserMessage', () => ({
 }));
 
 jest.mock('./AIMessage', () => ({
-  AIMessage: ({ message, isStreaming }: { message: { id: string; answer: string }; isStreaming: boolean }) => (
+  AIMessage: ({
+    message,
+    isStreaming,
+  }: {
+    message: { id: string; answer: string };
+    isStreaming: boolean;
+  }) => (
     <div data-testid={`ai-message-${message.id}`} data-is-streaming={isStreaming}>
       {message.answer}
     </div>
@@ -215,4 +227,3 @@ describe('<MessageList />', () => {
     });
   });
 });
-

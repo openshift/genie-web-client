@@ -15,9 +15,9 @@ export const useIsInitializing = (): boolean => {
   return isInitializing;
 };
 
-export const useStreamChunk = <
-  T extends Record<string, unknown> = Record<string, unknown>,
->(): IStreamChunk<T> | undefined => {
+export const useStreamChunk = <T extends Record<string, unknown> = Record<string, unknown>>():
+  | IStreamChunk<T>
+  | undefined => {
   const streamChunk = aiStateUseStreamChunk<T>();
   return streamChunk;
 };

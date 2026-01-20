@@ -78,10 +78,7 @@ export function parseGenerateUIResult(response: unknown): Artifact[] {
  * This is the main entry point for parsing tool results.
  * Add new tool parsers here as they are implemented.
  */
-export function parseToolResultToArtifacts(
-  toolName: string,
-  result: unknown,
-): Artifact[] {
+export function parseToolResultToArtifacts(toolName: string, result: unknown): Artifact[] {
   if (isGenerateUITool(toolName)) {
     return parseGenerateUIResult(result);
   }
@@ -94,4 +91,3 @@ export function parseToolResultToArtifacts(
   // No artifacts for unknown tools
   return [];
 }
-

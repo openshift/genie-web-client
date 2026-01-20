@@ -4,12 +4,14 @@ import { NewChat } from './NewChat';
 // Mocks
 const mockSendStreamMessage = jest.fn();
 const mockInjectBotMessage = jest.fn();
+const mockCreateNewConversation = jest.fn().mockResolvedValue(undefined);
 const mockUseNavigate = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useSendStreamMessage: () => mockSendStreamMessage,
   useInjectBotMessage: () => mockInjectBotMessage,
+  useCreateNewConversation: () => mockCreateNewConversation,
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
