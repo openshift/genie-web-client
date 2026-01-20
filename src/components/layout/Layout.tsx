@@ -39,6 +39,8 @@ import { useChatBar } from '../ChatBarContext';
 import { ThemeToggle, useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
+import CompassBgLight from '../../assets/images/compass-bg-light.svg';
+import CompassBgDark from '../../assets/images/compass-bg-dark.svg';
 
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
@@ -48,6 +50,8 @@ import { THEME_DARK } from '../theme/ThemeContext';
 import { UserAccountMenu } from '../user-account';
 import { AppMenu } from './AppMenu';
 import './Layout.css';
+
+const PF_GLASS_THEME_CLASS = 'pf-v6-theme-glass';
 
 const CreateNavItem = ({
   subRoute,
@@ -198,6 +202,14 @@ export const Layout = ({ children }: LayoutProps) => {
     const lastUrlItem = urlSegments.pop();
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
+
+  // add glass theme class to root
+  useEffect(() => {
+    document.documentElement.classList.add(PF_GLASS_THEME_CLASS);
+    return () => {
+      document.documentElement.classList.remove(PF_GLASS_THEME_CLASS);
+    };
+  }, []);
 
   // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
@@ -363,6 +375,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <Compass
+      className="genie-layout"
       header={header}
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
@@ -380,6 +393,8 @@ export const Layout = ({ children }: LayoutProps) => {
         isExpanded: drawerState.isOpen,
         position: drawerState.position,
       }}
+      backgroundSrcLight={CompassBgLight}
+      backgroundSrcDark={CompassBgDark}
     >
       {children}
     </Compass>
