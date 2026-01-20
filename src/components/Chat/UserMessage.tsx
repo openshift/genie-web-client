@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FunctionComponent, memo, useCallback, useMemo } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { CopyIcon, EditIcon } from '@patternfly/react-icons';
