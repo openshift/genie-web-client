@@ -155,8 +155,8 @@ export const Layout = ({ children }: LayoutProps) => {
   }, [navigate]);
 
   const handleSendMessage = useCallback(
-    (value: string) => {
-      sendStreamMessage(value);
+    (value: string | number) => {
+      sendStreamMessage(String(value));
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
     [sendStreamMessage, navigate],

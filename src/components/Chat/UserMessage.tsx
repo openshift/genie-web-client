@@ -33,7 +33,10 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
     );
 
     const actions = useMemo(
-      () => (isLastUserMessage ? { copy: copyAction, edit: editAction } : { copy: copyAction }),
+      () =>
+        isLastUserMessage
+          ? { copy: copyAction, edit: editAction }
+          : ({ copy: copyAction } as Record<string, typeof copyAction>),
       [isLastUserMessage, copyAction, editAction],
     );
 
