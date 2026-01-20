@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState, ReactNode, FormEvent } from '
 import { useLocation, useNavigate, Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
-  Avatar,
   Brand,
   CompassHeader,
   CompassPanel,
@@ -40,14 +39,19 @@ import { useChatBar } from '../ChatBarContext';
 import { ThemeToggle, useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
-import AvatarImg from '../../assets/images/avatar.svg';
+import CompassBgLight from '../../assets/images/compass-bg-light.svg';
+import CompassBgDark from '../../assets/images/compass-bg-dark.svg';
 
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { ChatHistory } from '../ChatHistory';
 import { Notifications } from '../notifications/Notifications';
 import { useDrawerFocusManagement } from './useDrawerFocusManagement';
 import { THEME_DARK } from '../theme/ThemeContext';
+import { UserAccountMenu } from '../user-account';
+import { AppMenu } from './AppMenu';
 import './Layout.css';
+
+const PF_GLASS_THEME_CLASS = 'pf-v6-theme-glass';
 
 const CreateNavItem = ({
   subRoute,
@@ -199,6 +203,14 @@ export const Layout = ({ children }: LayoutProps) => {
     setActiveItem(lastUrlItem as SubRoutes);
   }, [location.pathname]);
 
+  // add glass theme class to root
+  useEffect(() => {
+    document.documentElement.classList.add(PF_GLASS_THEME_CLASS);
+    return () => {
+      document.documentElement.classList.remove(PF_GLASS_THEME_CLASS);
+    };
+  }, []);
+
   // const isChatRoute = !!useMatch(`${mainGenieRoute}/${ChatNew}`);
 
   // Header components
@@ -209,7 +221,6 @@ export const Layout = ({ children }: LayoutProps) => {
       widths={{ default: '120px' }}
     />
   );
-  const userAccount = <Avatar src={AvatarImg} alt="User Account" />;
 
   const navContent = (
     <div className="global-layout-nav">
@@ -239,7 +250,17 @@ export const Layout = ({ children }: LayoutProps) => {
     </div>
   );
 
-  const header = <CompassHeader logo={genieLogo} nav={navContent} profile={userAccount} />;
+  const header = (
+    <CompassHeader
+      logo={genieLogo}
+      nav={navContent}
+      profile={
+        <>
+          <AppMenu /> <UserAccountMenu />
+        </>
+      }
+    />
+  );
 
   // Sidebar components
   const sidebarStart = (
@@ -354,6 +375,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <Compass
+      className="genie-layout"
       header={header}
       isHeaderExpanded={true}
       sidebarStart={sidebarStart}
@@ -371,6 +393,8 @@ export const Layout = ({ children }: LayoutProps) => {
         isExpanded: drawerState.isOpen,
         position: drawerState.position,
       }}
+      backgroundSrcLight={CompassBgLight}
+      backgroundSrcDark={CompassBgDark}
     >
       {children}
     </Compass>
