@@ -16,9 +16,7 @@ const formatToolName = (name: string): string => {
     .join(' ');
 };
 
-export const ToolCallsList: React.FunctionComponent<ToolCallsListProps> = ({
-  toolCalls,
-}) => {
+export const ToolCallsList: React.FunctionComponent<ToolCallsListProps> = ({ toolCalls }) => {
   if (toolCalls.length === 0) return null;
 
   return (

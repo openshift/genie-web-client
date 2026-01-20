@@ -6,9 +6,7 @@ export interface ArtifactRendererProps {
   artifacts: Artifact[];
 }
 
-export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = ({
-  artifacts,
-}) => {
+export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = ({ artifacts }) => {
   if (artifacts.length === 0) {
     return null;
   }
@@ -18,9 +16,7 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
       {artifacts.map((artifact) => {
         switch (artifact.type) {
           case 'widget':
-            return (
-              <WidgetRenderer key={artifact.id} widget={artifact.widget} />
-            );
+            return <WidgetRenderer key={artifact.id} widget={artifact.widget} />;
 
           case 'dashboard':
             // Future: Implement dashboard renderer
@@ -49,4 +45,3 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
     </>
   );
 };
-

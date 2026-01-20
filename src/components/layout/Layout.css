@@ -1,9 +1,36 @@
-.global-layout-header {
-  /* Header specific styles */
+/* glass theme - scoped to genie-layout to prevent style bleeding */
+
+.genie-layout.pf-v6-c-compass {
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* fallback for users with reduced transparency enabled */
+@media (prefers-reduced-transparency: reduce) {
+  :root.pf-v6-theme-glass {
+    --pf-t--global--background--color--glass--filter: none;
+    --pf-t--global--background--color--glass--opacity: 1;
+    --pf-t--global--background--color--glass--default: var(--pf-t--global--background--color--primary--default);
+  }
+
+  .genie-layout .pf-v6-c-compass__panel {
+    backdrop-filter: none !important;
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+    box-shadow: var(--pf-t--global--box-shadow--sm) !important;
+  }
+
+  :root:where(.pf-v6-theme-dark) .genie-layout .pf-v6-c-compass__panel {
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+  }
+
+  .genie-layout .pf-v6-c-drawer__panel {
+    backdrop-filter: none !important;
+    background-color: var(--pf-t--global--background--color--primary--default) !important;
+    box-shadow: var(--pf-t--global--box-shadow--sm) !important;
+  }
 }
 
 .global-layout-nav .pf-v6-c-compass__panel {
-  /* Navigation specific styles */
   display: flex;
   column-gap: var(--pf-t--global--spacer--md, 1rem);
 
@@ -15,7 +42,7 @@
 }
 
 .global-layout-nav .pf-v6-c-nav__link {
-  /* Using PatternFly design tokens for theme support */
+  /* using patternfly design tokens for theme support */
   --pf-v6-c-nav__link--Color: var(--pf-t--global--text--color--subtle);
   --pf-v6-c-nav__link--hover--Color: var(--pf-t--global--text--color--regular);
   --pf-v6-c-nav__link--m-current--Color: var(--pf-t--global--text--color--brand--default);
@@ -23,16 +50,8 @@
   --pf-v6-c-nav__link--m-current--BackgroundColor: transparent;
 }
 
-.global-layout-chat-toolbar {
-  /* Chat toolbar specific styles */
-}
-
-.global-layout-utility-toolbar {
-  /* Utility toolbar specific styles */
-}
-
-/* Active state for sidebar action buttons (e.g., Library button) */
-.pf-v6-c-compass__sidebar .pf-v6-c-button.pf-m-current {
+/* active state for sidebar buttons */
+.genie-layout .pf-v6-c-compass__sidebar .pf-v6-c-button.pf-m-current {
   --pf-v6-c-button--m-plain--Color: var(--pf-v6-global--Color--100, #000);
 
   background-color: var(--pf-v6-global--BackgroundColor--action--plain--clicked, #0000000d);
@@ -46,20 +65,18 @@
   }
 }
 
+/* drawer heading styles */
+.drawer-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--md);
+}
 
-.pf-v6-c-drawer__panel {
-  & .drawer-heading {
-    display: flex;
-    align-items: center;
-    gap: var(--pf-v5-global--spacer--md, 1rem);
-  
-    & .drawer-heading__icon {
-      display: flex;
-      align-items: center;
-    }
-  
-    & .drawer-heading__text {
-      flex: 1;
-    }
-  }
+.drawer-heading__icon {
+  display: flex;
+  align-items: center;
+}
+
+.drawer-heading__text {
+  flex: 1;
 }
