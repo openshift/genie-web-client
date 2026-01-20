@@ -61,4 +61,3 @@ export function useInjectBotMessage(): (options: InjectBotMessageOptions) => voi
     [getState],
   );
 }
-

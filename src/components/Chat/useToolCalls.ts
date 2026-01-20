@@ -98,9 +98,7 @@ function extractToolCallData(call: ToolCallEvent): {
 export function useToolCalls(
   streamChunk: IStreamChunk<LightSpeedCoreAdditionalProperties> | undefined,
 ): UseToolCallsResult {
-  const [toolCallsByMessage, setToolCallsByMessage] = useState<
-    Record<string, ToolCallState[]>
-  >({});
+  const [toolCallsByMessage, setToolCallsByMessage] = useState<Record<string, ToolCallState[]>>({});
 
   // Track which tool call IDs we've already processed to avoid duplicates
   const processedToolCallIds = useRef<Set<number | string>>(new Set());
@@ -111,13 +109,15 @@ export function useToolCalls(
 
     const messageId = streamChunk.messageId;
     const toolCalls = streamChunk.additionalAttributes?.toolCalls as ToolCallEvent[] | undefined;
-    const toolResults = streamChunk.additionalAttributes?.toolResults as ToolResultEvent[] | undefined;
+    const toolResults = streamChunk.additionalAttributes?.toolResults as
+      | ToolResultEvent[]
+      | undefined;
 
     let hasUpdates = false;
 
     setToolCallsByMessage((prev) => {
       const existingCalls = prev[messageId] || [];
-      let updatedCalls = [...existingCalls];
+      const updatedCalls = [...existingCalls];
 
       // Process COMPLETE tool calls only (those with tool_name or name)
       if (toolCalls) {
