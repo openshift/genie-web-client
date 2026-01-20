@@ -6,6 +6,7 @@ import {
   useSendStreamMessage,
   useStreamChunk,
   useInProgress,
+  useActiveConversation,
 } from '../../hooks/AIState';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
@@ -14,6 +15,7 @@ import { AIMessage } from './AIMessage';
 import { useToolCalls } from './useToolCalls';
 import { GenieAdditionalProperties } from 'src/types/chat';
 import { EditableChatHeader } from './EditableChatHeader';
+import { getUserQuestionForBotMessage } from './messageHelpers';
 
 interface MessageListProps {
   isLoading: boolean;
@@ -29,6 +31,8 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const streamChunk = useStreamChunk<GenieAdditionalProperties>();
     const { toolCallsByMessage } = useToolCalls(streamChunk);
     const inProgress = useInProgress();
+    const activeConversation = useActiveConversation();
+    const conversationId = activeConversation?.id || '';
     const bottomRef = useRef<HTMLDivElement>(null);
 
     const handleQuickResponse = useCallback(
@@ -62,15 +66,18 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
           const isBot = message.role === 'bot';
 
           if (isBot) {
-            // Only the last bot message can be streaming
+            // only the last bot message can be streaming
             const isStreaming = inProgress && index === lastBotMessageIndex;
-            // Use role + message.id + index as key to ensure uniqueness
+            // use role + message.id + index as key to ensure uniqueness
             // (message.id can be duplicated between user/bot in same conversation)
             const toolCalls = toolCallsByMessage[message.id];
+            const userQuestion = getUserQuestionForBotMessage(messages, index);
             return (
               <AIMessage
                 key={`bot-${message.id}-${index}`}
                 message={message}
+                conversationId={conversationId}
+                userQuestion={userQuestion}
                 onQuickResponse={handleQuickResponse}
                 isStreaming={isStreaming}
                 toolCalls={toolCalls}
@@ -78,7 +85,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
             );
           }
 
-          // Use role + message.id + index as key to ensure uniqueness
+          // use role + message.id + index as key to ensure uniqueness
           return (
             <UserMessage
               key={`user-${message.id}-${index}`}

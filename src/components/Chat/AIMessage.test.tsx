@@ -14,6 +14,8 @@ Object.defineProperty(navigator, 'clipboard', {
 
 describe('<AIMessage />', () => {
   const mockOnQuickResponse = jest.fn();
+  const defaultConversationId = 'test-conversation-id';
+  const defaultUserQuestion = 'Test user question';
 
   const createMessage = (overrides: Partial<Message> = {}): Message => ({
     id: 'test-message-id',
@@ -31,7 +33,7 @@ describe('<AIMessage />', () => {
     it('displays the message answer content', () => {
       const message = createMessage({ answer: 'Hello, how can I help you?' });
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       expect(screen.getByText('Hello, how can I help you?')).toBeInTheDocument();
     });
@@ -39,7 +41,7 @@ describe('<AIMessage />', () => {
     it('renders component when answer is undefined', () => {
       const message = createMessage({ answer: undefined });
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message component mock renders with data-testid="message"
       expect(screen.getByTestId('message')).toBeInTheDocument();
@@ -48,7 +50,7 @@ describe('<AIMessage />', () => {
     it('renders component when answer is an empty string', () => {
       const message = createMessage({ answer: '' });
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message component mock renders with data-testid="message"
       expect(screen.getByTestId('message')).toBeInTheDocument();
@@ -60,7 +62,7 @@ describe('<AIMessage />', () => {
       const message = createMessage();
 
       render(
-        <AIMessage message={message} onQuickResponse={mockOnQuickResponse} isStreaming={true} />,
+        <AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} isStreaming={true} />,
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
@@ -72,7 +74,7 @@ describe('<AIMessage />', () => {
       const message = createMessage();
 
       render(
-        <AIMessage message={message} onQuickResponse={mockOnQuickResponse} isStreaming={false} />,
+        <AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} isStreaming={false} />,
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
@@ -83,7 +85,7 @@ describe('<AIMessage />', () => {
     it('defaults isStreaming to false when not provided', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
       const messageElement = screen.getByTestId('message');
@@ -95,7 +97,7 @@ describe('<AIMessage />', () => {
     it('does not pass null beforeMainContent when toolCalls is empty', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} toolCalls={[]} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} toolCalls={[]} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       // Component renders without ToolCallsList when toolCalls is empty
@@ -105,7 +107,7 @@ describe('<AIMessage />', () => {
     it('does not render ToolCallsList when toolCalls is not provided', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       expect(screen.getByTestId('message')).toBeInTheDocument();
@@ -116,7 +118,7 @@ describe('<AIMessage />', () => {
     it('does not render quick responses when additionalAttributes is undefined', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       // The quickresponses attribute should not be present when undefined
@@ -133,7 +135,7 @@ describe('<AIMessage />', () => {
       };
       const message = createMessage({ additionalAttributes });
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       const messageElement = screen.getByTestId('message');
@@ -145,7 +147,7 @@ describe('<AIMessage />', () => {
     it('renders as a bot message', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
+      render(<AIMessage message={message} conversationId={defaultConversationId} userQuestion={defaultUserQuestion} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-role attribute
       const messageElement = screen.getByTestId('message');
