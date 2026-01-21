@@ -11,12 +11,12 @@ import {
 } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
+import { useSendFeedback } from '../../hooks/AIState';
 import type { ToolCallState } from './useToolCalls';
 import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
-import { stateManager } from '../utils/aiStateManager';
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -48,6 +48,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
     const [feedbackRating, setFeedbackRating] = useState<'good' | 'bad' | null>(null);
+    const { sendFeedback } = useSendFeedback();
 
     // extract quick responses from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
@@ -78,22 +79,14 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         setFeedbackRating(newRating);
 
         // send the feedback to backend
-        try {
-          const client = stateManager.getClient();
-          await client.storeFeedback({
-            conversation_id: conversationId,
-            user_question: userQuestion,
-            llm_response: content,
-            sentiment: isPositive ? 1 : -1,
-          });
-          console.log('Feedback sent successfully');
-        } catch (error) {
-          console.error('Failed to send feedback:', error);
-          // could revert the button state here if needed
-          // setFeedbackRating(null);
-        }
+        await sendFeedback({
+          conversation_id: conversationId,
+          user_question: userQuestion,
+          llm_response: content,
+          isPositive: isPositive,
+        });
       },
-      [feedbackRating, conversationId, userQuestion, content],
+      [feedbackRating, conversationId, userQuestion, content, sendFeedback],
     );
 
     const handleShare = useCallback((): void => {
