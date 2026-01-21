@@ -21,7 +21,7 @@ import './onboarding.css';
 
 export const ONBOARDING_STORAGE_KEY = 'genie-onboarding-completed';
 
-const imageMap = {
+const imageMap: Record<string, string> = {
   welcome: WelcomeImg,
   'ai-command-center': AiCommandCenterImg,
   'canvas-mode': CanvasModeImg,
@@ -94,27 +94,33 @@ export const OnboardingModal: React.FC = () => {
       buttons.push({
         children: t('onboarding.buttons.back'),
         variant: ButtonVariant.secondary,
-        navigation: 'previous',
+        navigation: 'previous' as const,
       });
     }
     if (index < onboardingData.length - 1) {
       buttons.push({
         children: t('onboarding.buttons.continue'),
         variant: ButtonVariant.primary,
-        navigation: 'next',
+        navigation: 'next' as const,
       });
     } else {
       buttons.push({
         children: t('onboarding.buttons.getStarted'),
         variant: ButtonVariant.primary,
-        navigation: 'close',
+        navigation: 'close' as const,
       });
     }
 
     const content = (
       <Stack hasGutter>
         <StackItem>
-          <img src={imageMap[page.image]} alt={page.alt} className={`onboarding-img${page.imageSize ? ` onboarding-img--${page.imageSize}` : ''}`} />
+          <img
+            src={imageMap[page.image]}
+            alt={page.alt}
+            className={`onboarding-img${
+              page.imageSize ? ` onboarding-img--${page.imageSize}` : ''
+            }`}
+          />
         </StackItem>
         {page.label && (
           <StackItem>

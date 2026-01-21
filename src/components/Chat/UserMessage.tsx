@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FunctionComponent, memo, useCallback, useMemo } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { CopyIcon, EditIcon } from '@patternfly/react-icons';
@@ -13,7 +14,7 @@ export interface UserMessageProps {
 export const UserMessage: FunctionComponent<UserMessageProps> = memo(
   ({ message, isLastUserMessage }) => {
     const content = message.answer || '';
-    
+
     const handleEdit = useCallback((): void => {
       // ...regenerate the bot's last response
     }, []);
@@ -33,11 +34,14 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
     );
 
     const actions = useMemo(
-      () => (isLastUserMessage ? { copy: copyAction, edit: editAction } : { copy: copyAction }),
+      () =>
+        isLastUserMessage
+          ? { copy: copyAction, edit: editAction }
+          : ({ copy: copyAction } as Record<string, typeof copyAction>),
       [isLastUserMessage, copyAction, editAction],
     );
 
-    return <Message name='You' role="user" content={content} actions={actions} />;
+    return <Message name="You" role="user" content={content} actions={actions} />;
   },
   (prevProps, nextProps) =>
     prevProps.isLastUserMessage === nextProps.isLastUserMessage &&

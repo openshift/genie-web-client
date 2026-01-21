@@ -11,22 +11,57 @@ This directory contains the backend configuration needed to run Genie Web Client
 
 ## Architecture
 
-The Genie Web Client backend consists of:
+The Genie Web Client local development stack:
 
 ```
-┌─────────────────────────────────────────────┐
-│  Lightspeed Stack (Port 8080)               │
-│  ├── Lightspeed Core Service (LCS)          │
-│  └── Llama Stack (LLM provider)             │
-└─────────────────────────────────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        ▼                     ▼
-┌─────────────┐      ┌─────────────┐
-│  MCP Servers│      │ Your UI     │
-│  (Optional) │      │ (Port 9001) │
-└─────────────┘      └─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  Browser: http://localhost:9000/genie                   │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  OpenShift Console (Port 9000)                          │
+│  ├── Hosts the Genie plugin                             │
+│  └── Proxies API calls to backend                       │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  Frontend Dev Server (Port 9001)                        │
+│  └── Serves Genie UI (React/TypeScript)                 │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  Lightspeed Stack (Port 8080)                           │
+│  ├── Lightspeed Core Service (LCS) - REST API           │
+│  └── Llama Stack (LLM orchestration) → OpenAI API       │
+└─────────────────────────────────────────────────────────┘
+                          │
+          ┌───────────────┼───────────────┐
+          ▼               ▼               ▼
+┌─────────────────┐ ┌─────────────┐ ┌─────────────────┐
+│  obs-mcp (9100) │ │ kube-mcp    │ │ ngui-mcp (9200) │
+│  Metrics/Prom   │ │ (8081)      │ │ UI generation   │
+└─────────────────┘ └─────────────┘ └─────────────────┘
+          │               │               │
+          ▼               ▼               ▼
+┌─────────────────────────────────────────────────────────┐
+│  OpenShift Cluster (via kubeconfig)                     │
+│  ├── Prometheus (metrics)                               │
+│  └── Kubernetes API (resources)                         │
+└─────────────────────────────────────────────────────────┘
 ```
+
+### MCP Servers
+
+| Server | Port | Purpose |
+|--------|------|---------|
+| **obs-mcp** | 9100 | Prometheus metrics queries |
+| **kube-mcp** | 8081 | Kubernetes resource queries |
+| **ngui-mcp** | 9200 | Next-gen UI component generation |
+
+**Data Flow:** User query → Console (9000) → Backend (8080) → MCP Servers → OpenShift Cluster → Response
 
 ## Quick Start
 
@@ -53,10 +88,79 @@ go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --inse
 
 **Note:** The `--guardrails none` flag allows broader queries for local development. In production, you may want to use the default guardrails.
 
-### 2. Clone and Setup Lightspeed Stack
+### 2. Start Kube MCP Server
+
+The kube-mcp server provides Kubernetes resource queries to the AI.
+
+**Start kube-mcp server (Terminal 2)**
+```bash
+npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
+```
+
+### 3. Start NGUI MCP Server
+
+The ngui-mcp server enables dynamic UI component generation.
+
+**Start ngui-mcp server (Terminal 3)**
+```bash
+podman run --rm -it -p 9200:9200 \
+   -v $PWD/backend/lightspeed-stack/ngui_openshift_mcp_config.yaml:/opt/app-root/config/ngui_openshift_mcp_config.yaml:z \
+   --env MCP_PORT="9200" \
+   --env NGUI_MODEL="gpt-4.1-nano" \
+   --env NGUI_PROVIDER_API_KEY=$OPENAI_API_KEY \
+   --env NGUI_CONFIG_PATH="/opt/app-root/config/ngui_openshift_mcp_config.yaml" \
+   --env MCP_TOOLS="generate_ui_component" \
+   --env MCP_STRUCTURED_OUTPUT_ENABLED="false" \
+   quay.io/next-gen-ui/mcp:dev
+```
+
+**Note:** Run this command from the `genie-web-client` directory so it can find the config file.
+
+### 4. Configure Your API Key
 
 ```bash
-# Clone the upstream lightspeed-stack repo (one time only, skip if you already have it)
+# Set your OpenAI API key
+export OPENAI_API_KEY="sk-your-api-key-here"
+```
+
+**Tip:** Add this to your `~/.zshrc` or `~/.bashrc` to persist it:
+```bash
+echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### 5. Start the Backend (Lightspeed Stack)
+
+You have two options for running the backend. **Option A (Podman)** is recommended for faster setup.
+
+#### Option A: Run with Podman (Recommended)
+
+This is the easiest way to get started - no need to clone repos or install Python dependencies.
+
+**Start lightspeed-stack with Podman (Terminal 4)**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+podman run --rm -it -p 8080:8080 \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  --env OPENAI_API_KEY=$OPENAI_API_KEY \
+  quay.io/lightspeed-core/lightspeed-stack:0.3.0
+```
+
+This will start:
+- Lightspeed Core Service on port 8080
+- Llama Stack with OpenAI provider
+- Ready to accept requests from the UI
+
+**Keep this terminal running** - this is your backend.
+
+#### Option B: Run from Source
+
+Use this option if you want to develop or debug the lightspeed-stack itself.
+
+**Clone and setup (one time only)**
+```bash
+# Clone the upstream lightspeed-stack repo
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/lightspeed-core/lightspeed-stack.git
 cd lightspeed-stack
@@ -71,34 +175,13 @@ uv sync
 
 **Tip:** If you want to keep your existing configs, copy these with different names like `lightspeed-stack-genie.yaml` instead.
 
-### 3. Configure Your API Key
-
-```bash
-# Set your OpenAI API key
-export OPENAI_API_KEY="sk-your-api-key-here"
-```
-
-**Tip:** Add this to your `~/.zshrc` or `~/.bashrc` to persist it:
-```bash
-echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-### 4. Start the Backend
-
+**Start the backend**
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 uv run python -m src.lightspeed_stack
 ```
 
-This uses the `lightspeed-stack.yaml` and `run.yaml` files you copied from the genie-web-client repo.
-
-This will start:
-- Lightspeed Core Service on port 8080
-- Llama Stack with OpenAI provider
-- Ready to accept requests from the UI
-
-**Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach, you can also:
+**Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach:
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 source .venv/bin/activate
@@ -136,8 +219,14 @@ Once the full stack is running (backend + frontend + console), test obs-mcp inte
 Main configuration for Lightspeed Core Service:
 - **Port**: 8080 (matches what the UI expects)
 - **Model**: `gpt-4o-mini` (tested and working)
-- **MCP Servers**: Includes obs-mcp at `localhost:9100` - comment out if not needed (see below)
+- **MCP Servers**: Configured for obs-mcp (9100), kube-mcp (8081), and ngui-mcp (9200)
 - **System Prompt**: "Always use available tools"
+
+### `ngui_openshift_mcp_config.yaml`
+
+Configuration for Next Gen UI MCP server:
+- **Data transformers**: Defines how data is transformed for UI components
+- **Component mappings**: Maps data types to UI components (tables, logs, etc.)
 
 ### `run.yaml`
 
@@ -147,24 +236,31 @@ Llama Stack configuration:
 - **Tool Runtime**: MCP support enabled
 - **Storage**: SQLite databases for persistence
 
-## Optional: MCP Servers
+## Configuring MCP Servers
 
-The provided `lightspeed-stack.yaml` includes an MCP server configuration (`obs-mcp` on port 9100). 
+The provided `lightspeed-stack.yaml` includes all three MCP servers. You can enable/disable them as needed:
 
-**For basic development without MCP servers:**
+**To disable specific MCP servers:**
 1. Edit `lightspeed-stack.yaml`
-2. Comment out or remove the `mcp_servers` section:
+2. Comment out the servers you don't need:
    ```yaml
-   # mcp_servers:
-   #   - name: "obs"
-   #     provider_id: "model-context-protocol"
-   #     url: "http://localhost:9100/mcp"
+   mcp_servers:
+     - name: "obs"
+       provider_id: "model-context-protocol"
+       url: "http://localhost:9100/mcp"
+     # - name: "kube"
+     #   provider_id: "model-context-protocol"
+     #   url: "http://localhost:8081/mcp"
+     # - name: "ngui"
+     #   provider_id: "model-context-protocol"
+     #   url: "http://localhost:9200/mcp"
    ```
 3. Restart the backend
 
-**If you need MCP servers**, see the [old POC repo](https://github.com/jhadvig/genie-plugin) for:
-- `obs-mcp` - Observability/metrics queries
-- `layout-manager` - Dashboard layout management
+All three MCP servers are required for full Genie functionality:
+- `obs-mcp` - Prometheus metrics queries
+- `kube-mcp` - Kubernetes resource queries  
+- `ngui-mcp` - Dynamic UI component generation
 
 ## Troubleshooting
 
@@ -229,7 +325,7 @@ curl https://api.openai.com/v1/models \
 
 ## Development Workflow
 
-### Full Stack Development
+### Full Stack Development (All MCP Servers)
 
 **Terminal 1: OBS-MCP Server**
 ```bash
@@ -237,20 +333,43 @@ cd ~/Documents/GHRepos/obs-mcp
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 ```
 
-**Terminal 2: Backend**
+**Terminal 2: Kube-MCP Server**
 ```bash
-cd ~/Documents/GHRepos/lightspeed-stack
-export OPENAI_API_KEY="sk-..."
-uv run python -m src.lightspeed_stack
+npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
 ```
 
-**Terminal 3: Frontend Dev Server**
+**Terminal 3: NGUI-MCP Server**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+podman run --rm -it -p 9200:9200 \
+   -v $PWD/backend/lightspeed-stack/ngui_openshift_mcp_config.yaml:/opt/app-root/config/ngui_openshift_mcp_config.yaml:z \
+   --env MCP_PORT="9200" \
+   --env NGUI_MODEL="gpt-4.1-nano" \
+   --env NGUI_PROVIDER_API_KEY=$OPENAI_API_KEY \
+   --env NGUI_CONFIG_PATH="/opt/app-root/config/ngui_openshift_mcp_config.yaml" \
+   --env MCP_TOOLS="generate_ui_component" \
+   --env MCP_STRUCTURED_OUTPUT_ENABLED="false" \
+   quay.io/next-gen-ui/mcp:dev
+```
+
+**Terminal 4: Backend (Podman - Recommended)**
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+export OPENAI_API_KEY="sk-..."
+podman run --rm -it -p 8080:8080 \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  --env OPENAI_API_KEY=$OPENAI_API_KEY \
+  quay.io/lightspeed-core/lightspeed-stack:0.3.0
+```
+
+**Terminal 5: Frontend Dev Server**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start
 ```
 
-**Terminal 4: Console**
+**Terminal 6: Console**
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start-console
@@ -258,12 +377,19 @@ yarn start-console
 
 **Access:** http://localhost:9000/genie
 
+### Test Queries
+
+Once everything is running, try these queries:
+- `"what are my pods in namespace openshift-lightspeed"` - Tests kube-mcp
+- `"what are my pods in namespace openshift-lightspeed, generate ui"` - Tests kube-mcp + ngui-mcp
+- `"show me CPU usage metrics"` - Tests obs-mcp
+
 ### Backend-Only Changes
 
 If you're only modifying backend config:
-1. Stop the backend (Ctrl+C in Terminal 1)
-2. Edit `lightspeed-stack.yaml` or `run.yaml` in ~/Documents/GHRepos/lightspeed-stack/
-3. Restart: `uv run python -m src.lightspeed_stack`
+1. Stop the backend (Ctrl+C in Terminal 4)
+2. Edit `lightspeed-stack.yaml` or `run.yaml` in `backend/lightspeed-stack/`
+3. Restart the backend (use the same Podman or Python command from section 5)
 
 The UI will automatically reconnect.
 

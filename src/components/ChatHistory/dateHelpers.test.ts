@@ -169,7 +169,9 @@ describe('dateHelpers', () => {
 
       expect(result.today).toHaveLength(2);
       // Both should be in today group
-      expect(result.today.every((c) => c.createdAt === '2025-01-17T10:00:00.000Z')).toBe(true);
+      expect(result.today.every((c) => String(c.createdAt) === '2025-01-17T10:00:00.000Z')).toBe(
+        true,
+      );
     });
   });
 });

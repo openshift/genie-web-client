@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback, useState } from 'react';
 import { Message } from '@patternfly/chatbot';
 import {

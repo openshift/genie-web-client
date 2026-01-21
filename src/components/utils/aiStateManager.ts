@@ -4,7 +4,7 @@ import { LightspeedClient } from '@redhat-cloud-services/lightspeed-client';
 /**
  * Fetch function wrapper that adds CSRF token for console proxy requests
  */
-const consoleFetchWithCSRF = (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+const consoleFetchWithCSRF = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   // Get CSRF token from cookies
   const getCSRFToken = (): string | undefined => {
     const cookiePrefix = 'csrf-token=';
