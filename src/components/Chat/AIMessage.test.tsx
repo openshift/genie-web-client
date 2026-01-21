@@ -1,9 +1,9 @@
-import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
+import { renderWithoutProviders as render, screen, user } from '../../unitTestUtils';
 import { AIMessage } from './AIMessage';
 import type { Message } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from 'src/types/chat';
 
-// Mock clipboard API
+// mock clipboard API
 const mockWriteText = jest.fn();
 Object.defineProperty(navigator, 'clipboard', {
   value: {
@@ -11,6 +11,18 @@ Object.defineProperty(navigator, 'clipboard', {
   },
   writable: true,
 });
+
+// mock useSendFeedback hook
+const mockSendFeedback = jest.fn();
+jest.mock('../../hooks/AIState', () => ({
+  ...jest.requireActual('../../hooks/AIState'),
+  useSendFeedback: () => ({
+    sendFeedback: mockSendFeedback,
+    isLoading: false,
+    error: null,
+    success: false,
+  }),
+}));
 
 describe('<AIMessage />', () => {
   const mockOnQuickResponse = jest.fn();
@@ -228,6 +240,200 @@ describe('<AIMessage />', () => {
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-role attribute
       const messageElement = screen.getByTestId('message');
       expect(messageElement).toHaveAttribute('data-role', 'bot');
+    });
+  });
+
+  describe('Feedback Buttons', () => {
+    beforeEach(() => {
+      mockSendFeedback.mockClear();
+      mockSendFeedback.mockResolvedValue(undefined);
+    });
+
+    it('calls sendFeedback with positive sentiment when thumbs up is clicked', async () => {
+      const message = createMessage({ answer: 'Test AI response' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+      await user.click(thumbsUpButton);
+
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Test AI response',
+        isPositive: true,
+      });
+    });
+
+    it('calls sendFeedback with negative sentiment when thumbs down is clicked', async () => {
+      const message = createMessage({ answer: 'Test AI response' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsDownButton = screen.getByLabelText('Bad response');
+      await user.click(thumbsDownButton);
+
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Test AI response',
+        isPositive: false,
+      });
+    });
+
+    it('deselects thumbs up when clicked again', async () => {
+      const message = createMessage();
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+
+      // first click - should send feedback
+      await user.click(thumbsUpButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+
+      // second click - should not send feedback again
+      await user.click(thumbsUpButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+    });
+
+    it('deselects thumbs down when clicked again', async () => {
+      const message = createMessage();
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsDownButton = screen.getByLabelText('Bad response');
+
+      // first click - should send feedback
+      await user.click(thumbsDownButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+
+      // second click - should not send feedback again
+      await user.click(thumbsDownButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+    });
+
+    it('switches from thumbs up to thumbs down', async () => {
+      const message = createMessage({ answer: 'Response text' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+      const thumbsDownButton = screen.getByLabelText('Bad response');
+
+      // rate as good
+      await user.click(thumbsUpButton);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Response text',
+        isPositive: true,
+      });
+
+      // switch to bad rating
+      await user.click(thumbsDownButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(2);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Response text',
+        isPositive: false,
+      });
+    });
+
+    it('switches from thumbs down to thumbs up', async () => {
+      const message = createMessage({ answer: 'Response text' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+      const thumbsDownButton = screen.getByLabelText('Bad response');
+
+      // rate as bad
+      await user.click(thumbsDownButton);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Response text',
+        isPositive: false,
+      });
+
+      // switch to good rating
+      await user.click(thumbsUpButton);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(2);
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: 'Response text',
+        isPositive: true,
+      });
+    });
+
+    it('handles empty message content', async () => {
+      const message = createMessage({ answer: '' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+      await user.click(thumbsUpButton);
+
+      expect(mockSendFeedback).toHaveBeenCalledWith({
+        conversation_id: defaultConversationId,
+        user_question: defaultUserQuestion,
+        llm_response: '',
+        isPositive: true,
+      });
     });
   });
 });

@@ -16,15 +16,27 @@ const MessageBox = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'message-box', ...props }, children);
 };
 
-const Message = ({ children, name, role, content, isLoading, timestamp, ...props }) => {
+const Message = ({ children, name, role, content, isLoading, timestamp, actions, ...props }) => {
+  // render action buttons if provided
+  const actionButtons = actions ? Object.entries(actions).map(([key, action]) => {
+    return React.createElement('button', {
+      key: key,
+      'aria-label': action.ariaLabel || action.tooltipContent,
+      'data-action': key,
+      'data-is-clicked': action.isClicked || false,
+      onClick: action.onClick,
+    }, action.icon);
+  }) : null;
+
   return React.createElement('div', {
     'data-testid': 'message',
     'data-role': role,
     'data-name': name,
     'data-is-loading': isLoading,
     'data-timestamp': timestamp,
+    actions: actions,
     ...props,
-  }, content || children);
+  }, content || children, actionButtons);
 };
 
 // Header pieces used by Chat.tsx
