@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
-import type { ToolCallState } from './useToolCalls';
+import type { ToolCallState } from '../../hooks/useChatMessages';
 import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
@@ -116,12 +116,22 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
     };
 
+
+    const timestamp = useMemo(() => {
+      const date = message.date;
+      return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    }, [message.date]);
+
+    const hasContent = content.length > 0;
+    const showLoading = isStreaming && !hasContent;
+
     return (
       <Message
-        name="Genie"
-        isLoading={isStreaming}
+        name='Genie'
+        isLoading={showLoading}
         role="bot"
         content={content}
+        timestamp={timestamp}
         extraContent={extraContent}
         actions={actions}
         quickResponses={quickResponses}
@@ -137,6 +147,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     return (
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.message.answer === nextProps.message.answer &&
+      prevProps.message.date === nextProps.message.date &&
       prevProps.toolCalls === nextProps.toolCalls // Shallow reference check is sufficient
     );
   },
