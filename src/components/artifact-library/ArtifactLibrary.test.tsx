@@ -27,7 +27,7 @@ describe('ArtifactLibrary', () => {
     render(<ArtifactLibrary />);
     expect(
       await screen.findByText(
-        /everything you create with genie — charts or others share with you will live here/i,
+        /everything you create with genie—or that others share with you—will live here/i,
       ),
     ).toBeInTheDocument();
   });

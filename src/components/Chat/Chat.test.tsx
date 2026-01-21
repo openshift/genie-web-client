@@ -94,7 +94,7 @@ describe('Chat', () => {
 
       // Resolve the promise to clean up
       if (resolvePromise) {
-        await waitFor(() => resolvePromise());
+        await waitFor(() => resolvePromise?.());
       }
     });
 
@@ -190,7 +190,7 @@ describe('Chat', () => {
 
       // Resolve the promise to clean up
       if (resolvePromise) {
-        await waitFor(() => resolvePromise());
+        await waitFor(() => resolvePromise?.());
       }
     });
 
