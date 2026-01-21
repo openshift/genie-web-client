@@ -1,26 +1,18 @@
 .canvas-layout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100%;
-  overflow: hidden;
-  background-color: #f3f4f6;
+  overflow-y: auto;
+  background-color: #F3F4F6; // need CSS var
+  border-radius: 32px; // need CSS var 
 }
 
 .canvas-layout__toolbar {
+  background-color: inherit;
   position: sticky;
   top: 0;
-  z-index: var(--pf-t--global--z-index--sm, 100);
-  border-bottom: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
-}
-
-.canvas-layout__content {
-  overflow-y: auto;
 }
 
 .canvas-layout__footer {
+  border-top: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+  background-color: inherit;
   position: sticky;
   bottom: 0;
-  z-index: var(--pf-t--global--z-index--sm, 100);
-  border-top: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
 }
-

@@ -16,11 +16,17 @@ export const CanvasLayout: React.FC<CanvasLayoutProps> = ({
   children,
 }) => {
   return (
-    <div className="canvas-layout">
-      <div className="canvas-layout__toolbar">{toolbar}</div>
-      <div className="canvas-layout__content">{children}</div>
-      <div className="canvas-layout__footer">{footer}</div>
-    </div>
+    <Stack hasGutter className="canvas-layout">
+      <StackItem className="canvas-layout__toolbar">
+        {toolbar}
+      </StackItem>
+      <StackItem isFilled className="canvas-layout__content">
+        {children}
+      </StackItem>
+      <StackItem className="canvas-layout__footer">
+        {footer}
+      </StackItem>
+    </Stack>
   );
 };
 
