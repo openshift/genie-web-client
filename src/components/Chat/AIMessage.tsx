@@ -77,8 +77,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         copy: { icon: <CopyIcon />, onClick: handleCopy, label: 'Copy' },
         regenerate: {
           icon: <RedoIcon />,
+          ariaLabel: 'Regenerate',
           onClick: handleRegenerate,
-          label: 'Regenerate',
+          tooltipContent: 'Regenerate',
+          clickedAriaLabel: 'Regenerated',
+          clickedTooltipContent: 'Regenerated',
         },
         positive: {
           icon: <ThumbsUpIcon />,
@@ -96,7 +99,14 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           onClick: handleReadAloud,
           label: 'Read aloud',
         },
-        report: { icon: <FlagIcon />, onClick: handleReport, label: 'Report' },
+        report: {
+          icon: <FlagIcon />,
+          ariaLabel: 'Report',
+          onClick: handleReport,
+          tooltipContent: 'Report',
+          clickedAriaLabel: 'Reported',
+          clickedTooltipContent: 'Reported'
+        },
       }),
       [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
     );
