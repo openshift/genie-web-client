@@ -1,5 +1,6 @@
 import { useMemo, FunctionComponent, memo, useCallback } from 'react';
 import { Message } from '@patternfly/chatbot';
+import { Flex, FlexItem } from '@patternfly/react-core';
 import {
   CopyIcon,
   RedoIcon,
@@ -12,10 +13,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
 import type { ToolCallState } from '../../hooks/useChatMessages';
-import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { ToolCalls } from './ToolCalls';
+import { Sources, type ReferencedDocument } from './Sources';
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -44,9 +46,10 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
 
-    // Extract quick responses from message additionalAttributes
+    // Extract quick responses and sources from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
+    const referencedDocuments = (additionalAttrs?.referencedDocuments ?? []) as ReferencedDocument[];
 
     const handleCopy = useCallback((): void => {
       navigator.clipboard.writeText(content);
@@ -121,9 +124,24 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     const hasToolCalls = toolCalls.length > 0;
     const hasArtifacts = artifacts.length > 0;
+    const hasSources = referencedDocuments.length > 0;
+    const hasEndContent = hasToolCalls || hasSources;
     const extraContent = {
-      beforeMainContent: hasToolCalls ? <ToolCallsList toolCalls={toolCalls} /> : null,
       afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
+      endContent: hasEndContent ? (
+        <Flex direction={{ default: 'row' }} gap={{ default: 'gapMd' }}>
+          {hasSources ? (
+            <FlexItem>
+              <Sources sources={referencedDocuments} />
+            </FlexItem>
+          ) : null}
+          {hasToolCalls ? (
+            <FlexItem>
+              <ToolCalls toolCalls={toolCalls} />
+            </FlexItem>
+          ) : null}
+        </Flex>
+      ) : null,
     };
 
 

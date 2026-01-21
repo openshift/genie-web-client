@@ -30,6 +30,7 @@ import { UserAccountMenu } from '../user-account';
 import { AppMenu } from './AppMenu';
 import './Layout.css';
 import { useDrawer } from '../drawer';
+import { RenderCounter } from './RenderTest';
 
 const PF_GLASS_THEME_CLASS = 'pf-v6-theme-glass';
 
@@ -110,6 +111,7 @@ export const Layout = ({ children }: LayoutProps) => {
       sidebarEnd={<LayoutSidebarEnd />}
       main={
         <CompassContent>
+            <RenderCounter label="Main Content In Layout" />
           <Outlet />
         </CompassContent>
       }
