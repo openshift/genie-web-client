@@ -6,12 +6,14 @@ const mockUseMessages = jest.fn();
 const mockUseSendStreamMessage = jest.fn();
 const mockUseStreamChunk = jest.fn();
 const mockUseInProgress = jest.fn();
+const mockUseActiveConversation = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
   useSendStreamMessage: () => mockUseSendStreamMessage(),
   useStreamChunk: () => mockUseStreamChunk(),
   useInProgress: () => mockUseInProgress(),
+  useActiveConversation: () => mockUseActiveConversation(),
 }));
 
 // Mock child components to isolate MessageList testing
@@ -41,11 +43,20 @@ jest.mock('./AIMessage', () => ({
   AIMessage: ({
     message,
     isStreaming,
+    conversationId,
+    userQuestion,
   }: {
     message: { id: string; answer: string };
     isStreaming: boolean;
+    conversationId: string;
+    userQuestion: string;
   }) => (
-    <div data-testid={`ai-message-${message.id}`} data-is-streaming={isStreaming}>
+    <div 
+      data-testid={`ai-message-${message.id}`} 
+      data-is-streaming={isStreaming}
+      data-conversation-id={conversationId}
+      data-user-question={userQuestion}
+    >
       {message.answer}
     </div>
   ),
@@ -55,6 +66,10 @@ jest.mock('./useToolCalls', () => ({
   useToolCalls: () => ({ toolCallsByMessage: {} }),
 }));
 
+jest.mock('./messageHelpers', () => ({
+  getUserQuestionForBotMessage: () => 'Test user question',
+}));
+
 describe('<MessageList />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -62,6 +77,7 @@ describe('<MessageList />', () => {
     mockUseSendStreamMessage.mockReturnValue(jest.fn());
     mockUseStreamChunk.mockReturnValue(undefined);
     mockUseInProgress.mockReturnValue(false);
+    mockUseActiveConversation.mockReturnValue({ id: 'test-conversation-id' });
   });
 
   describe('Loading State', () => {

@@ -13,6 +13,7 @@ export type {
 } from '@redhat-cloud-services/ai-client-common';
 
 export type {
+  FeedbackRequest,
   LightSpeedCoreAdditionalProperties,
   LightspeedSendMessageOptions,
   LLMRequest,
