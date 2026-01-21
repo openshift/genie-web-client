@@ -51,8 +51,8 @@ jest.mock('./AIMessage', () => ({
     conversationId: string;
     userQuestion: string;
   }) => (
-    <div 
-      data-testid={`ai-message-${message.id}`} 
+    <div
+      data-testid={`ai-message-${message.id}`}
       data-is-streaming={isStreaming}
       data-conversation-id={conversationId}
       data-user-question={userQuestion}
