@@ -15,7 +15,12 @@ export const CanvasPreview: React.FC = () => {
       }
     >
       <div className="pf-v6-u-p-lg">
-        <p>This is the main content area.</p>
+        {Array.from({ length: 50 }, (_, i) => (
+          <p key={i} className="pf-v6-u-mb-md">
+            Content paragraph {i + 1} - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Scroll to test sticky behavior.
+          </p>
+        ))}
       </div>
     </CanvasLayout>
   );

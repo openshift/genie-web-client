@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Stack, StackItem } from '@patternfly/react-core';
 import './CanvasLayout.css';
 
 export interface CanvasLayoutProps {

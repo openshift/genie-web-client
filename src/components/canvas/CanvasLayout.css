@@ -1,7 +1,7 @@
 .canvas-layout {
   overflow-y: auto;
-  background-color: #F3F4F6; // need CSS var
-  border-radius: 32px; // need CSS var 
+  background-color: #f3f4f6;
+  border-radius: var(--pf-t--global--border--radius--large, 32px);
 }
 
 .canvas-layout__toolbar {
