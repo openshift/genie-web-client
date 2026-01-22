@@ -19,16 +19,19 @@ import { parseToolResultToArtifacts } from '../../utils/toolResultParsers';
 // - Only events where token contains `tool_name` are COMPLETE tool calls
 // - Tool results have the same `id` as their corresponding complete tool call
 //
-// Example stream:
-//   { id: 36, token: "admin" }        <- partial, ignore
-//   { id: 37, token: "kind" }         <- partial, ignore
-//   ...
-//   { id: 52, token: { tool_name: "resources_list", arguments: {...} } } <- COMPLETE
+// Supports TWO formats:
+//
+// V1 format (legacy):
+//   { id: 52, token: { tool_name: "resources_list", arguments: {...} } }
 //   { event: "tool_result", id: 52, token: { tool_name: "resources_list", response: "..." } }
+//
+// V2 format (Responses API):
+//   { id: "mcp_call_xxx", name: "resources_list", args: {...}, type: "mcp_call" }
+//   { event: "tool_result", id: "mcp_call_xxx", status: "success", content: "...", type: "mcp_call" }
 // =============================================================================
 
 export interface ToolCallState {
-  id: number;
+  id: number | string;
   name: string;
   status: 'running' | 'completed';
   arguments?: Record<string, unknown>;
@@ -41,11 +44,55 @@ export interface UseToolCallsResult {
 }
 
 /**
- * Check if a tool call event is complete (has tool_name in token)
+ * Check if a tool call event is complete
+ * V1: has tool_name in token object
+ * V2: has name directly in data
  */
 function isCompleteToolCall(call: ToolCallEvent): boolean {
-  const token = call.data?.token;
+  const data = call.data;
+  if (!data) return false;
+  
+  // V2 format: name is directly on data
+  if ('name' in data && typeof data.name === 'string') {
+    return true;
+  }
+  
+  // V1 format: tool_name is nested in token object
+  const token = data.token;
   return typeof token === 'object' && token !== null && 'tool_name' in token;
+}
+
+/**
+ * Extract tool name and arguments from a tool call event (supports both V1 and V2 formats)
+ */
+function extractToolCallData(call: ToolCallEvent): { 
+  id: number | string; 
+  name: string; 
+  arguments?: Record<string, unknown>;
+} | null {
+  const data = call.data;
+  if (!data) return null;
+  
+  // V2 format: { id: "xxx", name: "tool_name", args: {...}, type: "..." }
+  if ('name' in data && typeof data.name === 'string') {
+    return {
+      id: data.id,
+      name: data.name,
+      arguments: (data as Record<string, unknown>).args as Record<string, unknown> | undefined,
+    };
+  }
+  
+  // V1 format: { id: 52, token: { tool_name: "...", arguments: {...} } }
+  const token = data.token as { tool_name: string; arguments?: Record<string, unknown> } | undefined;
+  if (token && typeof token === 'object' && 'tool_name' in token) {
+    return {
+      id: data.id,
+      name: token.tool_name,
+      arguments: token.arguments,
+    };
+  }
+  
+  return null;
 }
 
 export function useToolCalls(
@@ -54,8 +101,8 @@ export function useToolCalls(
   const [toolCallsByMessage, setToolCallsByMessage] = useState<Record<string, ToolCallState[]>>({});
 
   // Track which tool call IDs we've already processed to avoid duplicates
-  const processedToolCallIds = useRef<Set<number>>(new Set());
-  const processedToolResultIds = useRef<Set<number>>(new Set());
+  const processedToolCallIds = useRef<Set<number | string>>(new Set());
+  const processedToolResultIds = useRef<Set<number | string>>(new Set());
 
   useEffect(() => {
     if (!streamChunk?.messageId) return;
@@ -72,22 +119,19 @@ export function useToolCalls(
       const existingCalls = prev[messageId] || [];
       const updatedCalls = [...existingCalls];
 
-      // Process COMPLETE tool calls only (those with tool_name)
+      // Process COMPLETE tool calls only (those with tool_name or name)
       if (toolCalls) {
         toolCalls.forEach((call) => {
           // Skip partial streaming tokens - only process complete tool calls
           if (!isCompleteToolCall(call)) return;
 
-          const callId = call.data?.id;
-          if (callId === undefined) return;
+          const extracted = extractToolCallData(call);
+          if (!extracted) return;
+
+          const { id: callId, name, arguments: args } = extracted;
 
           // Skip if we've already processed this tool call
           if (processedToolCallIds.current.has(callId)) return;
-
-          const token = call.data?.token as {
-            tool_name: string;
-            arguments?: Record<string, unknown>;
-          };
 
           // Add new complete tool call
           processedToolCallIds.current.add(callId);
@@ -95,9 +139,9 @@ export function useToolCalls(
 
           updatedCalls.push({
             id: callId,
-            name: token.tool_name,
+            name,
             status: 'running',
-            arguments: token.arguments,
+            arguments: args,
           });
         });
       }
@@ -112,7 +156,17 @@ export function useToolCalls(
           // Skip if we've already processed this result
           if (processedToolResultIds.current.has(resultId)) return;
 
-          const token = result.data?.token as { tool_name?: string; response?: unknown };
+          // Extract result data - supports both V1 and V2 formats
+          // V1: { token: { tool_name: "...", response: "..." } }
+          // V2: { id: "...", status: "success", content: "...", type: "..." }
+          const data = result.data as Record<string, unknown>;
+          const token = data?.token as { tool_name?: string; response?: unknown } | undefined;
+          
+          // Get response from V1 format (token.response) or V2 format (content)
+          const responseContent = token?.response ?? data?.content;
+          // Get tool name from V1 format (token.tool_name) or V2 format (type or look up from existing call)
+          const resultToolName = token?.tool_name ?? (data?.type as string | undefined);
+          
           processedToolResultIds.current.add(resultId);
           hasUpdates = true;
 
@@ -122,17 +176,18 @@ export function useToolCalls(
           );
 
           // Parse artifacts from the tool result
-          const toolName =
-            callIndex !== -1 ? updatedCalls[callIndex].name : token?.tool_name || 'Unknown tool';
-
-          const artifacts = parseToolResultToArtifacts(toolName, token?.response);
+          const toolName = callIndex !== -1 
+            ? updatedCalls[callIndex].name 
+            : (resultToolName || 'Unknown tool');
+            
+          const artifacts = parseToolResultToArtifacts(toolName, responseContent);
 
           if (callIndex !== -1) {
             // Update existing call - keep arguments, add result and artifacts, change status
             updatedCalls[callIndex] = {
               ...updatedCalls[callIndex],
               status: 'completed',
-              result: token?.response,
+              result: responseContent,
               artifacts,
               // arguments are preserved from the original entry
             };
@@ -142,7 +197,7 @@ export function useToolCalls(
               id: resultId,
               name: toolName,
               status: 'completed',
-              result: token?.response,
+              result: responseContent,
               artifacts,
             });
           }
