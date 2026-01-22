@@ -17,6 +17,7 @@
     "i18n": "./i18n-scripts/build-i18n.sh && node ./i18n-scripts/set-english-defaults.js",
     "lint": "yarn eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
     "test": "jest",
+    "test:verbose": "DEBUG_SUPPRESSED_WARNINGS=true jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test-cypress": "cd integration-tests && cypress open",

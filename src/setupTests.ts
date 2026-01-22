@@ -9,6 +9,89 @@ import * as path from 'path';
 
 expect.extend(toHaveNoViolations);
 
+/* *************** SUPPRESSING CONSOLE WARNINGS *************** */
+// Suppress specific console warnings/errors that we can't control
+// Add patterns here to filter out unwanted console output during tests
+const SUPPRESSED_WARNINGS = [
+  // PatternFly components pass invalid props to DOM elements (bug in PatternFly library)
+  /Warning: React does not recognize the `.+` prop on a DOM element/,
+
+  // Expected errors from tests that deliberately trigger error conditions
+  /Failed to fetch artifacts: Error: boom/,
+
+  // PatternFly Popper component uses setTimeout for positioning, which fires during test cleanup
+  /Warning: An update to Popper inside a test was not wrapped in act/,
+];
+
+const DEBUG_SUPPRESSED_WARNINGS = process.env.DEBUG_SUPPRESSED_WARNINGS === 'true';
+
+function formatConsoleMessage(args: unknown[]): string {
+  const firstArg = String(args[0] || '');
+
+  // If first argument has %s placeholders, replace them with subsequent args
+  if (firstArg.includes('%s')) {
+    let formatted = firstArg;
+    let argIndex = 1;
+    formatted = formatted.replace(/%s/g, () => {
+      return argIndex < args.length ? String(args[argIndex++]) : '%s';
+    });
+    return formatted;
+  }
+
+  // Otherwise, join all arguments with space (matches console output)
+  return args.map((arg) => String(arg)).join(' ');
+}
+
+// Helper function to check if a message should be suppressed
+function shouldSuppress(
+  args: unknown[],
+  originalLog: typeof console.error,
+  logType: string,
+): boolean {
+  // Early escape: if no patterns configured, don't suppress anything
+  if (SUPPRESSED_WARNINGS.length === 0) {
+    return false;
+  }
+
+  const formattedMessage = formatConsoleMessage(args);
+
+  // Show debug info if requested
+  if (DEBUG_SUPPRESSED_WARNINGS) {
+    originalLog.call(console, `[DEBUG] Console ${logType} (formatted):`);
+    originalLog.call(console, ...args);
+    originalLog.call(
+      console,
+      '[DEBUG] Pattern matching against:',
+      formattedMessage.substring(0, 200),
+    );
+  }
+
+  const suppressed = SUPPRESSED_WARNINGS.some((pattern) => pattern.test(formattedMessage));
+
+  if (suppressed && DEBUG_SUPPRESSED_WARNINGS) {
+    originalLog.call(console, `[DEBUG] ^^^ Suppressed above ${logType.toLowerCase()}`);
+  }
+
+  return suppressed;
+}
+
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.error = (...args: unknown[]) => {
+  if (!shouldSuppress(args, originalError, 'Error')) {
+    originalError.call(console, ...args);
+  }
+};
+
+console.warn = (...args: unknown[]) => {
+  if (!shouldSuppress(args, originalWarn, 'Warning')) {
+    originalWarn.call(console, ...args);
+  }
+};
+
+/* *************** END SUPPRESSING CONSOLE WARNINGS *************** */
+
 // mock window.matchMedia for theme tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
