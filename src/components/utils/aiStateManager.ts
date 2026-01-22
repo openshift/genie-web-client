@@ -48,10 +48,7 @@ const consoleFetchWithCSRF = (input: RequestInfo | URL, init?: RequestInit): Pro
 
 // Initialize state manager outside React scope
 const client = new LightspeedClient({
-  // Local development
-  baseUrl: 'http://localhost:8080/',
-  // Deployed on cluster
-  // baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
+  baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
   fetchFunction: consoleFetchWithCSRF,
 });
 
