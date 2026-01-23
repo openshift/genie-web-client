@@ -10,6 +10,8 @@ export enum SubRoutes {
   New = 'new',
   // Library
   Library = 'library',
+  // Canvas
+  Canvas = 'canvas',
 }
 
 // Used only for navigation - make sure this nesting represents Routes.tsx

@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-18:latest AS build
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS build
 USER root
 RUN command -v yarn || npm i -g yarn
 
@@ -12,3 +12,4 @@ COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 USER 1001
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
+

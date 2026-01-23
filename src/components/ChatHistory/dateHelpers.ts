@@ -12,7 +12,12 @@ const isYesterday = (date: Date) => isYesterdayDateFns(date);
 const isLastWeek = (date: Date) => isThisWeekDateFns(date, { weekStartsOn: 0 }); // week starts on Sunday
 
 export const groupByDate = (conversations: Conversation[]) => {
-  const groupedConversations = {
+  const groupedConversations: {
+    today: Conversation[];
+    yesterday: Conversation[];
+    lastWeek: Conversation[];
+    other: Conversation[];
+  } = {
     today: [],
     yesterday: [],
     lastWeek: [],

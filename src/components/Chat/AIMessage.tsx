@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { Flex, FlexItem } from '@patternfly/react-core';

@@ -9,9 +9,11 @@ import type { Artifact, WidgetArtifact, NGUIWidget } from '../types/chat';
 
 /**
  * Check if a tool name is a generate_ui tool
+ * Handles various naming formats: generate_ui, generate_ui_xxx, mcp_generate_ui, etc.
  */
 export function isGenerateUITool(toolName: string): boolean {
-  return toolName.startsWith('generate_ui');
+  const normalizedName = toolName.toLowerCase();
+  return normalizedName.startsWith('generate_ui') || normalizedName.includes('generate_ui');
 }
 
 /**
@@ -22,7 +24,6 @@ export function isGenerateUITool(toolName: string): boolean {
  */
 export function parseGenerateUIResult(response: unknown): Artifact[] {
   if (typeof response !== 'string') {
-    console.error('generate_ui response is not a string:', response);
     return [];
   }
 

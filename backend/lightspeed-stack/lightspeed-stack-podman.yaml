@@ -1,6 +1,6 @@
 name: Lightspeed Core Service (LCS)
 service:
-  host: localhost
+  host: 0.0.0.0
   port: 8080
 
   auth_enabled: false
@@ -27,13 +27,13 @@ inference:
 mcp_servers:
   - name: "obs"
     provider_id: "model-context-protocol"
-    url: "http://localhost:9100/mcp"
+    url: "http://host.containers.internal:9100/mcp"
   - name: "kube"
     provider_id: "model-context-protocol"
-    url: "http://localhost:8081/mcp"
+    url: "http://host.containers.internal:8081/mcp"
   - name: "ngui"
     provider_id: "model-context-protocol"
-    url: "http://localhost:9200/mcp"
+    url: "http://host.containers.internal:9200/mcp"
 
 customization:
   system_prompt: |-

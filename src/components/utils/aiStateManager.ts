@@ -4,7 +4,7 @@ import { LightspeedClient } from '@redhat-cloud-services/lightspeed-client';
 /**
  * Fetch function wrapper that adds CSRF token for console proxy requests
  */
-const consoleFetchWithCSRF = (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+const consoleFetchWithCSRF = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   // Get CSRF token from cookies
   const getCSRFToken = (): string | undefined => {
     const cookiePrefix = 'csrf-token=';
@@ -48,10 +48,7 @@ const consoleFetchWithCSRF = (input: RequestInfo, init?: RequestInit): Promise<R
 
 // Initialize state manager outside React scope
 const client = new LightspeedClient({
-  // Local development
-  baseUrl: 'http://localhost:8080/',
-  // Deployed on cluster
-  // baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
+  baseUrl: `${window.location.origin}/api/proxy/plugin/genie-web-client/ols/`, // Always use bridge proxy
   fetchFunction: consoleFetchWithCSRF,
 });
 
