@@ -1,3 +1,4 @@
+import React from 'react';
 import { useCallback, type FC } from 'react';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { MessageBar } from '@patternfly/chatbot';
@@ -13,7 +14,7 @@ export const LayoutMessageBar: FC<LayoutMessageBarProps> = ({ messageBarRef }) =
   const sendStreamMessage = useSendStreamMessage();
 
   const handleSendMessage = useCallback(
-    (value: string) => {
+    (value: string | number) => {
       sendStreamMessage(value);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },

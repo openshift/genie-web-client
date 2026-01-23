@@ -21,7 +21,7 @@ const STREAMING_THROTTLE_MS = 50;
 // =============================================================================
 
 export interface ToolCallState {
-  id: number;
+  id: number | string;
   name: string;
   status: 'running' | 'completed';
   arguments?: Record<string, unknown>;
@@ -30,11 +30,38 @@ export interface ToolCallState {
 }
 
 /**
- * Check if a tool call event is complete (has tool_name in token)
+ * Check if a tool call event is complete (V2 format: has name directly in data)
  */
 function isCompleteToolCall(call: ToolCallEvent): boolean {
-  const token = call.data?.token;
-  return typeof token === 'object' && token !== null && 'tool_name' in token;
+  const data = call.data;
+  if (!data) return false;
+  
+  // V2 format: name is directly on data
+  return 'name' in data && typeof data.name === 'string';
+}
+
+/**
+ * Extract tool name and arguments from a tool call event (V2 format)
+ * V2 format: { id: "xxx", name: "tool_name", args: {...}, type: "..." }
+ */
+function extractToolCallData(call: ToolCallEvent): { 
+  id: number | string; 
+  name: string; 
+  arguments?: Record<string, unknown>;
+} | null {
+  const data = call.data;
+  if (!data) return null;
+  
+  // V2 format: { id: "xxx", name: "tool_name", args: {...}, type: "..." }
+  if ('name' in data && typeof data.name === 'string') {
+    return {
+      id: data.id,
+      name: data.name,
+      arguments: (data as Record<string, unknown>).args as Record<string, unknown> | undefined,
+    };
+  }
+  
+  return null;
 }
 
 /**
@@ -52,45 +79,51 @@ export function getToolCallsFromMessage(
     return [];
   }
 
-  const toolCallsMap = new Map<number, ToolCallState>();
+  const toolCallsMap = new Map<number | string, ToolCallState>();
 
-  // Process tool calls
+  // Process tool calls (V2 format)
   if (rawToolCalls) {
     rawToolCalls.forEach((call) => {
       if (!isCompleteToolCall(call)) return;
 
-      const callId = call.data?.id;
-      if (callId === undefined) return;
+      const extracted = extractToolCallData(call);
+      if (!extracted) return;
 
-      const tokenData = call.data?.token as { tool_name: string; arguments?: Record<string, unknown> };
+      const { id: callId, name, arguments: args } = extracted;
 
       toolCallsMap.set(callId, {
         id: callId,
-        name: tokenData.tool_name,
+        name,
         status: 'running',
-        arguments: tokenData.arguments,
+        arguments: args,
       });
     });
   }
 
-  // Process tool results and update matching calls
+  // Process tool results and update matching calls (V2 format)
+  // V2: { id: "...", status: "success", content: "...", type: "..." }
   if (rawToolResults) {
     rawToolResults.forEach((result) => {
       const resultId = result.data?.id;
       if (resultId === undefined) return;
 
-      const tokenData = result.data?.token as { tool_name?: string; response?: unknown };
+      const data = result.data as Record<string, unknown>;
       const existingCall = toolCallsMap.get(resultId);
 
-      const toolName = existingCall?.name || tokenData?.tool_name || 'Unknown tool';
-      const artifacts = parseToolResultToArtifacts(toolName, tokenData?.response);
+      // Get response from V2 format (content)
+      const responseContent = data?.content;
+      // Get tool name from V2 format (type) or from existing call
+      const resultToolName = data?.type as string | undefined;
+
+      const toolName = existingCall?.name || resultToolName || 'Unknown tool';
+      const artifacts = parseToolResultToArtifacts(toolName, responseContent);
 
       toolCallsMap.set(resultId, {
         id: resultId,
         name: toolName,
         status: 'completed',
         arguments: existingCall?.arguments,
-        result: tokenData?.response,
+        result: responseContent,
         artifacts,
       });
     });
@@ -180,10 +213,10 @@ export function useChatMessages(): UseChatMessagesReturn {
   const accumulatedToolCallsRef = useRef<ToolCallState[]>([]);
   
   /** Processed tool call IDs to avoid duplicates */
-  const processedToolCallIdsRef = useRef<Set<number>>(new Set());
+  const processedToolCallIdsRef = useRef<Set<number | string>>(new Set());
   
   /** Processed tool result IDs to avoid duplicates */
-  const processedToolResultIdsRef = useRef<Set<number>>(new Set());
+  const processedToolResultIdsRef = useRef<Set<number | string>>(new Set());
 
   // ==========================================================================
   // HELPER: Flush accumulated content to state
@@ -239,7 +272,7 @@ export function useChatMessages(): UseChatMessagesReturn {
       accumulatedContentRef.current = rawStreamChunk.answer;
     }
 
-    // Process tool calls
+    // Process tool calls (V2 format)
     const toolCalls = rawStreamChunk.additionalAttributes?.toolCalls as ToolCallEvent[] | undefined;
     const toolResults = rawStreamChunk.additionalAttributes?.toolResults as ToolResultEvent[] | undefined;
 
@@ -247,44 +280,53 @@ export function useChatMessages(): UseChatMessagesReturn {
       toolCalls.forEach((call) => {
         if (!isCompleteToolCall(call)) return;
 
-        const callId = call.data?.id;
-        if (callId === undefined || processedToolCallIdsRef.current.has(callId)) return;
+        const extracted = extractToolCallData(call);
+        if (!extracted) return;
 
-        const tokenData = call.data?.token as { tool_name: string; arguments?: Record<string, unknown> };
+        const { id: callId, name, arguments: args } = extracted;
+        if (processedToolCallIdsRef.current.has(callId)) return;
+
         processedToolCallIdsRef.current.add(callId);
 
         accumulatedToolCallsRef.current.push({
           id: callId,
-          name: tokenData.tool_name,
+          name,
           status: 'running',
-          arguments: tokenData.arguments,
+          arguments: args,
         });
       });
     }
 
+    // Process tool results (V2 format)
+    // V2: { id: "...", status: "success", content: "...", type: "..." }
     if (toolResults) {
       toolResults.forEach((result) => {
         const resultId = result.data?.id;
         if (resultId === undefined || processedToolResultIdsRef.current.has(resultId)) return;
 
-        const tokenData = result.data?.token as { tool_name?: string; response?: unknown };
+        const data = result.data as Record<string, unknown>;
         processedToolResultIdsRef.current.add(resultId);
 
         const callIndex = accumulatedToolCallsRef.current.findIndex(
           (c) => c.id === resultId && c.status === 'running',
         );
 
+        // Get response from V2 format (content)
+        const responseContent = data?.content;
+        // Get tool name from V2 format (type) or from existing call
+        const resultToolName = data?.type as string | undefined;
+
         const toolName = callIndex !== -1
           ? accumulatedToolCallsRef.current[callIndex].name
-          : (tokenData?.tool_name || 'Unknown tool');
+          : (resultToolName || 'Unknown tool');
 
-        const artifacts = parseToolResultToArtifacts(toolName, tokenData?.response);
+        const artifacts = parseToolResultToArtifacts(toolName, responseContent);
 
         if (callIndex !== -1) {
           accumulatedToolCallsRef.current[callIndex] = {
             ...accumulatedToolCallsRef.current[callIndex],
             status: 'completed',
-            result: tokenData?.response,
+            result: responseContent,
             artifacts,
           };
         } else {
@@ -292,7 +334,7 @@ export function useChatMessages(): UseChatMessagesReturn {
             id: resultId,
             name: toolName,
             status: 'completed',
-            result: tokenData?.response,
+            result: responseContent,
             artifacts,
           });
         }
