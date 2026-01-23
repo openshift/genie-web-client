@@ -27,8 +27,8 @@
     "webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "resolutions": {
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "^5.15.5",
@@ -39,7 +39,7 @@
     "@types/jest": "^29.5.0",
     "@types/jest-axe": "^3.5.9",
     "@types/node": "^18.0.0",
-    "@types/react": "^17.0.37",
+    "@types/react": "^19.0.0",
     "@types/react-helmet": "^6.1.4",
     "@types/react-router-dom": "^5.3.2",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
@@ -63,8 +63,8 @@
     "pluralize": "^8.0.0",
     "prettier": "^2.7.1",
     "prettier-stylelint": "^0.4.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-helmet": "^6.1.0",
     "react-i18next": "^11.7.3",
     "react-router-dom-v5-compat": "^6.23.1",
@@ -114,8 +114,8 @@
     "date-fns":"^4.1.0",
     "@rhngui/patternfly-react-renderer": "^1.0.1",
     "pluralize": "^8.0.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-helmet": "^6.1.0",
     "react-i18next": "^11.7.3",
     "react-router-dom-v5-compat": "^6.23.1"
