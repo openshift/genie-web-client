@@ -1,6 +1,6 @@
 import { useCallback, type FunctionComponent } from 'react';
 import { Button } from '@patternfly/react-core';
-import { LinkIcon } from '@patternfly/react-icons';
+import { RhUiLinkIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import { SourcesDrawerContent } from './SourcesDrawerContent';
 
@@ -22,7 +22,7 @@ export const Sources: FunctionComponent<SourcesProps> = ({ sources }) => {
     } else {
       openDrawer({
         heading: 'Sources',
-        icon: <LinkIcon />,
+        icon: <RhUiLinkIcon />,
         children: <SourcesDrawerContent sources={sources} />,
         position: 'right',
       });
@@ -35,7 +35,7 @@ export const Sources: FunctionComponent<SourcesProps> = ({ sources }) => {
       size="sm"
       aria-label="View sources"
       onClick={handleClick}
-      icon={<LinkIcon />}
+      icon={<RhUiLinkIcon />}
     >
       Sources
     </Button>

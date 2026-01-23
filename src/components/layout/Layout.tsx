@@ -13,6 +13,7 @@ import {
   DrawerPanelContent,
   CompassContent,
   CompassMainFooter,
+  Icon,
 } from '@patternfly/react-core';
 import { useChatBar } from '../ChatBarContext';
 import { useTheme } from '../theme';
@@ -90,9 +91,9 @@ export const Layout = ({ children }: LayoutProps) => {
       <DrawerHead>
         <div className="drawer-heading">
           {drawerState.icon ? (
-            <span className="drawer-heading__icon">{drawerState.icon}</span>
+            <Icon size="heading_2xl" className="drawer-heading__icon">{drawerState.icon}</Icon>
           ) : null}
-          <span className="drawer-heading__text">{drawerState.heading}</span>
+          <span className="drawer-heading__text pf-v6-u-font-family-heading pf-v6-u-font-size-lg pf-v6-u-font-weight-bold">{drawerState.heading}</span>
         </div>
         <DrawerActions>
           <DrawerCloseButton onClick={closeDrawer} />
