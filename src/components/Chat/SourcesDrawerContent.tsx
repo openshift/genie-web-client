@@ -10,6 +10,7 @@ import {
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import type { ReferencedDocument } from './Sources';
 import './SourcesDrawerContent.css';
+import { useTranslation } from 'react-i18next';
 
 export interface SourcesDrawerContentProps {
   sources: ReferencedDocument[];
@@ -32,6 +33,7 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
 };
 
 export const SourcesDrawerContent: FunctionComponent<SourcesDrawerContentProps> = ({ sources }) => {
+  const { t } = useTranslation('plugin__genie-web-client');
   return (
     <Stack hasGutter className="sources-drawer-content">
       <StackItem className="sources-drawer-content__header">
@@ -43,8 +45,7 @@ export const SourcesDrawerContent: FunctionComponent<SourcesDrawerContentProps> 
           </FlexItem>
           <FlexItem>
             <span className="pf-v6-u-font-size-sm">
-              The following sources were used to generate this AI response and provide supporting
-              information:
+              {t('chat.sources.description')}
             </span>
           </FlexItem>
         </Flex>
