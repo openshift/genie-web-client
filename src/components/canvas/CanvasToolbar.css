@@ -1,0 +1,515 @@
+/* canvas toolbar styles */
+
+.canvas-toolbar__wrapper {
+  width: 100%;
+}
+
+.canvas-toolbar {
+  padding: var(--pf-t--global--spacer--sm, 0.5rem) var(--pf-t--global--spacer--md, 1rem);
+  background: var(--pf-t--global--background--color--secondary--default);
+  border-bottom: 1px solid var(--pf-t--global--border--color--default);
+  border-radius: var(--pf-t--global--border--radius--md, 8px) var(--pf-t--global--border--radius--md, 8px) 0 0;
+}
+
+.canvas-toolbar .pf-v6-c-toolbar__item,
+.canvas-toolbar .pf-v6-c-toolbar__group {
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.canvas-toolbar__left-slot {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--md, 1rem);
+}
+
+.canvas-toolbar__toggle-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  min-width: auto;
+  max-width: none;
+  vertical-align: middle;
+
+  --pf-v6-c-button--m-plain--BackgroundColor: transparent;
+  --pf-v6-c-button--m-plain--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--PaddingInlineEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--BorderRadius: 0;
+  --pf-v6-c-button--m-plain--BorderWidth: 0;
+  --pf-v6-c-button--m-plain--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.canvas-toolbar .canvas-toolbar__toggle-button.pf-v6-c-button:hover,
+.canvas-toolbar__toggle-button.pf-v6-c-button.pf-m-plain:hover {
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar__title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.canvas-toolbar__title-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm);
+  width: 100%;
+}
+
+.canvas-toolbar__title-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.canvas-toolbar__title-input input {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-toolbar__title-button {
+  max-width: none;
+  min-width: 0;
+  justify-content: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm, 0.5rem);
+  padding: var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--sm, 0.5rem);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+  cursor: text;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.canvas-toolbar__title-button::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: var(--pf-t--global--spacer--sm, 0.5rem);
+  right: var(--pf-t--global--spacer--sm, 0.5rem);
+  height: 1px;
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.canvas-toolbar__title-button:hover {
+  background: var(--pf-t--global--background--color--action--plain--hover);
+  border-color: var(--pf-t--global--border--color--default, #d2d2d2);
+}
+
+.canvas-toolbar__title-button:hover::after {
+  background: var(--pf-t--global--border--color--default, #d2d2d2);
+}
+
+.canvas-toolbar__title-button:focus {
+  outline: 2px solid var(--pf-t--global--focus--color, #06c);
+  outline-offset: 2px;
+  border-color: var(--pf-t--global--focus--color, #06c);
+}
+
+.canvas-toolbar__title-button .canvas-toolbar__title-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-right: var(--pf-t--global--spacer--xs, 0.25rem);
+  color: var(--pf-v6-c-button__icon--Color);
+}
+
+.canvas-toolbar__title-button .canvas-toolbar__title-text {
+  display: inline-block;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  min-width: 0;
+  max-width: none;
+  font-weight: var(--pf-t--global--font--weight--body--default);
+  font-size: var(--pf-t--global--font--size--body--default);
+  color: var(--pf-t--global--text--color--regular);
+  vertical-align: middle;
+  flex: 0 1 auto;
+}
+
+.canvas-toolbar .pf-v6-c-toolbar__item.pf-m-separator,
+.canvas-toolbar__left-slot .pf-v6-c-toolbar__item.pf-m-separator,
+.canvas-toolbar__right-slot .pf-v6-c-toolbar__item.pf-m-separator {
+  width: 1px;
+  height: 24px;
+  background-color: var(--pf-t--global--border--color--default, #d2d2d2);
+  margin: 0 var(--pf-t--global--spacer--sm, 0.5rem);
+  border: none;
+  flex-shrink: 0;
+}
+
+.canvas-toolbar__spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.canvas-toolbar__center-slot {
+  flex-shrink: 0;
+  gap: var(--pf-t--global--spacer--xs, 0.25rem);
+}
+
+.canvas-toolbar__right-slot {
+  flex-shrink: 0;
+  gap: var(--pf-t--global--spacer--sm);
+  display: flex;
+  align-items: center;
+}
+
+.canvas-toolbar__overflow-button,
+.canvas-toolbar__overflow-button.pf-v6-c-menu-toggle {
+  width: auto;
+  height: auto;
+  min-width: auto;
+  max-width: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  --pf-v6-c-button--m-plain--BackgroundColor: transparent;
+  --pf-v6-c-button--m-plain--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--PaddingInlineEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--BorderRadius: 0;
+  --pf-v6-c-button--m-plain--BorderWidth: 0;
+  --pf-v6-c-button--m-plain--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.canvas-toolbar .canvas-toolbar__overflow-button.pf-v6-c-menu-toggle:hover,
+.canvas-toolbar__overflow-button.pf-v6-c-menu-toggle.pf-m-plain:hover {
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar .canvas-toolbar__overflow-button.pf-v6-c-menu-toggle svg,
+.canvas-toolbar__overflow-button.pf-v6-c-menu-toggle.pf-m-plain svg {
+  vertical-align: middle;
+}
+
+.canvas-toolbar__close-button {
+  width: auto;
+  height: auto;
+  min-width: auto;
+  max-width: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  --pf-v6-c-button--m-plain--BackgroundColor: transparent;
+  --pf-v6-c-button--m-plain--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--PaddingInlineEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--BorderRadius: 0;
+  --pf-v6-c-button--m-plain--BorderWidth: 0;
+  --pf-v6-c-button--m-plain--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.canvas-toolbar .canvas-toolbar__close-button.pf-v6-c-button:hover,
+.canvas-toolbar__close-button.pf-v6-c-button.pf-m-plain:hover {
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar .canvas-toolbar__close-button.pf-v6-c-button svg,
+.canvas-toolbar__close-button.pf-v6-c-button.pf-m-plain svg {
+  vertical-align: middle;
+  color: var(--pf-v6-c-button__icon--Color);
+}
+
+.canvas-toolbar__action-button {
+  width: auto;
+  height: auto;
+  min-width: auto;
+  max-width: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  --pf-v6-c-button--m-plain--BackgroundColor: transparent;
+  --pf-v6-c-button--m-plain--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--PaddingInlineEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--BorderRadius: 0;
+  --pf-v6-c-button--m-plain--BorderWidth: 0;
+  --pf-v6-c-button--m-plain--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.canvas-toolbar .canvas-toolbar__action-button.pf-v6-c-button.pf-m-plain:hover,
+.canvas-toolbar__version-history-group .canvas-toolbar__action-button.pf-v6-c-button.pf-m-plain:hover {
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar__action-button.pf-v6-c-button.pf-m-plain svg {
+  vertical-align: middle;
+  color: var(--pf-v6-c-button__icon--Color);
+}
+
+.canvas-toolbar__refresh-button.pf-v6-c-button.pf-m-plain svg,
+.canvas-toolbar .canvas-toolbar__refresh-button.pf-v6-c-button.pf-m-plain svg {
+  color: var(--pf-v6-c-button__icon--Color);
+}
+
+.canvas-toolbar__version-history-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--sm, 0.5rem);
+  padding: var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--lg, 1.5rem);
+  background: var(--pf-t--global--background--color--primary--default);
+  border: none;
+  border-radius: var(--pf-t--global--border--radius--pill, 999px);
+  margin-right: var(--pf-t--global--spacer--sm, 0.5rem);
+  position: relative;
+}
+
+.canvas-toolbar__version-history-group::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pf-t--global--background--color--primary--default);
+  opacity: 0.6;
+  border-radius: var(--pf-t--global--border--radius--pill, 999px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.canvas-toolbar__version-history-group > * {
+  position: relative;
+  z-index: 1;
+}
+
+.canvas-toolbar__time-controls-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--xs, 0.25rem);
+  padding: var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--lg, 1.5rem);
+  background: var(--pf-t--global--background--color--primary--default);
+  border: none;
+  border-radius: var(--pf-t--global--border--radius--pill, 999px);
+  margin-right: var(--pf-t--global--spacer--sm, 0.5rem);
+  position: relative;
+}
+
+.canvas-toolbar__time-controls-group::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pf-t--global--background--color--primary--default);
+  opacity: 0.6;
+  border-radius: var(--pf-t--global--border--radius--pill, 999px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.canvas-toolbar__time-controls-group > * {
+  position: relative;
+  z-index: 1;
+}
+
+.canvas-toolbar__switcher-container .canvas-toolbar__artifact-switcher-toggle.pf-v6-c-menu-toggle {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--BorderColor: transparent;
+  --pf-v6-c-menu-toggle--BorderWidth: 0;
+  --pf-v6-c-menu-toggle--BorderRadius: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+
+  height: auto;
+  min-width: 0;
+  width: auto;
+  font-size: var(--pf-t--global--font--size--body--default);
+  font-weight: var(--pf-t--global--font--weight--body--default);
+  cursor: text;
+  position: relative;
+}
+
+.canvas-toolbar__switcher-container .canvas-toolbar__artifact-switcher-toggle.pf-v6-c-menu-toggle > * {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.canvas-toolbar__switcher-container .canvas-toolbar__artifact-switcher-toggle.pf-v6-c-menu-toggle::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.canvas-toolbar__switcher-container .canvas-toolbar__artifact-switcher-toggle.pf-v6-c-menu-toggle:hover {
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+  --pf-v6-c-menu-toggle--hover--BorderColor: var(--pf-t--global--border--color--default, #d2d2d2);
+  --pf-v6-c-menu-toggle--hover--BorderWidth: 1px;
+  --pf-v6-c-menu-toggle--hover--BorderRadius: var(--pf-t--global--border--radius--sm, 4px);
+  --pf-v6-c-menu-toggle--hover--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-menu-toggle--hover--PaddingInlineEnd: var(--pf-t--global--spacer--sm, 0.5rem);
+}
+
+.canvas-toolbar__switcher-container .canvas-toolbar__artifact-switcher-toggle.pf-v6-c-menu-toggle:hover::after {
+  background: var(--pf-t--global--border--color--default, #d2d2d2);
+}
+
+.canvas-toolbar__artifact-input {
+  min-width: 0;
+  width: min(360px, 40vw);
+}
+
+.canvas-toolbar__switcher-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-t--global--spacer--xs, 0.25rem);
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: visible;
+  max-width: none;
+}
+
+.canvas-toolbar__artifact-dropdown-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  --pf-v6-c-menu-toggle--PaddingInlineStart: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockStart: 0;
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: 0;
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--BorderColor: transparent;
+  --pf-v6-c-menu-toggle--BorderWidth: 0;
+
+  min-width: 24px !important;
+  width: 24px !important;
+  height: 32px !important;
+  cursor: pointer !important;
+}
+
+.canvas-toolbar__artifact-dropdown-toggle:hover {
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+  --pf-v6-c-menu-toggle--hover--BorderRadius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar__artifact-dropdown-list {
+  min-width: 300px;
+  max-width: min(500px, 60vw);
+}
+
+.canvas-toolbar__artifact-dropdown-item-text {
+  display: block;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.canvas-toolbar__time-range-dropdown-list,
+.canvas-toolbar__refresh-interval-dropdown-list {
+  min-width: 200px;
+  max-width: min(300px, 40vw);
+}
+
+.canvas-toolbar__time-controls-group .canvas-toolbar__time-control.pf-v6-c-menu-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--pf-t--global--spacer--xs, 0.25rem) !important;
+
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--BorderColor: transparent;
+  --pf-v6-c-menu-toggle--BorderWidth: 0;
+  --pf-v6-c-menu-toggle--BorderRadius: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: var(--pf-t--global--spacer--sm, 0.5rem);
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: var(--pf-t--global--spacer--sm, 0.5rem);
+  --pf-v6-c-menu-toggle--PaddingBlockStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+
+  height: 32px !important;
+  font-size: var(--pf-t--global--font--size--body--default) !important;
+  vertical-align: middle !important;
+}
+
+.canvas-toolbar__time-controls-group .canvas-toolbar__time-control.pf-v6-c-menu-toggle:hover {
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+  --pf-v6-c-menu-toggle--hover--BorderRadius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar__time-icon {
+  flex-shrink: 0 !important;
+  color: var(--pf-t--global--icon--color--regular) !important;
+  vertical-align: middle !important;
+  margin-right: var(--pf-t--global--spacer--xs, 0.25rem) !important;
+}
+
+.canvas-toolbar__time-control .canvas-toolbar__time-text {
+  font-size: var(--pf-t--global--font--size--body--default);
+  color: var(--pf-t--global--text--color--regular);
+  line-height: var(--pf-t--global--line-height--body--default, 1.5);
+  vertical-align: middle;
+  margin-right: var(--pf-t--global--spacer--xs, 0.25rem);
+}
+
+
+.canvas-toolbar__refresh-interval-control,
+.canvas-toolbar__refresh-interval-control.pf-v6-c-menu-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--pf-t--global--spacer--xs, 0.25rem) !important;
+
+  --pf-v6-c-menu-toggle--BackgroundColor: transparent;
+  --pf-v6-c-menu-toggle--BorderColor: transparent;
+  --pf-v6-c-menu-toggle--BorderWidth: 0;
+  --pf-v6-c-menu-toggle--BorderRadius: 0;
+  --pf-v6-c-menu-toggle--PaddingInlineStart: var(--pf-t--global--spacer--sm, 0.5rem);
+  --pf-v6-c-menu-toggle--PaddingInlineEnd: var(--pf-t--global--spacer--sm, 0.5rem);
+  --pf-v6-c-menu-toggle--PaddingBlockStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-menu-toggle--PaddingBlockEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+
+  height: 32px !important;
+  font-size: var(--pf-t--global--font--size--body--default) !important;
+  vertical-align: middle !important;
+}
+
+.canvas-toolbar__time-controls-group .canvas-toolbar__refresh-interval-control.pf-v6-c-menu-toggle:hover {
+  --pf-v6-c-menu-toggle--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+  --pf-v6-c-menu-toggle--hover--BorderRadius: var(--pf-t--global--border--radius--sm, 4px);
+}
+
+.canvas-toolbar__refresh-button {
+  width: auto;
+  height: auto;
+  min-width: auto;
+  max-width: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  --pf-v6-c-button--m-plain--BackgroundColor: transparent;
+  --pf-v6-c-button--m-plain--PaddingInlineStart: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--PaddingInlineEnd: var(--pf-t--global--spacer--xs, 0.25rem);
+  --pf-v6-c-button--m-plain--BorderRadius: 0;
+  --pf-v6-c-button--m-plain--BorderWidth: 0;
+  --pf-v6-c-button--m-plain--hover--BackgroundColor: var(--pf-t--global--background--color--action--plain--hover);
+}
+
+.canvas-toolbar .canvas-toolbar__refresh-button.pf-v6-c-button:hover,
+.canvas-toolbar__refresh-button.pf-v6-c-button.pf-m-plain:hover {
+  border-radius: var(--pf-t--global--border--radius--sm, 4px);
+}
