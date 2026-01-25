@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, Ref } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActionList,
   ActionListItem,
@@ -37,14 +38,14 @@ export interface ArtifactOption {
 }
 
 export const TIME_RANGE_OPTIONS = [
-  'Last 5 min',
-  'Last 15 min',
-  'Last 30 min',
-  'Last 1 hour',
-  'Last 6 hours',
-  'Last 24 hours',
+  'last5min',
+  'last15min',
+  'last30min',
+  'last1hour',
+  'last6hours',
+  'last24hours',
 ] as const;
-export const REFRESH_INTERVAL_OPTIONS = ['5 sec', '10 sec', '30 sec', '1 min', '5 min'] as const;
+export const REFRESH_INTERVAL_OPTIONS = ['5sec', '10sec', '30sec', '1min', '5min'] as const;
 
 export type CanvasToolbarActionType =
   | 'TOGGLE_CANVAS'
@@ -131,13 +132,14 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onRefreshIntervalChange,
   showTimeControls = true,
 }) => {
+  const { t } = useTranslation('plugin__genie-web-client');
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
   const [isArtifactSwitcherOpen, setIsArtifactSwitcherOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState(title);
   const [isNarrow, setIsNarrow] = useState(false);
-  const [internalTimeRange, setInternalTimeRange] = useState('Last 30 min');
-  const [internalRefreshInterval, setInternalRefreshInterval] = useState('10 sec');
+  const [internalTimeRange, setInternalTimeRange] = useState('last30min');
+  const [internalRefreshInterval, setInternalRefreshInterval] = useState('10sec');
   const [isTimeRangeOpen, setIsTimeRangeOpen] = useState(false);
   const [isRefreshIntervalOpen, setIsRefreshIntervalOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
@@ -224,10 +226,20 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         <ToolbarContent>
           <ToolbarGroup align={{ default: 'alignStart' }} className="canvas-toolbar__left-slot">
             <ToolbarItem>
-              <Tooltip content={isCanvasExpanded ? 'Collapse canvas' : 'Expand canvas'}>
+              <Tooltip
+                content={
+                  isCanvasExpanded
+                    ? t('canvasToolbar.collapseCanvas')
+                    : t('canvasToolbar.expandCanvas')
+                }
+              >
                 <Button
                   variant="plain"
-                  aria-label={isCanvasExpanded ? 'Collapse canvas' : 'Expand canvas'}
+                  aria-label={
+                    isCanvasExpanded
+                      ? t('canvasToolbar.collapseCanvas')
+                      : t('canvasToolbar.expandCanvas')
+                  }
                   onClick={() => onAction('TOGGLE_CANVAS')}
                   className="canvas-toolbar__toggle-button"
                 >
@@ -246,17 +258,25 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                       value={draftTitle}
                       onChange={(_event, value) => setDraftTitle(value)}
                       onKeyDown={handleKeyDown}
-                      aria-label="Edit canvas title"
+                      aria-label={t('canvasToolbar.editCanvasTitle')}
                     />
                   </TextInputGroup>
                   <ActionList isIconList>
                     <ActionListItem>
-                      <Button variant="plain" aria-label="Save title" onClick={handleSaveTitle}>
+                      <Button
+                        variant="plain"
+                        aria-label={t('canvasToolbar.saveTitle')}
+                        onClick={handleSaveTitle}
+                      >
                         <CheckIcon />
                       </Button>
                     </ActionListItem>
                     <ActionListItem>
-                      <Button variant="plain" aria-label="Cancel edit" onClick={handleCancelTitle}>
+                      <Button
+                        variant="plain"
+                        aria-label={t('canvasToolbar.cancelEdit')}
+                        onClick={handleCancelTitle}
+                      >
                         <TimesIcon />
                       </Button>
                     </ActionListItem>
@@ -270,7 +290,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                       isInline
                       className="canvas-toolbar__title-button"
                       onClick={() => setIsEditingTitle(true)}
-                      aria-label="Edit canvas title"
+                      aria-label={t('canvasToolbar.editCanvasTitle')}
                     >
                       <span className="canvas-toolbar__title-icon">
                         <CatalogIcon />
@@ -292,7 +312,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                           setIsArtifactSwitcherOpen(!isArtifactSwitcherOpen);
                         }}
                         isExpanded={isArtifactSwitcherOpen}
-                        aria-label="Switch artifact"
+                        aria-label={t('canvasToolbar.switchArtifact')}
                         className="canvas-toolbar__artifact-dropdown-toggle"
                       />
                     )}
@@ -324,7 +344,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     isInline
                     className="canvas-toolbar__title-button"
                     onClick={() => setIsEditingTitle(true)}
-                    aria-label="Edit canvas title"
+                    aria-label={t('canvasToolbar.editCanvasTitle')}
                   >
                     <span className="canvas-toolbar__title-icon">
                       <CatalogIcon />
@@ -377,7 +397,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                 {showTimeControls && (
                   <div className="canvas-toolbar__time-controls-group">
                     <ToolbarItem>
-                      <Tooltip content="Display time range">
+                      <Tooltip content={t('canvasToolbar.displayTimeRange')}>
                         <Dropdown
                           isOpen={isTimeRangeOpen}
                           onOpenChange={setIsTimeRangeOpen}
@@ -387,11 +407,13 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                               variant="plainText"
                               onClick={() => setIsTimeRangeOpen(!isTimeRangeOpen)}
                               isExpanded={isTimeRangeOpen}
-                              aria-label="Select time range"
+                              aria-label={t('canvasToolbar.selectTimeRange')}
                               className="canvas-toolbar__time-control"
                             >
                               <CalendarAltIcon className="canvas-toolbar__time-icon" />
-                              <span className="canvas-toolbar__time-text">{currentTimeRange}</span>
+                              <span className="canvas-toolbar__time-text">
+                                {t(`canvasToolbar.timeRange.${currentTimeRange}`)}
+                              </span>
                             </MenuToggle>
                           )}
                         >
@@ -410,7 +432,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                                 }}
                                 isSelected={option === currentTimeRange}
                               >
-                                {option}
+                                {t(`canvasToolbar.timeRange.${option}`)}
                               </DropdownItem>
                             ))}
                           </DropdownList>
@@ -429,12 +451,12 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                             variant="plainText"
                             onClick={() => setIsRefreshIntervalOpen(!isRefreshIntervalOpen)}
                             isExpanded={isRefreshIntervalOpen}
-                            aria-label="Select refresh interval"
+                            aria-label={t('canvasToolbar.selectRefreshInterval')}
                             className="canvas-toolbar__refresh-interval-control"
                           >
                             <ClockIcon className="canvas-toolbar__time-icon" />
                             <span className="canvas-toolbar__time-text">
-                              {currentRefreshInterval}
+                              {t(`canvasToolbar.refreshInterval.${currentRefreshInterval}`)}
                             </span>
                           </MenuToggle>
                         )}
@@ -454,17 +476,17 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                               }}
                               isSelected={option === currentRefreshInterval}
                             >
-                              {option}
+                              {t(`canvasToolbar.refreshInterval.${option}`)}
                             </DropdownItem>
                           ))}
                         </DropdownList>
                       </Dropdown>
                     </ToolbarItem>
                     <ToolbarItem>
-                      <Tooltip content="Refresh">
+                      <Tooltip content={t('canvasToolbar.refresh')}>
                         <Button
                           variant="plain"
-                          aria-label="Refresh"
+                          aria-label={t('canvasToolbar.refresh')}
                           onClick={() => onAction('REFRESH')}
                           className="canvas-toolbar__refresh-button"
                         >
@@ -488,7 +510,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     ref={ref}
                     variant="plain"
                     onClick={() => setIsOverflowOpen(!isOverflowOpen)}
-                    aria-label="More options"
+                    aria-label={t('canvasToolbar.moreOptions')}
                     className="canvas-toolbar__overflow-button"
                   >
                     <EllipsisHIcon />
@@ -514,10 +536,10 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               </Dropdown>
             </ToolbarItem>
             <ToolbarItem>
-              <Tooltip content="Close">
+              <Tooltip content={t('canvasToolbar.close')}>
                 <Button
                   variant="plain"
-                  aria-label="Close"
+                  aria-label={t('canvasToolbar.close')}
                   onClick={() => onAction('CLOSE')}
                   className="canvas-toolbar__close-button"
                 >
