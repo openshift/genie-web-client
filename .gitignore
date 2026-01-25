@@ -5,3 +5,4 @@
 integration-tests/videos
 integration-tests/screenshots
 coverage
+.cursor/rules/personal-reminders.mdc
