@@ -96,6 +96,8 @@ export interface CanvasToolbarProps {
   refreshInterval?: string;
   /** Refresh interval change handler */
   onRefreshIntervalChange?: (refreshInterval: string) => void;
+  /** Whether to show time controls (time range, refresh interval, refresh button) */
+  showTimeControls?: boolean;
 }
 
 /**
@@ -127,6 +129,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onTimeRangeChange,
   refreshInterval: controlledRefreshInterval,
   onRefreshIntervalChange,
+  showTimeControls = true,
 }) => {
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
   const [isArtifactSwitcherOpen, setIsArtifactSwitcherOpen] = useState(false);
@@ -371,104 +374,106 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     </Tooltip>
                   </ToolbarItem>
                 </div>
-                <div className="canvas-toolbar__time-controls-group">
-                  <ToolbarItem>
-                    <Tooltip content="Display time range">
+                {showTimeControls && (
+                  <div className="canvas-toolbar__time-controls-group">
+                    <ToolbarItem>
+                      <Tooltip content="Display time range">
+                        <Dropdown
+                          isOpen={isTimeRangeOpen}
+                          onOpenChange={setIsTimeRangeOpen}
+                          toggle={(ref: Ref<MenuToggleElement>) => (
+                            <MenuToggle
+                              ref={ref}
+                              variant="plainText"
+                              onClick={() => setIsTimeRangeOpen(!isTimeRangeOpen)}
+                              isExpanded={isTimeRangeOpen}
+                              aria-label="Select time range"
+                              className="canvas-toolbar__time-control"
+                            >
+                              <CalendarAltIcon className="canvas-toolbar__time-icon" />
+                              <span className="canvas-toolbar__time-text">{currentTimeRange}</span>
+                            </MenuToggle>
+                          )}
+                        >
+                          <DropdownList className="canvas-toolbar__time-range-dropdown-list">
+                            {TIME_RANGE_OPTIONS.map((option) => (
+                              <DropdownItem
+                                key={option}
+                                onClick={() => {
+                                  if (onTimeRangeChange) {
+                                    onTimeRangeChange(option);
+                                  } else {
+                                    setInternalTimeRange(option);
+                                  }
+                                  setIsTimeRangeOpen(false);
+                                  onAction('TIME_RANGE_CHANGE');
+                                }}
+                                isSelected={option === currentTimeRange}
+                              >
+                                {option}
+                              </DropdownItem>
+                            ))}
+                          </DropdownList>
+                        </Dropdown>
+                      </Tooltip>
+                    </ToolbarItem>
+
+                    {/* refresh interval dropdown */}
+                    <ToolbarItem>
                       <Dropdown
-                        isOpen={isTimeRangeOpen}
-                        onOpenChange={setIsTimeRangeOpen}
+                        isOpen={isRefreshIntervalOpen}
+                        onOpenChange={setIsRefreshIntervalOpen}
                         toggle={(ref: Ref<MenuToggleElement>) => (
                           <MenuToggle
                             ref={ref}
                             variant="plainText"
-                            onClick={() => setIsTimeRangeOpen(!isTimeRangeOpen)}
-                            isExpanded={isTimeRangeOpen}
-                            aria-label="Select time range"
-                            className="canvas-toolbar__time-control"
+                            onClick={() => setIsRefreshIntervalOpen(!isRefreshIntervalOpen)}
+                            isExpanded={isRefreshIntervalOpen}
+                            aria-label="Select refresh interval"
+                            className="canvas-toolbar__refresh-interval-control"
                           >
-                            <CalendarAltIcon className="canvas-toolbar__time-icon" />
-                            <span className="canvas-toolbar__time-text">{currentTimeRange}</span>
+                            <ClockIcon className="canvas-toolbar__time-icon" />
+                            <span className="canvas-toolbar__time-text">
+                              {currentRefreshInterval}
+                            </span>
                           </MenuToggle>
                         )}
                       >
-                        <DropdownList className="canvas-toolbar__time-range-dropdown-list">
-                          {TIME_RANGE_OPTIONS.map((option) => (
+                        <DropdownList className="canvas-toolbar__refresh-interval-dropdown-list">
+                          {REFRESH_INTERVAL_OPTIONS.map((option) => (
                             <DropdownItem
                               key={option}
                               onClick={() => {
-                                if (onTimeRangeChange) {
-                                  onTimeRangeChange(option);
+                                if (onRefreshIntervalChange) {
+                                  onRefreshIntervalChange(option);
                                 } else {
-                                  setInternalTimeRange(option);
+                                  setInternalRefreshInterval(option);
                                 }
-                                setIsTimeRangeOpen(false);
-                                onAction('TIME_RANGE_CHANGE');
+                                setIsRefreshIntervalOpen(false);
+                                onAction('REFRESH_INTERVAL_CHANGE');
                               }}
-                              isSelected={option === currentTimeRange}
+                              isSelected={option === currentRefreshInterval}
                             >
                               {option}
                             </DropdownItem>
                           ))}
                         </DropdownList>
                       </Dropdown>
-                    </Tooltip>
-                  </ToolbarItem>
-
-                  {/* refresh interval dropdown */}
-                  <ToolbarItem>
-                    <Dropdown
-                      isOpen={isRefreshIntervalOpen}
-                      onOpenChange={setIsRefreshIntervalOpen}
-                      toggle={(ref: Ref<MenuToggleElement>) => (
-                        <MenuToggle
-                          ref={ref}
-                          variant="plainText"
-                          onClick={() => setIsRefreshIntervalOpen(!isRefreshIntervalOpen)}
-                          isExpanded={isRefreshIntervalOpen}
-                          aria-label="Select refresh interval"
-                          className="canvas-toolbar__refresh-interval-control"
+                    </ToolbarItem>
+                    <ToolbarItem>
+                      <Tooltip content="Refresh">
+                        <Button
+                          variant="plain"
+                          aria-label="Refresh"
+                          onClick={() => onAction('REFRESH')}
+                          className="canvas-toolbar__refresh-button"
                         >
-                          <ClockIcon className="canvas-toolbar__time-icon" />
-                          <span className="canvas-toolbar__time-text">
-                            {currentRefreshInterval}
-                          </span>
-                        </MenuToggle>
-                      )}
-                    >
-                      <DropdownList className="canvas-toolbar__refresh-interval-dropdown-list">
-                        {REFRESH_INTERVAL_OPTIONS.map((option) => (
-                          <DropdownItem
-                            key={option}
-                            onClick={() => {
-                              if (onRefreshIntervalChange) {
-                                onRefreshIntervalChange(option);
-                              } else {
-                                setInternalRefreshInterval(option);
-                              }
-                              setIsRefreshIntervalOpen(false);
-                              onAction('REFRESH_INTERVAL_CHANGE');
-                            }}
-                            isSelected={option === currentRefreshInterval}
-                          >
-                            {option}
-                          </DropdownItem>
-                        ))}
-                      </DropdownList>
-                    </Dropdown>
-                  </ToolbarItem>
-                  <ToolbarItem>
-                    <Tooltip content="Refresh">
-                      <Button
-                        variant="plain"
-                        aria-label="Refresh"
-                        onClick={() => onAction('REFRESH')}
-                        className="canvas-toolbar__refresh-button"
-                      >
-                        <SyncAltIcon />
-                      </Button>
-                    </Tooltip>
-                  </ToolbarItem>
-                </div>
+                          <SyncAltIcon />
+                        </Button>
+                      </Tooltip>
+                    </ToolbarItem>
+                  </div>
+                )}
               </ToolbarGroup>
             </>
           )}
