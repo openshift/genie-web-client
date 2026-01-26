@@ -25,7 +25,7 @@ export type textType = Partial<{
   [K in keyof typeof defaultText]: string;
 }>;
 
-export const setText = (customText: textType): textType => {
+export const setText = (customText?: textType): textType => {
   return {
     ...defaultText,
     ...customText,
