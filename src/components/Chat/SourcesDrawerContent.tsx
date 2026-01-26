@@ -21,14 +21,24 @@ interface SourceItemProps {
 }
 
 const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
+  const hostname = new URL(source.doc_url).hostname;
+  const faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+
   return (
-    <div className="source-item">
-        <div className="icon-stub" />
+    <a
+      href={source.doc_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="source-item drawer-item"
+    >
+      <img src={faviconUrl} alt="" width={16} height={16} className="source-favicon" />
       <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">
-          {new URL(source.doc_url).hostname}
-        </span>
-        <span className="source-item__title pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">{source.doc_title}</span>
-    </div>
+        {hostname}
+      </span>
+      <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold drawer-item__col-2 ">
+        {source.doc_title}
+      </span>
+    </a>
   );
 };
 
