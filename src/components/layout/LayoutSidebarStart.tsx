@@ -25,6 +25,7 @@ export const LayoutSidebarStart: FC = () => {
 
   const handleChatHistoryClick = useCallback(() => {
     openDrawer({
+      id: 'chat-history',
       heading: 'Chat History',
       icon: <CommentDotsIcon />,
       position: 'left',

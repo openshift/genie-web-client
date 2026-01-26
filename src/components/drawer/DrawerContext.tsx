@@ -1,6 +1,8 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 export interface DrawerConfig {
+  /** Unique identifier for the drawer content type (e.g., 'sources', 'tools') */
+  id?: string;
   heading: ReactNode;
   icon: ReactNode;
   children: ReactNode;

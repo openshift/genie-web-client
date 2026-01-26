@@ -17,6 +17,7 @@ export const LayoutSidebarEnd: FC = () => {
 
   const handleNotificationsClick = useCallback(() => {
     openDrawer({
+      id: 'notifications',
       heading: 'Notifications',
       icon: <BellIcon />,
       position: 'right',
@@ -26,6 +27,7 @@ export const LayoutSidebarEnd: FC = () => {
 
   const handleActivityClick = useCallback(() => {
     openDrawer({
+      id: 'activity',
       heading: 'Activity',
       icon: <WaveSquareIcon />,
       position: 'right',
@@ -40,6 +42,7 @@ export const LayoutSidebarEnd: FC = () => {
 
   const handleHelpClick = useCallback(() => {
     openDrawer({
+      id: 'help',
       heading: 'Help',
       icon: <QuestionCircleIcon />,
       position: 'right',

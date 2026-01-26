@@ -150,4 +150,142 @@ describe('DrawerProvider and Context', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('toggles drawer closed when same id is opened twice', async () => {
+    const configWithId: DrawerConfig = {
+      ...defaultOpenDrawerConfig,
+      id: 'test-drawer',
+    };
+
+    render(
+      <DrawerProvider>
+        <TestComponent openDrawerConfig={configWithId} />
+      </DrawerProvider>,
+    );
+
+    // Open the drawer
+    await user.click(screen.getByText('Open Drawer'));
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('id', 'test-drawer');
+
+    // Click open again with same id - should toggle closed
+    await user.click(screen.getByText('Open Drawer'));
+    CheckDrawerState('isOpen', 'false');
+  });
+
+  it('switches drawer content when different id is opened', async () => {
+    const MultiDrawerTestComponent = () => {
+      const { drawerState, openDrawer } = useDrawer();
+      return (
+        <div>
+          <button
+            onClick={() =>
+              openDrawer({
+                id: 'drawer-a',
+                heading: 'Drawer A',
+                icon: <>icon A</>,
+                children: <>Content A</>,
+                position: 'right',
+              })
+            }
+          >
+            Open Drawer A
+          </button>
+          <button
+            onClick={() =>
+              openDrawer({
+                id: 'drawer-b',
+                heading: 'Drawer B',
+                icon: <>icon B</>,
+                children: <>Content B</>,
+                position: 'right',
+              })
+            }
+          >
+            Open Drawer B
+          </button>
+          {Object.keys(drawerState).map((key) => {
+            const value = drawerState[key as keyof typeof drawerState];
+            return (
+              <div key={key}>
+                {`${key}:`}
+                {typeof value === 'function'
+                  ? 'function'
+                  : typeof value === 'boolean'
+                  ? String(value)
+                  : value}
+              </div>
+            );
+          })}
+        </div>
+      );
+    };
+
+    render(
+      <DrawerProvider>
+        <MultiDrawerTestComponent />
+      </DrawerProvider>,
+    );
+
+    // Open drawer A
+    await user.click(screen.getByText('Open Drawer A'));
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('id', 'drawer-a');
+    CheckDrawerState('heading', 'Drawer A');
+
+    // Open drawer B - should switch to B, not close
+    await user.click(screen.getByText('Open Drawer B'));
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('id', 'drawer-b');
+    CheckDrawerState('heading', 'Drawer B');
+  });
+
+  it('invokes onClose callback when switching between drawers with ids', async () => {
+    const mockedOnCloseA = jest.fn();
+    const MultiDrawerTestComponent = () => {
+      const { openDrawer } = useDrawer();
+      return (
+        <div>
+          <button
+            onClick={() =>
+              openDrawer({
+                id: 'drawer-a',
+                heading: 'Drawer A',
+                icon: <>icon A</>,
+                children: <>Content A</>,
+                onClose: mockedOnCloseA,
+              })
+            }
+          >
+            Open Drawer A
+          </button>
+          <button
+            onClick={() =>
+              openDrawer({
+                id: 'drawer-b',
+                heading: 'Drawer B',
+                icon: <>icon B</>,
+                children: <>Content B</>,
+              })
+            }
+          >
+            Open Drawer B
+          </button>
+        </div>
+      );
+    };
+
+    render(
+      <DrawerProvider>
+        <MultiDrawerTestComponent />
+      </DrawerProvider>,
+    );
+
+    await user.click(screen.getByText('Open Drawer A'));
+    expect(mockedOnCloseA).not.toHaveBeenCalled();
+
+    // Switch to drawer B - should call onClose for A
+    await user.click(screen.getByText('Open Drawer B'));
+    expect(mockedOnCloseA).toHaveBeenCalled();
+  });
 });
