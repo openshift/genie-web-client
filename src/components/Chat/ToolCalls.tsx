@@ -1,9 +1,10 @@
 import { useCallback, type FunctionComponent } from 'react';
 import { Button } from '@patternfly/react-core';
-import { InfoCircleIcon } from '@patternfly/react-icons';
+import { RhUiInformationIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import type { ToolCallState } from '../../hooks/useChatMessages';
 import { ToolsDrawerContent } from './ToolsDrawerContent';
+import { useTranslation } from 'react-i18next';
 
 export interface ToolCallsProps {
   toolCalls: ToolCallState[];
@@ -11,14 +12,14 @@ export interface ToolCallsProps {
 
 export const ToolCalls: FunctionComponent<ToolCallsProps> = ({ toolCalls }) => {
   const { drawerState, openDrawer, closeDrawer } = useDrawer();
-
+  const { t } = useTranslation('plugin__genie-web-client');
   const handleClick = useCallback((): void => {
     if (drawerState.isOpen) {
       closeDrawer();
     } else {
       openDrawer({
-        heading: 'Tools',
-        icon: <InfoCircleIcon />,
+        heading: t('chat.tools'),
+        icon: <RhUiInformationIcon />,
         children: <ToolsDrawerContent toolCalls={toolCalls} />,
         position: 'right',
       });
@@ -26,14 +27,8 @@ export const ToolCalls: FunctionComponent<ToolCallsProps> = ({ toolCalls }) => {
   }, [drawerState.isOpen, openDrawer, closeDrawer, toolCalls]);
 
   return (
-    <Button
-      variant="plain"
-      size="sm"
-      aria-label="View tools used"
-      onClick={handleClick}
-      icon={<InfoCircleIcon />}
-    >
-      Tools
+    <Button variant="link" onClick={handleClick} icon={<RhUiInformationIcon />} aria-label={t('chat.tools.ariaLabel')}>
+      {t('chat.tools')} 
     </Button>
   );
 };

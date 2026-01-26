@@ -1,5 +1,5 @@
 import { useCallback, type FunctionComponent } from 'react';
-import { Label } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { RhUiLinkIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import { SourcesDrawerContent } from './SourcesDrawerContent';
@@ -31,8 +31,13 @@ export const Sources: FunctionComponent<SourcesProps> = ({ sources }) => {
   }, [drawerState.isOpen, openDrawer, closeDrawer, sources]);
 
   return (
-    <Label variant="outline" onClick={handleClick} icon={<RhUiLinkIcon />} aria-label={t('chat.sources.ariaLabel')}>
+    <Button
+      variant="link"
+      onClick={handleClick}
+      icon={<RhUiLinkIcon />}
+      aria-label={t('chat.sources.ariaLabel')}
+    >
       {t('chat.sources')}
-    </Label>  
+    </Button>
   );
 };

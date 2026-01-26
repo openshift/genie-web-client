@@ -130,7 +130,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const extraContent = {
       afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
       endContent: hasEndContent ? (
-        <Flex direction={{ default: 'row' }} gap={{ default: 'gapMd' }}>
+        <Flex gap={{ default: 'gapSm' }}>
           {hasSources ? (
             <FlexItem>
               <Sources sources={referencedDocuments} />
@@ -144,7 +144,6 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         </Flex>
       ) : null,
     };
-
 
     const timestamp = useMemo(() => {
       const date = message.date;
