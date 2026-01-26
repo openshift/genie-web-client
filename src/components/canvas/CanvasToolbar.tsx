@@ -18,17 +18,16 @@ import {
   ToolbarItem,
   Tooltip,
 } from '@patternfly/react-core';
+import { CalendarAltIcon, ClockIcon } from '@patternfly/react-icons';
 import {
-  CheckIcon,
-  EllipsisHIcon,
-  SyncAltIcon,
-  TimesIcon,
-  UndoIcon,
-  RedoIcon,
-  CalendarAltIcon,
-  ClockIcon,
-  OpenDrawerRightIcon,
-  CatalogIcon,
+  RhUiCheckIcon,
+  RhUiEllipsisHorizontalIcon,
+  RhUiSyncAltIcon,
+  RhUiCloseIcon,
+  RhUiUndoIcon,
+  RhUiRedoIcon,
+  RhUiOpenDrawerRightIcon,
+  RhUiCatalogIcon,
 } from '@patternfly/react-icons';
 import './CanvasToolbar.css';
 
@@ -184,8 +183,8 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 
   const defaultCenterActions = useMemo<CanvasToolbarAction[]>(
     () => [
-      { actionType: 'UNDO', label: 'Undo', icon: <UndoIcon /> },
-      { actionType: 'REDO', label: 'Redo', icon: <RedoIcon /> },
+      { actionType: 'UNDO', label: 'Undo', icon: <RhUiUndoIcon /> },
+      { actionType: 'REDO', label: 'Redo', icon: <RhUiRedoIcon /> },
     ],
     [],
   );
@@ -243,7 +242,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                   onClick={() => onAction('TOGGLE_CANVAS')}
                   className="canvas-toolbar__toggle-button"
                 >
-                  <OpenDrawerRightIcon />
+                  <RhUiOpenDrawerRightIcon />
                 </Button>
               </Tooltip>
             </ToolbarItem>
@@ -268,7 +267,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                         aria-label={t('canvasToolbar.saveTitle')}
                         onClick={handleSaveTitle}
                       >
-                        <CheckIcon />
+                        <RhUiCheckIcon />
                       </Button>
                     </ActionListItem>
                     <ActionListItem>
@@ -277,7 +276,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                         aria-label={t('canvasToolbar.cancelEdit')}
                         onClick={handleCancelTitle}
                       >
-                        <TimesIcon />
+                        <RhUiCloseIcon />
                       </Button>
                     </ActionListItem>
                   </ActionList>
@@ -293,7 +292,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                       aria-label={t('canvasToolbar.editCanvasTitle')}
                     >
                       <span className="canvas-toolbar__title-icon">
-                        <CatalogIcon />
+                        <RhUiCatalogIcon />
                       </span>
                       <span className="canvas-toolbar__title-text" title={draftTitle}>
                         {draftTitle}
@@ -347,7 +346,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     aria-label={t('canvasToolbar.editCanvasTitle')}
                   >
                     <span className="canvas-toolbar__title-icon">
-                      <CatalogIcon />
+                      <RhUiCatalogIcon />
                     </span>
                     <span className="canvas-toolbar__title-text" title={draftTitle}>
                       {draftTitle}
@@ -490,7 +489,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                           onClick={() => onAction('REFRESH')}
                           className="canvas-toolbar__refresh-button"
                         >
-                          <SyncAltIcon />
+                          <RhUiSyncAltIcon />
                         </Button>
                       </Tooltip>
                     </ToolbarItem>
@@ -513,7 +512,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     aria-label={t('canvasToolbar.moreOptions')}
                     className="canvas-toolbar__overflow-button"
                   >
-                    <EllipsisHIcon />
+                    <RhUiEllipsisHorizontalIcon />
                   </MenuToggle>
                 )}
               >
@@ -543,7 +542,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                   onClick={() => onAction('CLOSE')}
                   className="canvas-toolbar__close-button"
                 >
-                  <TimesIcon />
+                  <RhUiCloseIcon />
                 </Button>
               </Tooltip>
             </ToolbarItem>
