@@ -1,5 +1,5 @@
 .sources-drawer-content {
-    --pf-v6-l-stack--m-gutter--Gap: 24px;
+    --pf-v6-l-stack--m-gutter--Gap: var(--pf-t--global--spacer--lg);
 
     .sources-drawer-content__header {
         color: var(--pf-t--global--text--color--subtle);
@@ -10,6 +10,12 @@
     }
 
     .source-item {
+        text-decoration: none;
+        color: inherit;
+        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+        border-radius: var(--pf-t--global--border--radius--small);
+        transition: background-color var(--pf-t--global--motion-duration--default) var(--pf-t--global--motion-timing-function--default);
+
         display: grid;
         grid-template-columns: auto 1fr;
         row-gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2);
@@ -18,20 +24,20 @@
         .source-item__title {
             grid-column-start: 2;
         }
-    }
 
-    /* temporary placeholder for the source icon */
-    .icon-stub {
-        width: 20px;
-        height: 20px;
-        min-width: 20px;
-        min-height: 20px;
-        background-color: #F3F4F6;
-        border-radius: 4px;
-        background-image: repeating-linear-gradient(-45deg,
-                transparent,
-                transparent 2px,
-                #a2a2a2 2px,
-                #a2a2a2 4px);
+        .source-item__favicon {
+            width: 1.25rem;
+            height: 1.25rem;
+            object-fit: contain;
+        }
+
+        &:hover {
+            background-color: var(--pf-t--global--background--color--primary--hover);
+        }
+
+        &:focus {
+            outline: var(--pf-t--global--border--width--strong) solid var(--pf-t--global--color--brand--default);
+            outline-offset: var(--pf-t--global--border--width--strong);
+        }
     }
 }

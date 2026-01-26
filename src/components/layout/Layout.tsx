@@ -123,6 +123,7 @@ export const Layout = ({ children }: LayoutProps) => {
         isPill: true,
         isExpanded: drawerState.isOpen,
         position: drawerState.position,
+        className: 'genie-drawer',
       }}
       backgroundSrcLight={CompassBgLight}
       backgroundSrcDark={CompassBgDark}

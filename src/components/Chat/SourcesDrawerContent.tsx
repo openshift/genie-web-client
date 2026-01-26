@@ -2,7 +2,6 @@ import { type FunctionComponent } from 'react';
 import {
   Stack,
   StackItem,
-  Divider,
   Flex,
   FlexItem,
   Icon,
@@ -31,7 +30,7 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
       rel="noopener noreferrer"
       className="source-item drawer-item"
     >
-      <img src={faviconUrl} alt="" width={16} height={16} className="source-favicon" />
+      <img src={faviconUrl} alt="" className="source-item__favicon" />
       <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">
         {hostname}
       </span>
@@ -45,11 +44,11 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
 export const SourcesDrawerContent: FunctionComponent<SourcesDrawerContentProps> = ({ sources }) => {
   const { t } = useTranslation('plugin__genie-web-client');
   return (
-    <Stack hasGutter className="sources-drawer-content">
-      <StackItem className="sources-drawer-content__header">
+    <Stack hasGutter className="chat-drawer-content sources-drawer-content">
+      <StackItem className="chat-drawer-content__header">
         <Flex flexWrap={{ default: 'nowrap' }}>
           <FlexItem>
-            <Icon size="heading_2xl" className='sources-drawer-content__header__icon'>
+            <Icon size="heading_2xl" className='chat-drawer-content__header__icon'>
               <RhUiAiExperienceIcon />
             </Icon>
           </FlexItem>
@@ -59,9 +58,6 @@ export const SourcesDrawerContent: FunctionComponent<SourcesDrawerContentProps> 
             </span>
           </FlexItem>
         </Flex>
-      </StackItem>
-      <StackItem>
-        <Divider />
       </StackItem>
       {sources.map((source, index) => (
         <StackItem key={`${source.doc_url}-${index}`}>
