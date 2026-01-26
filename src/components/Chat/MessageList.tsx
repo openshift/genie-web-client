@@ -44,6 +44,8 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
   ({ isLoading, isValidConversationId }) => {
     const { messages, streamingMessage, isStreaming, sendMessage } = useChatMessages();
 
+    console.log('streamingMessage', messages);
+
     const bottomRef = useRef<HTMLDivElement>(null);
 
     const renderedMessages = useMemo(() => {
@@ -70,7 +72,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
           // TODO: Remove stub referencedDocuments after testing
           const isLastBotMessage = index === lastBotIdx;
           const messageToRender: Message<GenieAdditionalProperties> = isCurrentlyStreaming
-            ? { ...message, answer: streamingContent }
+            ? { ...message, answer: streamingContent, additionalAttributes: { ...message.additionalAttributes, referencedDocuments: STUB_REFERENCED_DOCUMENTS } }
             : isLastBotMessage
               ? {
                   ...message,
