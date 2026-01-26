@@ -124,7 +124,7 @@ describe('useFocusManagement', () => {
     loadMoreButtonRef.current?.focus();
 
     const articles = feedRef.current?.querySelectorAll('article');
-    const firstNewArticle = articles[5] as HTMLElement;
+    const firstNewArticle = articles?.[5] as HTMLElement;
     const focusSpy = jest.spyOn(firstNewArticle, 'focus');
 
     renderHook(() =>
