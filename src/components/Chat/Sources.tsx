@@ -4,11 +4,7 @@ import { RhUiLinkIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import { SourcesDrawerContent } from './SourcesDrawerContent';
 import { useTranslation } from 'react-i18next';
-
-export interface ReferencedDocument {
-  doc_url: string;
-  doc_title: string;
-}
+import { ReferencedDocument } from 'src/hooks/AIState';
 
 export interface SourcesProps {
   sources: ReferencedDocument[];
