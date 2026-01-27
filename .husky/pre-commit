@@ -1,12 +1,28 @@
 #!/usr/bin/env sh
 
-# Run lint-staged (eslint on staged .ts/.tsx, stylelint on staged .css)
-echo "Running lint-staged..."
-npx lint-staged
+# Run ESLint on entire codebase (not just staged files)
+echo "Running ESLint on entire codebase..."
+yarn eslint src integration-tests
+if [ $? -ne 0 ]; then
+  echo "ESLint failed. Please fix the errors above."
+  exit 1
+fi
+
+# Run Stylelint on entire codebase
+echo "Running Stylelint on entire codebase..."
+yarn stylelint 'src/**/*.css' --allow-empty-input
+if [ $? -ne 0 ]; then
+  echo "Stylelint failed. Please fix the errors above."
+  exit 1
+fi
 
 # Run TypeScript type checking
 echo "Running TypeScript type check..."
 npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "TypeScript check failed. Please fix the errors above."
+  exit 1
+fi
 
 # Run tests related to staged files
 echo "Running tests for staged files..."
