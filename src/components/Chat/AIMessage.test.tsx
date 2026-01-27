@@ -109,8 +109,8 @@ describe('<AIMessage />', () => {
   });
 
   describe('Loading State', () => {
-    it('passes isLoading=true to Message when isStreaming is true', () => {
-      const message = createMessage();
+    it('passes isLoading=true to Message when isStreaming is true and message has no content', () => {
+      const message = createMessage({ answer: '' });
 
       render(
         <AIMessage
@@ -123,12 +123,13 @@ describe('<AIMessage />', () => {
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
+      // isLoading should be true because isStreaming=true AND hasContent=false (showLoading = isStreaming && !hasContent)
       const messageElement = screen.getByTestId('message');
       expect(messageElement).toHaveAttribute('data-is-loading', 'true');
     });
 
-    it('passes isLoading=false to Message when isStreaming is false', () => {
-      const message = createMessage();
+    it('passes isLoading=false to Message when isStreaming is true but message has content', () => {
+      const message = createMessage({ answer: 'Some content' });
 
       render(
         <AIMessage
@@ -136,11 +137,12 @@ describe('<AIMessage />', () => {
           conversationId={defaultConversationId}
           userQuestion={defaultUserQuestion}
           onQuickResponse={mockOnQuickResponse}
-          isStreaming={false}
+          isStreaming={true}
         />,
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
+      // isLoading should be false because hasContent is true (showLoading = isStreaming && !hasContent)
       const messageElement = screen.getByTestId('message');
       expect(messageElement).toHaveAttribute('data-is-loading', 'false');
     });
@@ -164,25 +166,7 @@ describe('<AIMessage />', () => {
   });
 
   describe('Tool Calls', () => {
-    it('does not pass null beforeMainContent when toolCalls is empty', () => {
-      const message = createMessage();
-
-      render(
-        <AIMessage
-          message={message}
-          conversationId={defaultConversationId}
-          userQuestion={defaultUserQuestion}
-          onQuickResponse={mockOnQuickResponse}
-          toolCalls={[]}
-        />,
-      );
-
-      // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
-      // Component renders without ToolCallsList when toolCalls is empty
-      expect(screen.getByTestId('message')).toBeInTheDocument();
-    });
-
-    it('does not render ToolCallsList when toolCalls is not provided', () => {
+    it('renders message without tool calls when none present', () => {
       const message = createMessage();
 
       render(

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback, useState } from 'react';
 import { Message } from '@patternfly/chatbot';
+import { Flex, FlexItem } from '@patternfly/react-core';
 import {
   CopyIcon,
   RedoIcon,
@@ -13,11 +14,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
 import { useSendFeedback } from '../../hooks/AIState';
-import type { ToolCallState } from './useToolCalls';
-import { ToolCallsList } from './ToolCallsList';
+import { getToolCallsFromMessage } from '../../hooks/useChatMessages';
+import type { ToolCallState } from 'src/utils/toolCallHelpers';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { ToolCalls } from './ToolCalls';
+import { Sources } from './Sources';
+import { ReferencedDocument } from 'src/hooks/AIState';
 import { useBadResponseModal } from './feedback/BadResponseModal';
 import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
 
@@ -35,7 +39,6 @@ export interface AIMessageProps {
   userQuestion: string;
   onQuickResponse: (text: string) => void;
   isStreaming?: boolean;
-  toolCalls?: ToolCallState[];
 }
 
 /**
@@ -43,19 +46,12 @@ export interface AIMessageProps {
  */
 function collectArtifactsFromToolCalls(toolCalls: ToolCallState[]): Artifact[] {
   return toolCalls
-    .filter((call) => call.status === 'completed' && call.artifacts)
+    .filter((call) => call.status === 'success' && call.artifacts)
     .flatMap((call) => call.artifacts || []);
 }
 
 export const AIMessage: FunctionComponent<AIMessageProps> = memo(
-  ({
-    message,
-    conversationId,
-    userQuestion,
-    onQuickResponse,
-    isStreaming = false,
-    toolCalls = [],
-  }) => {
+  ({ message, conversationId, userQuestion, onQuickResponse, isStreaming = false }) => {
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
     const [feedbackRating, setFeedbackRating] = useState<FeedbackRating>(null);
@@ -63,9 +59,12 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const { badResponseModalToggle } = useBadResponseModal();
     const { addAlert } = useToastAlerts();
 
-    // extract quick responses from message additionalAttributes
+    // extract quick responses, referenced documents, and tool calls from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
+    const referencedDocuments = (additionalAttrs?.referencedDocuments ??
+      []) as ReferencedDocument[];
+    const toolCalls = getToolCallsFromMessage(message);
 
     const handleCopy = useCallback((): void => {
       navigator.clipboard.writeText(content);
@@ -162,8 +161,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         },
         regenerate: {
           icon: <RedoIcon />,
+          ariaLabel: 'Regenerate',
           onClick: handleRegenerate,
           tooltipContent: t('message.action.regenerate'),
+          clickedAriaLabel: 'Regenerated',
+          clickedTooltipContent: 'Regenerated',
         },
         positive: {
           icon: <ThumbsUpIcon />,
@@ -196,8 +198,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         },
         report: {
           icon: <FlagIcon />,
+          ariaLabel: 'Report',
           onClick: handleReport,
           tooltipContent: t('message.action.report'),
+          clickedAriaLabel: 'Reported',
+          clickedTooltipContent: 'Reported',
         },
       }),
       [
@@ -223,17 +228,43 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     const hasToolCalls = toolCalls.length > 0;
     const hasArtifacts = artifacts.length > 0;
+    const hasSources = referencedDocuments.length > 0;
+    const hasEndContent = hasToolCalls || hasSources;
     const extraContent = {
-      beforeMainContent: hasToolCalls ? <ToolCallsList toolCalls={toolCalls} /> : null,
       afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
+      endContent: hasEndContent ? (
+        <Flex gap={{ default: 'gapSm' }}>
+          {hasSources ? (
+            <FlexItem>
+              <Sources sources={referencedDocuments} />
+            </FlexItem>
+          ) : null}
+          {hasToolCalls ? (
+            <FlexItem>
+              <ToolCalls toolCalls={toolCalls} />
+            </FlexItem>
+          ) : null}
+        </Flex>
+      ) : null,
     };
+
+    const timestamp = useMemo(() => {
+      const date = new Date(message.date as Date);
+      return isNaN(date.getTime())
+        ? ''
+        : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    }, [message.date]);
+
+    const hasContent = content.length > 0;
+    const showLoading = isStreaming && !hasContent;
 
     return (
       <Message
         name="Genie"
-        isLoading={isStreaming}
+        isLoading={showLoading}
         role="bot"
         content={content}
+        timestamp={timestamp}
         extraContent={extraContent}
         actions={actions}
         quickResponses={quickResponses}
@@ -250,7 +281,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     return (
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.message.answer === nextProps.message.answer &&
-      prevProps.toolCalls === nextProps.toolCalls && // shallow check is fine here
+      prevProps.message.date === nextProps.message.date &&
       prevProps.conversationId === nextProps.conversationId &&
       prevProps.userQuestion === nextProps.userQuestion
     );

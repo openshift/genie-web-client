@@ -22,6 +22,7 @@ export type {
   StreamingEvent,
   ToolCallEvent,
   ToolResultEvent,
+  ReferencedDocument,
 } from '@redhat-cloud-services/lightspeed-client';
 
 // Runtime exports
