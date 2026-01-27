@@ -1,3 +1,8 @@
+/* Global variables */
+:root {
+  --pf-v6-l-grid--m-gutter--GridGap: var(--pf-t--global--spacer--md);
+}
+
 /* Prefixing your CSS classes with your plugin name is a best practice to avoid
  * collisions with other plugin styles. */
 .genie-web-client__nice {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
 
 export interface ChatBarContextValue {
   showChatBar: boolean;
@@ -8,12 +8,18 @@ export interface ChatBarContextValue {
 const ChatBarContext = createContext<ChatBarContextValue | undefined>(undefined);
 
 export const ChatBarProvider = ({ children }: { children: ReactNode }) => {
-  const [showChatBar, setShowChatBar] = useState(false);
-  return (
-    <ChatBarContext.Provider value={{ showChatBar, setShowChatBar }}>
-      {children}
-    </ChatBarContext.Provider>
+  const [showChatBar, setShowChatBarState] = useState(true);
+
+  const setShowChatBar = useCallback((value: boolean) => {
+    setShowChatBarState(value);
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ showChatBar, setShowChatBar }),
+    [showChatBar, setShowChatBar],
   );
+
+  return <ChatBarContext.Provider value={contextValue}>{children}</ChatBarContext.Provider>;
 };
 
 export const useChatBar = (): ChatBarContextValue => {
