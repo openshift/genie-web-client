@@ -66,17 +66,42 @@
 }
 
 /* drawer heading styles */
-.drawer-heading {
-  display: flex;
-  align-items: center;
-  gap: var(--pf-t--global--spacer--md);
-}
 
-.drawer-heading__icon {
-  display: flex;
-  align-items: center;
-}
+/* Drawer customizations */
+.genie-drawer {
+  &.pf-v6-c-drawer {
+    height: 100dvh;
+  }
 
-.drawer-heading__text {
-  flex: 1;
+  .pf-v6-c-drawer__panel {
+    --pf-v6-c-drawer__panel--MaxHeight: 100%;
+  }
+
+  .pf-v6-c-drawer__head {
+    --pf-v6-c-drawer__head--PaddingBlockStart: var(--pf-t--global--spacer--md);
+    --pf-v6-c-drawer__head--PaddingBlockEnd: var(--pf-t--global--spacer--md);
+    --pf-v6-c-drawer__head--PaddingInlineStart: var(--pf-t--global--spacer--lg);
+    --pf-v6-c-drawer__head--PaddingInlineEnd: var(--pf-t--global--spacer--lg);
+  }
+
+  .pf-v6-c-drawer__body {
+    --pf-v6-c-drawer__panel__body--PaddingBlockStart: 0;
+    --pf-v6-c-drawer__panel__body--PaddingInlineStart: var(--pf-t--global--spacer--sm);
+    --pf-v6-c-drawer__panel__body--PaddingInlineEnd: var(--pf-t--global--spacer--sm);
+  }
+
+  .drawer-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--pf-t--global--spacer--md);
+  }
+  
+  .drawer-heading__icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .drawer-heading__text {
+    flex: 1;
+  }
 }
