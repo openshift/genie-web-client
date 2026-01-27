@@ -1,7 +1,7 @@
 import { render, screen, user, waitFor, act } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
 
-// Mock the hooks
+// mocked hooks for testing
 const mockUseActiveConversation = jest.fn();
 const mockUpdateTitle = jest.fn();
 const mockClearError = jest.fn();
@@ -23,7 +23,7 @@ describe('EditableChatHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Default mock implementations
+    // setup default mock return values
     mockUseActiveConversation.mockReturnValue({
       id: 'test-conversation-id',
       title: 'Chat title',
@@ -52,9 +52,9 @@ describe('EditableChatHeader', () => {
   it('enters edit mode on title click and hides actions', async () => {
     renderHeader();
     await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
-    // Input appears
+    // input appears
     expect(screen.getByRole('textbox', { name: 'Edit conversation title' })).toBeInTheDocument();
-    // Actions hidden while editing
+    // actions hidden while editing
     expect(screen.queryByRole('button', { name: 'kebab dropdown toggle' })).not.toBeInTheDocument();
   });
 
@@ -67,7 +67,7 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    // Simulate typing by setting value and dispatching input event
+    // simulate typing
     await act(async () => {
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLInputElement.prototype,
@@ -192,7 +192,7 @@ describe('EditableChatHeader', () => {
     renderHeader();
     await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
 
-    // Buttons should be disabled while updating
+    // buttons disabled while updating
     expect(screen.getByRole('button', { name: 'Save title' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Cancel title edit' })).toBeDisabled();
   });

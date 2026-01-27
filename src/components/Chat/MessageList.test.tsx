@@ -2,7 +2,7 @@ import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
 import { MessageList } from './MessageList';
 import type { StreamingMessage } from '../../hooks/useChatMessages';
 
-// Mock the useChatMessages hook
+// mocked hook for chat messages
 const mockUseChatMessages = jest.fn();
 
 // mocked hooks for editable chat header
@@ -19,7 +19,7 @@ jest.mock('../../hooks/AIState', () => ({
   useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
 }));
 
-// Mock child components to isolate MessageList testing
+// mock child components to isolate testing
 jest.mock('./ChatLoading', () => ({
   ChatLoading: () => <div data-testid="chat-loading">Loading...</div>,
 }));
