@@ -8,9 +8,10 @@ jest.mock('./toolResultParsers', () => ({
   parseToolResultToArtifacts: jest.fn(() => []),
 }));
 
-const mockParseToolResultToArtifacts = toolResultParsers.parseToolResultToArtifacts as jest.MockedFunction<
-  typeof toolResultParsers.parseToolResultToArtifacts
->;
+const mockParseToolResultToArtifacts =
+  toolResultParsers.parseToolResultToArtifacts as jest.MockedFunction<
+    typeof toolResultParsers.parseToolResultToArtifacts
+  >;
 
 // Helper to create tool call events
 const createToolCallEvent = (id: string, name: string, args: Record<string, unknown> = {}) => ({
@@ -150,7 +151,9 @@ describe('mergeToolCallsWithResults', () => {
   });
 
   it('calls parseToolResultToArtifacts for completed tool calls', () => {
-    const mockArtifacts = [{ id: 'artifact-1', type: 'widget' as const, widget: {} as never, createdAt: new Date() }];
+    const mockArtifacts = [
+      { id: 'artifact-1', type: 'widget' as const, widget: {} as never, createdAt: new Date() },
+    ];
     mockParseToolResultToArtifacts.mockReturnValue(mockArtifacts);
 
     const toolCalls = [createToolCallEvent('call-1', 'generate_ui', { prompt: 'create button' })];

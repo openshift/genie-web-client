@@ -21,10 +21,9 @@ describe('useThrottle', () => {
     // Set initial time
     jest.setSystemTime(new Date('2024-01-01T00:00:00.000Z'));
 
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 'first' } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 'first' },
+    });
 
     expect(result.current).toBe('first');
 
@@ -39,10 +38,9 @@ describe('useThrottle', () => {
   });
 
   it('delays update when called within throttle interval', () => {
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 'first' } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 'first' },
+    });
 
     expect(result.current).toBe('first');
 
@@ -62,10 +60,9 @@ describe('useThrottle', () => {
   });
 
   it('schedules update for remaining time when partially elapsed', () => {
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 'first' } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 'first' },
+    });
 
     // Advance time partially
     act(() => {
@@ -90,10 +87,9 @@ describe('useThrottle', () => {
     const obj1 = { count: 1 };
     const obj2 = { count: 2 };
 
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: obj1 } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: obj1 },
+    });
 
     expect(result.current).toEqual({ count: 1 });
 
@@ -112,10 +108,9 @@ describe('useThrottle', () => {
   it('works with null values', () => {
     jest.setSystemTime(new Date('2024-01-01T00:00:00.000Z'));
 
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 'initial' as string | null } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 'initial' as string | null },
+    });
 
     expect(result.current).toBe('initial');
 
@@ -131,10 +126,9 @@ describe('useThrottle', () => {
   it('cleans up timeout on unmount', () => {
     const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
 
-    const { rerender, unmount } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 'first' } },
-    );
+    const { rerender, unmount } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 'first' },
+    });
 
     // Trigger a scheduled update
     rerender({ value: 'second' });
@@ -149,10 +143,9 @@ describe('useThrottle', () => {
   });
 
   it('handles rapid value changes correctly', () => {
-    const { result, rerender } = renderHook(
-      ({ value }) => useThrottle(value, 100),
-      { initialProps: { value: 1 } },
-    );
+    const { result, rerender } = renderHook(({ value }) => useThrottle(value, 100), {
+      initialProps: { value: 1 },
+    });
 
     expect(result.current).toBe(1);
 

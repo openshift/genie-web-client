@@ -18,7 +18,7 @@ jest.mock('./AIState', () => ({
 
 // Mock useThrottle to return value immediately for predictable testing
 jest.mock('./useThrottle', () => ({
-  useThrottle: <T,>(value: T) => value,
+  useThrottle: <T>(value: T) => value,
 }));
 
 // Helper to create mock messages with correct shape
@@ -217,10 +217,7 @@ describe('useChatMessages', () => {
     });
 
     it('returns correct index when last message is from user', () => {
-      const messages = [
-        createMessage('1', 'bot', 'Hello'),
-        createMessage('2', 'user', 'Hi!'),
-      ];
+      const messages = [createMessage('1', 'bot', 'Hello'), createMessage('2', 'user', 'Hi!')];
       mockUseMessages.mockReturnValue(messages);
 
       const { result } = renderHook(() => useChatMessages());
@@ -265,10 +262,7 @@ describe('useChatMessages', () => {
     });
 
     it('returns correct index when last message is from bot', () => {
-      const messages = [
-        createMessage('1', 'user', 'Hello'),
-        createMessage('2', 'bot', 'Hi!'),
-      ];
+      const messages = [createMessage('1', 'user', 'Hello'), createMessage('2', 'bot', 'Hi!')];
       mockUseMessages.mockReturnValue(messages);
 
       const { result } = renderHook(() => useChatMessages());
@@ -286,10 +280,7 @@ describe('useChatMessages', () => {
 
       expect(result.current.messages).toEqual(initialMessages);
 
-      const updatedMessages = [
-        ...initialMessages,
-        createMessage('2', 'bot', 'Hi!'),
-      ];
+      const updatedMessages = [...initialMessages, createMessage('2', 'bot', 'Hi!')];
       mockUseMessages.mockReturnValue(updatedMessages);
 
       rerender();
