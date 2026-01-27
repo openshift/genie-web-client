@@ -2,7 +2,7 @@ import { useCallback, type FunctionComponent } from 'react';
 import { Button } from '@patternfly/react-core';
 import { RhUiInformationIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
-import type { ToolCallState } from '../../hooks/useChatMessages';
+import type { ToolCallState } from 'src/utils/toolCallHelpers';
 import { ToolsDrawerContent } from './ToolsDrawerContent';
 import { useTranslation } from 'react-i18next';
 

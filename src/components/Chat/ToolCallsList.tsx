@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import type { ToolCallState } from '../../hooks/useChatMessages';
+import type { ToolCallState } from 'src/utils/toolCallHelpers';
 import { ToolCalls } from './ToolCalls';
 
 export interface ToolCallsListProps {

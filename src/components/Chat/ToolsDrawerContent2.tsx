@@ -1,0 +1,133 @@
+// import { type FunctionComponent } from 'react';
+// import {
+//   Stack,
+//   StackItem,
+//   Divider,
+//   Flex,
+//   FlexItem,
+//   ExpandableSection,
+//   CodeBlock,
+//   CodeBlockCode,
+//   Icon,
+//   Title,
+//   Label,
+// } from '@patternfly/react-core';
+// import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
+// import type { ToolCallState } from '../../hooks/useChatMessages';
+// import { useTranslation } from 'react-i18next';
+
+// export interface ToolsDrawerContentProps {
+//   toolCalls: ToolCallState[];
+// }
+
+// /**
+//  * Format tool name for display (e.g., "resources_list" -> "Resources List")
+//  */
+// const formatToolName = (name: string): string => {
+//   return name
+//     .split('_')
+//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+//     .join(' ');
+// };
+
+// interface ToolItemProps {
+//   toolCall: ToolCallState;
+// }
+
+// /**
+//  * Format tool result for display in the code block.
+//  */
+// const formatResult = (result?: unknown): string => {
+//   if (result === undefined || result === null) {
+//     return 'No result yet';
+//   }
+//   if (typeof result === 'string') {
+//     return result;
+//   }
+//   return JSON.stringify(result, null, 2);
+// };
+
+// /**
+//  * Individual tool item displayed in the drawer.
+//  */
+// const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
+//   const { t } = useTranslation('plugin__genie-web-client');
+//   const isCompleted = toolCall.status === 'success';
+//   const displayName = formatToolName(toolCall.name);
+
+//   const toggleContent = (
+//     <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }} fullWidth={{ default: 'fullWidth' }}>
+//       <FlexItem><div className="icon-stub" /></FlexItem>
+//       <FlexItem grow={{ default: 'grow' }}>{displayName}</FlexItem>
+//     </Flex>
+//   );
+
+//   return (
+//     <ExpandableSection toggleContent={toggleContent}>
+//       <Stack hasGutter>
+//         {toolCall.arguments && (
+//           <StackItem>
+//             <Title headingLevel="h6" size="md">
+//               {t('chat.tools.arguments')}
+//             </Title>
+//             <CodeBlock className="pf-v6-u-mt-sm">
+//               <CodeBlockCode className="drawer-code-block">
+//                 {JSON.stringify(toolCall.arguments, null, 2)}
+//               </CodeBlockCode>
+//             </CodeBlock>
+//           </StackItem>
+//         )}
+//         {isCompleted && toolCall.result !== undefined && (
+//           <StackItem>
+//             <Title headingLevel="h6" size="md">
+//               {t('chat.tools.result')}
+//             </Title>
+//             <CodeBlock className="pf-v6-u-mt-sm">
+//               <CodeBlockCode className="drawer-code-block">
+//                 {formatResult(toolCall.result)}
+//               </CodeBlockCode>
+//             </CodeBlock>
+//           </StackItem>
+//         )}
+//       </Stack>
+//     </ExpandableSection>
+//   );
+// };
+
+// /**
+//  * Drawer content displaying the list of all tool calls used to generate an AI response.
+//  */
+// export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({ toolCalls }) => {
+//   const { t } = useTranslation('plugin__genie-web-client');
+  
+//   return (
+//     <Stack hasGutter className="tools-drawer-content chat-drawer-content">
+//       <StackItem className="chat-drawer-content__header">
+//         <Flex flexWrap={{ default: 'nowrap' }}>
+//           <FlexItem>
+//             <Icon size="heading_2xl" className='chat-drawer-content__header__icon'>
+//               <RhUiAiExperienceIcon />
+//             </Icon>
+//           </FlexItem>
+//           <FlexItem>
+//             <span className="pf-v6-u-font-size-sm">
+//               {t('chat.tools.description')}
+//             </span>
+//           </FlexItem>
+//         </Flex>
+//       </StackItem>
+//       <StackItem>
+//         <Divider />
+//       </StackItem>
+//       <StackItem>
+//         <Flex direction={{ default: 'column' }}>
+//           {toolCalls.map((toolCall) => (
+//             <FlexItem key={toolCall.id}>
+//               <ToolItem toolCall={toolCall} />
+//             </FlexItem>
+//           ))}
+//         </Flex>
+//       </StackItem>
+//     </Stack>
+//   );
+// };

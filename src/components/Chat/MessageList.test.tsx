@@ -7,7 +7,6 @@ const mockUseChatMessages = jest.fn();
 
 jest.mock('../../hooks/useChatMessages', () => ({
   useChatMessages: () => mockUseChatMessages(),
-  getToolCallsFromMessage: () => [],
 }));
 
 // Mock child components to isolate MessageList testing
@@ -205,7 +204,6 @@ describe('<MessageList />', () => {
       const streamingMessage: StreamingMessage = {
         messageId: 'bot-1',
         content: 'Streaming answer...',
-        toolCalls: [],
       };
 
       mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
@@ -247,7 +245,6 @@ describe('<MessageList />', () => {
       const streamingMessage: StreamingMessage = {
         messageId: 'bot-2',
         content: 'Second response',
-        toolCalls: [],
       };
 
       mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({

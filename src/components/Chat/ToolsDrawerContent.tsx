@@ -1,22 +1,20 @@
-import type { FunctionComponent } from 'react';
+import { useState, type FunctionComponent } from 'react';
 import {
   Stack,
   StackItem,
-  Label,
-  Divider,
   Flex,
   FlexItem,
   ExpandableSection,
   CodeBlock,
   CodeBlockCode,
+  Icon,
+  Button,
+  Title,
+  Label,
 } from '@patternfly/react-core';
-import {
-  CheckCircleIcon,
-  InProgressIcon,
-  CubesIcon,
-  RhUiAiExperienceIcon,
-} from '@patternfly/react-icons';
-import type { ToolCallState } from '../../hooks/useChatMessages';
+import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
+import { useTranslation } from 'react-i18next';
+import { ToolCallState } from 'src/utils/toolCallHelpers';
 
 export interface ToolsDrawerContentProps {
   toolCalls: ToolCallState[];
@@ -40,7 +38,9 @@ interface ToolItemProps {
  * Individual tool item displayed in the drawer.
  */
 const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
-  const isCompleted = toolCall.status === 'completed';
+  const { t } = useTranslation('plugin__genie-web-client');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isCompleted = toolCall.status === 'success';
   const displayName = formatToolName(toolCall.name);
 
   const formatResult = (result?: unknown): string => {
@@ -53,50 +53,67 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
     return JSON.stringify(result, null, 2);
   };
 
+  const hasDetails = toolCall.arguments || (isCompleted && toolCall.result !== undefined);
+  const toggleId = `tool-details-toggle-${toolCall.id}`;
+  const contentId = `tool-details-content-${toolCall.id}`;
+
   return (
-    <Stack hasGutter>
-      <StackItem>
-        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
-          <FlexItem>
-            <CubesIcon />
-          </FlexItem>
-          <FlexItem grow={{ default: 'grow' }}>
-            <strong>{displayName}</strong>
-          </FlexItem>
-          <FlexItem>
-            {isCompleted ? (
-              <Label color="green" icon={<CheckCircleIcon />} isCompact>
-                Completed
-              </Label>
-            ) : (
-              <Label color="blue" icon={<InProgressIcon />} isCompact>
-                Running
-              </Label>
+    <div className="tool-item drawer-item">
+      <div className="icon-stub" />
+      <span className="drawer-item__align-center pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">
+        {displayName}
+      </span>
+      <Label isCompact>1s</Label>
+      {hasDetails && (
+        <Button
+          isInline
+          variant="tertiary"
+          className="drawer-item__col-2-span"
+          id={toggleId}
+          aria-expanded={isExpanded}
+          aria-controls={contentId}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? t('chat.tools.hideDetails') : t('chat.tools.details')}
+        </Button>
+      )}
+      {hasDetails && (
+        <ExpandableSection
+          isExpanded={isExpanded}
+          isDetached
+          toggleId={toggleId}
+          contentId={contentId}
+          className="drawer-item__col-2-span"
+        >
+          <Stack hasGutter>
+            {toolCall.arguments && (
+              <StackItem>
+                <Title headingLevel="h6" size="md">
+                  {t('chat.tools.arguments')}
+                </Title>
+                <CodeBlock className="pf-v6-u-mt-sm">
+                  <CodeBlockCode className="drawer-code-block">
+                    {JSON.stringify(toolCall.arguments, null, 2)}
+                  </CodeBlockCode>
+                </CodeBlock>
+              </StackItem>
             )}
-          </FlexItem>
-        </Flex>
-      </StackItem>
-
-      {toolCall.arguments ? (
-        <StackItem>
-          <ExpandableSection toggleText="Arguments" isIndented>
-            <CodeBlock>
-              <CodeBlockCode>{JSON.stringify(toolCall.arguments, null, 2)}</CodeBlockCode>
-            </CodeBlock>
-          </ExpandableSection>
-        </StackItem>
-      ) : null}
-
-      {isCompleted && toolCall.result !== undefined ? (
-        <StackItem>
-          <ExpandableSection toggleText="Result" isIndented>
-            <CodeBlock>
-              <CodeBlockCode>{formatResult(toolCall.result)}</CodeBlockCode>
-            </CodeBlock>
-          </ExpandableSection>
-        </StackItem>
-      ) : null}
-    </Stack>
+            {isCompleted && toolCall.result !== undefined && (
+              <StackItem>
+                <Title headingLevel="h6" size="md">
+                  {t('chat.tools.result')}
+                </Title>
+                <CodeBlock className="pf-v6-u-mt-sm">
+                  <CodeBlockCode className="drawer-code-block">
+                    {formatResult(toolCall.result)}
+                  </CodeBlockCode>
+                </CodeBlock>
+              </StackItem>
+            )}
+          </Stack>
+        </ExpandableSection>
+      )}
+    </div>
   );
 };
 
@@ -104,26 +121,27 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
  * Drawer content displaying the list of all tool calls used to generate an AI response.
  */
 export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({ toolCalls }) => {
+  const { t } = useTranslation('plugin__genie-web-client');
+  
   return (
-    <Stack hasGutter>
-      <StackItem>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '12px', alignItems: 'flex-start' }}>
-          <RhUiAiExperienceIcon style={{ fontSize: '24px', flexShrink: 0 }} />
-          <p className="pf-v6-u-font-size-sm" style={{ margin: 0 }}>
-            The following tools were used to generate this AI response and assist in providing
-            supporting information:
-          </p>
-        </div>
+    <Stack hasGutter className="tools-drawer-content chat-drawer-content">
+      <StackItem className="chat-drawer-content__header">
+        <Flex flexWrap={{ default: 'nowrap' }}>
+          <FlexItem>
+            <Icon size="heading_2xl" className='chat-drawer-content__header__icon'>
+              <RhUiAiExperienceIcon />
+            </Icon>
+          </FlexItem>
+          <FlexItem>
+            <span className="pf-v6-u-font-size-sm">
+              {t('chat.tools.description')}
+            </span>
+          </FlexItem>
+        </Flex>
       </StackItem>
-
-      <StackItem>
-        <Divider />
-      </StackItem>
-
       {toolCalls.map((toolCall) => (
         <StackItem key={toolCall.id}>
           <ToolItem toolCall={toolCall} />
-          <Divider className="pf-v6-u-mt-md" />
         </StackItem>
       ))}
     </Stack>

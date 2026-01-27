@@ -13,7 +13,8 @@ import {
 } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import type { Message as MessageType } from '../../hooks/AIState';
-import type { ToolCallState } from '../../hooks/useChatMessages';
+import { getToolCallsFromMessage } from '../../hooks/useChatMessages';
+import type { ToolCallState } from 'src/utils/toolCallHelpers';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
@@ -24,7 +25,6 @@ export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
   onQuickResponse: (text: string) => void;
   isStreaming?: boolean;
-  toolCalls?: ToolCallState[];
   // TODO: Add these handlers when implementing AI message actions
   // onRegenerate?: (messageId: string) => void;
   // onCopy?: (content: string) => void;
@@ -38,19 +38,20 @@ export interface AIMessageProps {
  */
 function collectArtifactsFromToolCalls(toolCalls: ToolCallState[]): Artifact[] {
   return toolCalls
-    .filter((call) => call.status === 'completed' && call.artifacts)
+    .filter((call) => call.status === 'success' && call.artifacts)
     .flatMap((call) => call.artifacts || []);
 }
 
 export const AIMessage: FunctionComponent<AIMessageProps> = memo(
-  ({ message, onQuickResponse, isStreaming = false, toolCalls = [] }) => {
+  ({ message, onQuickResponse, isStreaming = false }) => {
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
 
-    // Extract quick responses and sources from message additionalAttributes
+    // Extract quick responses, referenced documents, and tool calls from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
     const referencedDocuments = (additionalAttrs?.referencedDocuments ?? []) as ReferencedDocument[];
+    const toolCalls = getToolCallsFromMessage(message);
 
     const handleCopy = useCallback((): void => {
       navigator.clipboard.writeText(content);
@@ -175,8 +176,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     return (
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.message.answer === nextProps.message.answer &&
-      prevProps.message.date === nextProps.message.date &&
-      prevProps.toolCalls === nextProps.toolCalls // Shallow reference check is sufficient
+      prevProps.message.date === nextProps.message.date
     );
   },
 );

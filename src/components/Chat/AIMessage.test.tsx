@@ -95,7 +95,7 @@ describe('<AIMessage />', () => {
     it('does not pass null beforeMainContent when toolCalls is empty', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} toolCalls={[]} />);
+      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       // Component renders without ToolCallsList when toolCalls is empty
