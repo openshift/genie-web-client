@@ -19,8 +19,8 @@ import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
 import { ToolCalls } from './ToolCalls';
-import { Sources, type ReferencedDocument } from './Sources';
-
+import { Sources } from './Sources';
+import { ReferencedDocument } from 'src/hooks/AIState';
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
   onQuickResponse: (text: string) => void;

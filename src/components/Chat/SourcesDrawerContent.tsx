@@ -7,7 +7,7 @@ import {
   Icon,
 } from '@patternfly/react-core';
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
-import type { ReferencedDocument } from './Sources';
+import { ReferencedDocument } from 'src/hooks/AIState';
 import './SourcesDrawerContent.css';
 import { useTranslation } from 'react-i18next';
 
