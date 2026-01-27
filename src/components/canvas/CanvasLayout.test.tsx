@@ -27,9 +27,7 @@ describe('CanvasLayout', () => {
     expect(
       toolbar.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    expect(
-      content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('applies correct CSS classes to layout sections', () => {
@@ -47,4 +45,3 @@ describe('CanvasLayout', () => {
     await checkAccessibility(container);
   });
 });
-
