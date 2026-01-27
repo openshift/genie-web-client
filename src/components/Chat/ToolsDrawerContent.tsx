@@ -9,8 +9,6 @@ import {
   CodeBlockCode,
   Icon,
   Button,
-  Title,
-  Label,
 } from '@patternfly/react-core';
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
@@ -63,7 +61,6 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
       <span className="drawer-item__align-center pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">
         {displayName}
       </span>
-      <Label isCompact>1s</Label>
       {hasDetails && (
         <Button
           isInline
@@ -88,9 +85,9 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
           <Stack hasGutter>
             {toolCall.arguments && (
               <StackItem>
-                <Title headingLevel="h6" size="md">
+                <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">
                   {t('chat.tools.arguments')}
-                </Title>
+                </span>
                 <CodeBlock className="pf-v6-u-mt-sm">
                   <CodeBlockCode className="drawer-code-block">
                     {JSON.stringify(toolCall.arguments, null, 2)}
@@ -100,9 +97,9 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
             )}
             {isCompleted && toolCall.result !== undefined && (
               <StackItem>
-                <Title headingLevel="h6" size="md">
+                <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">
                   {t('chat.tools.result')}
-                </Title>
+                </span>
                 <CodeBlock className="pf-v6-u-mt-sm">
                   <CodeBlockCode className="drawer-code-block">
                     {formatResult(toolCall.result)}
