@@ -6,11 +6,14 @@ import {
   CompassHeader,
   CompassPanel,
   CompassMessageBar,
+  Drawer,
   DrawerActions,
   DrawerCloseButton,
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  DrawerContent,
+  DrawerContentBody,
   CompassContent,
   CompassMainFooter,
   Icon,
@@ -31,7 +34,6 @@ import { UserAccountMenu } from '../user-account';
 import { AppMenu } from './AppMenu';
 import './Layout.css';
 import { useDrawer } from '../drawer';
-import { RenderCounter } from './RenderTest';
 
 const PF_GLASS_THEME_CLASS = 'pf-v6-theme-glass';
 
@@ -68,7 +70,7 @@ export const Layout = ({ children }: LayoutProps) => {
       nav={<LayoutNav />}
       profile={
         <>
-          <AppMenu /> 
+          <AppMenu />
           <UserAccountMenu />
         </>
       }
@@ -86,7 +88,7 @@ export const Layout = ({ children }: LayoutProps) => {
     </CompassMainFooter>
   );
 
-  const drawerContent = drawerState.isOpen ? (
+  const panelContent = (
     <DrawerPanelContent>
       <DrawerHead>
         <div className="drawer-heading">
@@ -101,34 +103,37 @@ export const Layout = ({ children }: LayoutProps) => {
       </DrawerHead>
       <DrawerPanelBody>{drawerState.children}</DrawerPanelBody>
     </DrawerPanelContent>
-  ) : undefined;
+  );
 
   return (
-    <Compass
-      className="genie-layout"
-      header={header}
-      isHeaderExpanded={true}
-      sidebarStart={<LayoutSidebarStart />}
-      sidebarEnd={<LayoutSidebarEnd />}
-      main={
-        <CompassContent>
-            <RenderCounter label="Main Content In Layout" />
-          <Outlet />
-        </CompassContent>
-      }
-      footer={footer}
-      isFooterExpanded={showChatBar}
-      drawerContent={drawerContent}
-      drawerProps={{
-        isPill: true,
-        isExpanded: drawerState.isOpen,
-        position: drawerState.position,
-        className: 'genie-drawer',
-      }}
-      backgroundSrcLight={CompassBgLight}
-      backgroundSrcDark={CompassBgDark}
+    <Drawer
+      isExpanded={drawerState.isOpen}
+      position={drawerState.position}
+      className={'genie-drawer'}
+      isPill
     >
-      {children}
-    </Compass>
+      <DrawerContent panelContent={panelContent}>
+        <DrawerContentBody>
+          <Compass
+            className="genie-layout"
+            header={header}
+            isHeaderExpanded={true}
+            sidebarStart={<LayoutSidebarStart />}
+            sidebarEnd={<LayoutSidebarEnd />}
+            main={
+              <CompassContent>
+                <Outlet />
+              </CompassContent>
+            }
+            footer={footer}
+            isFooterExpanded={showChatBar}
+            backgroundSrcLight={CompassBgLight}
+            backgroundSrcDark={CompassBgDark}
+          >
+            {children}
+          </Compass>
+        </DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
   );
 };
