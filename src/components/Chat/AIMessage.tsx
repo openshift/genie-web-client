@@ -54,7 +54,8 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     // Extract quick responses, referenced documents, and tool calls from message additionalAttributes.
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
-    const referencedDocuments = (additionalAttrs?.referencedDocuments ?? []) as ReferencedDocument[];
+    const referencedDocuments = (additionalAttrs?.referencedDocuments ??
+      []) as ReferencedDocument[];
     const toolCalls = getToolCallsFromMessage(message);
 
     const handleCopy = useCallback((): void => {
@@ -122,7 +123,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           onClick: handleReport,
           tooltipContent: 'Report',
           clickedAriaLabel: 'Reported',
-          clickedTooltipContent: 'Reported'
+          clickedTooltipContent: 'Reported',
         },
       }),
       [handleCopy, handleRegenerate, handleFeedback, handleShare, handleReadAloud, handleReport],
@@ -168,7 +169,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     return (
       <Message
-        name='Genie'
+        name="Genie"
         isLoading={showLoading}
         role="bot"
         content={content}

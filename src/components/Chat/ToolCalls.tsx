@@ -24,8 +24,13 @@ export const ToolCalls: FunctionComponent<ToolCallsProps> = ({ toolCalls }) => {
   }, [openDrawer, toolCalls, t]);
 
   return (
-    <Button variant="link" onClick={handleClick} icon={<RhUiInformationIcon />} aria-label={t('chat.tools.ariaLabel')}>
-      {t('chat.tools')} 
+    <Button
+      variant="link"
+      onClick={handleClick}
+      icon={<RhUiInformationIcon />}
+      aria-label={t('chat.tools.ariaLabel')}
+    >
+      {t('chat.tools')}
     </Button>
   );
 };

@@ -14,11 +14,9 @@
         color: inherit;
         border-radius: var(--pf-t--global--border--radius--small);
         transition: background-color var(--pf-t--global--motion-duration--default) var(--pf-t--global--motion-timing-function--default);
-
         display: grid;
         grid-template-columns: auto 1fr;
-        row-gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2);
-        column-gap: var(--pf-v6-l-grid--m-gutter--GridGap);
+        gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2) var(--pf-v6-l-grid--m-gutter--GridGap);
 
         .source-item__title {
             grid-column-start: 2;

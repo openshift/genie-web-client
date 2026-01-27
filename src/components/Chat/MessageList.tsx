@@ -16,7 +16,8 @@ const STUB_REFERENCED_DOCUMENTS = [
     doc_title: 'Red Hat OpenShift Documentation: Understanding OpenShift builds',
   },
   {
-    doc_url: 'https://docs.redhat.com/en/documentation/openshift_container_platform/troubleshooting',
+    doc_url:
+      'https://docs.redhat.com/en/documentation/openshift_container_platform/troubleshooting',
     doc_title: 'KCS Article #6985012: Troubleshooting CrashLoopBackOff',
   },
   {
@@ -42,8 +43,15 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = React.memo(
   // eslint-disable-next-line react/prop-types
   ({ isLoading, isValidConversationId }) => {
-    const { messages, streamingMessage, isStreaming, lastUserMessageIndex, lastBotMessageIndex, sendMessage } = useChatMessages();
-    
+    const {
+      messages,
+      streamingMessage,
+      isStreaming,
+      lastUserMessageIndex,
+      lastBotMessageIndex,
+      sendMessage,
+    } = useChatMessages();
+
     const bottomRef = useRef<HTMLDivElement>(null);
 
     const renderedMessages = useMemo(() => {
@@ -85,7 +93,14 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
           />
         );
       });
-    }, [messages, isStreaming, sendMessage, streamingMessage, lastUserMessageIndex, lastBotMessageIndex]);
+    }, [
+      messages,
+      isStreaming,
+      sendMessage,
+      streamingMessage,
+      lastUserMessageIndex,
+      lastBotMessageIndex,
+    ]);
 
     return (
       <MessageBox>

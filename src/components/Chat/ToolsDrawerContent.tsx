@@ -118,20 +118,18 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
  */
 export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({ toolCalls }) => {
   const { t } = useTranslation('plugin__genie-web-client');
-  
+
   return (
     <Stack hasGutter className="tools-drawer-content chat-drawer-content">
       <StackItem className="chat-drawer-content__header">
         <Flex flexWrap={{ default: 'nowrap' }}>
           <FlexItem>
-            <Icon size="heading_2xl" className='chat-drawer-content__header__icon'>
+            <Icon size="heading_2xl" className="chat-drawer-content__header__icon">
               <RhUiAiExperienceIcon />
             </Icon>
           </FlexItem>
           <FlexItem>
-            <span className="pf-v6-u-font-size-sm">
-              {t('chat.tools.description')}
-            </span>
+            <span className="pf-v6-u-font-size-sm">{t('chat.tools.description')}</span>
           </FlexItem>
         </Flex>
       </StackItem>

@@ -1,11 +1,5 @@
 import { type FunctionComponent } from 'react';
-import {
-  Stack,
-  StackItem,
-  Flex,
-  FlexItem,
-  Icon,
-} from '@patternfly/react-core';
+import { Stack, StackItem, Flex, FlexItem, Icon } from '@patternfly/react-core';
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { ReferencedDocument } from 'src/hooks/AIState';
 import './SourcesDrawerContent.css';
@@ -31,9 +25,7 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
       className="source-item drawer-item"
     >
       <img src={faviconUrl} alt="" className="source-item__favicon" />
-      <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">
-        {hostname}
-      </span>
+      <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">{hostname}</span>
       <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold drawer-item__col-2 ">
         {source.doc_title}
       </span>
@@ -48,14 +40,12 @@ export const SourcesDrawerContent: FunctionComponent<SourcesDrawerContentProps> 
       <StackItem className="chat-drawer-content__header">
         <Flex flexWrap={{ default: 'nowrap' }}>
           <FlexItem>
-            <Icon size="heading_2xl" className='chat-drawer-content__header__icon'>
+            <Icon size="heading_2xl" className="chat-drawer-content__header__icon">
               <RhUiAiExperienceIcon />
             </Icon>
           </FlexItem>
           <FlexItem>
-            <span className="pf-v6-u-font-size-sm">
-              {t('chat.sources.description')}
-            </span>
+            <span className="pf-v6-u-font-size-sm">{t('chat.sources.description')}</span>
           </FlexItem>
         </Flex>
       </StackItem>

@@ -41,10 +41,8 @@
     .drawer-item {
         display: grid;
         grid-template-columns: auto 1fr auto;
-        row-gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2);
-        column-gap: var(--pf-v6-l-grid--m-gutter--GridGap);
+        gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2) var(--pf-v6-l-grid--m-gutter--GridGap);
         justify-items: start;
-
         padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
     }
 

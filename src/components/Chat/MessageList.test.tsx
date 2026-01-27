@@ -47,13 +47,15 @@ jest.mock('./AIMessage', () => ({
 }));
 
 // Helper to create default mock return value
-const createMockChatMessagesReturn = (overrides: {
-  messages?: Array<{ id: string; role: string; answer: string; date: Date }>;
-  streamingMessage?: StreamingMessage | null;
-  isStreaming?: boolean;
-  lastUserMessageIndex?: number;
-  lastBotMessageIndex?: number;
-} = {}) => ({
+const createMockChatMessagesReturn = (
+  overrides: {
+    messages?: Array<{ id: string; role: string; answer: string; date: Date }>;
+    streamingMessage?: StreamingMessage | null;
+    isStreaming?: boolean;
+    lastUserMessageIndex?: number;
+    lastBotMessageIndex?: number;
+  } = {},
+) => ({
   messages: [],
   streamingMessage: null,
   isStreaming: false,
@@ -79,10 +81,12 @@ describe('<MessageList />', () => {
     });
 
     it('does not show ChatLoading when isLoading is true but messages exist', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [{ id: '1', role: 'user', answer: 'Hello', date: new Date() }],
-        lastUserMessageIndex: 0,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [{ id: '1', role: 'user', answer: 'Hello', date: new Date() }],
+          lastUserMessageIndex: 0,
+        }),
+      );
 
       render(<MessageList isLoading={true} isValidConversationId={true} />);
 
@@ -114,10 +118,12 @@ describe('<MessageList />', () => {
 
   describe('Message Rendering', () => {
     it('renders user messages using UserMessage component', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [{ id: 'user-1', role: 'user', answer: 'Hello there', date: new Date() }],
-        lastUserMessageIndex: 0,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [{ id: 'user-1', role: 'user', answer: 'Hello there', date: new Date() }],
+          lastUserMessageIndex: 0,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -126,10 +132,12 @@ describe('<MessageList />', () => {
     });
 
     it('renders bot messages using AIMessage component', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [{ id: 'bot-1', role: 'bot', answer: 'Hi, how can I help?', date: new Date() }],
-        lastBotMessageIndex: 0,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [{ id: 'bot-1', role: 'bot', answer: 'Hi, how can I help?', date: new Date() }],
+          lastBotMessageIndex: 0,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -138,15 +146,17 @@ describe('<MessageList />', () => {
     });
 
     it('renders multiple messages in order', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [
-          { id: 'user-1', role: 'user', answer: 'First message', date: new Date() },
-          { id: 'bot-1', role: 'bot', answer: 'Second message', date: new Date() },
-          { id: 'user-2', role: 'user', answer: 'Third message', date: new Date() },
-        ],
-        lastUserMessageIndex: 2,
-        lastBotMessageIndex: 1,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            { id: 'user-1', role: 'user', answer: 'First message', date: new Date() },
+            { id: 'bot-1', role: 'bot', answer: 'Second message', date: new Date() },
+            { id: 'user-2', role: 'user', answer: 'Third message', date: new Date() },
+          ],
+          lastUserMessageIndex: 2,
+          lastBotMessageIndex: 1,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -167,15 +177,17 @@ describe('<MessageList />', () => {
 
   describe('Last User Message Detection', () => {
     it('marks the last user message with isLastUserMessage=true', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [
-          { id: 'user-1', role: 'user', answer: 'First', date: new Date() },
-          { id: 'bot-1', role: 'bot', answer: 'Response', date: new Date() },
-          { id: 'user-2', role: 'user', answer: 'Second', date: new Date() },
-        ],
-        lastUserMessageIndex: 2,
-        lastBotMessageIndex: 1,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            { id: 'user-1', role: 'user', answer: 'First', date: new Date() },
+            { id: 'bot-1', role: 'bot', answer: 'Response', date: new Date() },
+            { id: 'user-2', role: 'user', answer: 'Second', date: new Date() },
+          ],
+          lastUserMessageIndex: 2,
+          lastBotMessageIndex: 1,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -187,10 +199,12 @@ describe('<MessageList />', () => {
     });
 
     it('marks single user message as last user message', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [{ id: 'user-1', role: 'user', answer: 'Only user message', date: new Date() }],
-        lastUserMessageIndex: 0,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [{ id: 'user-1', role: 'user', answer: 'Only user message', date: new Date() }],
+          lastUserMessageIndex: 0,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -206,16 +220,18 @@ describe('<MessageList />', () => {
         content: 'Streaming answer...',
       };
 
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [
-          { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
-          { id: 'bot-1', role: 'bot', answer: 'Streaming answer...', date: new Date() },
-        ],
-        streamingMessage,
-        isStreaming: true,
-        lastUserMessageIndex: 0,
-        lastBotMessageIndex: 1,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+            { id: 'bot-1', role: 'bot', answer: 'Streaming answer...', date: new Date() },
+          ],
+          streamingMessage,
+          isStreaming: true,
+          lastUserMessageIndex: 0,
+          lastBotMessageIndex: 1,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -225,15 +241,17 @@ describe('<MessageList />', () => {
     });
 
     it('passes isStreaming=false to bot messages when not streaming', () => {
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [
-          { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
-          { id: 'bot-1', role: 'bot', answer: 'Answer', date: new Date() },
-        ],
-        isStreaming: false,
-        lastUserMessageIndex: 0,
-        lastBotMessageIndex: 1,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+            { id: 'bot-1', role: 'bot', answer: 'Answer', date: new Date() },
+          ],
+          isStreaming: false,
+          lastUserMessageIndex: 0,
+          lastBotMessageIndex: 1,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 
@@ -247,17 +265,19 @@ describe('<MessageList />', () => {
         content: 'Second response',
       };
 
-      mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({
-        messages: [
-          { id: 'bot-1', role: 'bot', answer: 'First response', date: new Date() },
-          { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
-          { id: 'bot-2', role: 'bot', answer: 'Second response', date: new Date() },
-        ],
-        streamingMessage,
-        isStreaming: true,
-        lastUserMessageIndex: 1,
-        lastBotMessageIndex: 2,
-      }));
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            { id: 'bot-1', role: 'bot', answer: 'First response', date: new Date() },
+            { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+            { id: 'bot-2', role: 'bot', answer: 'Second response', date: new Date() },
+          ],
+          streamingMessage,
+          isStreaming: true,
+          lastUserMessageIndex: 1,
+          lastBotMessageIndex: 2,
+        }),
+      );
 
       render(<MessageList isLoading={false} isValidConversationId={true} />);
 

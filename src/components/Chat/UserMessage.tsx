@@ -19,7 +19,7 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
       const date = message.date ?? new Date();
       return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }, [message.date]);
-    
+
     const handleEdit = useCallback((): void => {
       // ...regenerate the bot's last response
     }, []);
@@ -46,7 +46,9 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
       [isLastUserMessage, copyAction, editAction],
     );
 
-    return <Message name='You' role="user" content={content} timestamp={timestamp} actions={actions} />;
+    return (
+      <Message name="You" role="user" content={content} timestamp={timestamp} actions={actions} />
+    );
   },
   (prevProps, nextProps) =>
     prevProps.isLastUserMessage === nextProps.isLastUserMessage &&
