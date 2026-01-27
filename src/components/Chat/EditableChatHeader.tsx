@@ -1,4 +1,6 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom-v5-compat';
+import { useTranslation } from 'react-i18next';
 import {
   ChatbotHeader,
   ChatbotHeaderMain,
@@ -8,119 +10,190 @@ import {
 import {
   ActionList,
   ActionListItem,
+  Alert,
+  AlertVariant,
   Button,
   DropdownItem,
   DropdownList,
+  Spinner,
   TextInputGroup,
   TextInputGroupMain,
   Tooltip,
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
+import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
 
 export const EditableChatHeader: React.FC = () => {
+  const { conversationId } = useParams<{ conversationId: string }>();
+  const { t } = useTranslation('plugin__genie-web-client');
+  const activeConversation = useActiveConversation();
+  const { updateTitle, isUpdating, error: apiError, clearError } = useUpdateConversationTitle();
+
   const [isEditing, setIsEditing] = useState(false);
-  // TODO: Get title from API
-  const [title, setTitle] = useState<string>('Chat title');
-  const [error, setError] = useState<string | undefined>();
+  const [title, setTitle] = useState<string>('');
+  const [validationError, setValidationError] = useState<string | undefined>();
+  const [localError, setLocalError] = useState<string | null>(null);
   const originalTitleRef = useRef<string>(title);
+
+  // Sync title with active conversation
+  useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+    if (activeConversation?.title) {
+      setTitle(activeConversation.title);
+    } else {
+      // Fallback for null/empty topic_summary
+      setTitle(t('chat.defaultTitle'));
+    }
+  }, [activeConversation?.title, isEditing, t]);
 
   const onEditClick = () => {
     originalTitleRef.current = title;
     setIsEditing(true);
+    clearError();
+    setLocalError(null);
   };
 
   const handleInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setTitle(value);
-    if (error && value.trim()) {
-      setError(undefined);
+    if (validationError && value.trim()) {
+      setValidationError(undefined);
+    }
+    if (apiError) {
+      clearError();
+    }
+    if (localError) {
+      setLocalError(null);
     }
   };
 
+  const handleSave = async () => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setValidationError(t('chat.header.error.emptyTitle'));
+      return;
+    }
+
+    if (!conversationId) {
+      setLocalError(t('chat.header.error.missingConversationId'));
+      return;
+    }
+
+    try {
+      await updateTitle(conversationId, trimmedTitle);
+      setIsEditing(false);
+      setValidationError(undefined);
+      setLocalError(null);
+    } catch (error) {
+      // Error is handled by the hook, we just stay in edit mode
+      console.error('Failed to update title:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setTitle(originalTitleRef.current);
+    setValidationError(undefined);
+    clearError();
+    setLocalError(null);
+  };
+
   return (
-    <ChatbotHeader>
-      <ChatbotHeaderMain>
-        <span className="chat-header-icon">
-          <RhStandardThoughtBubbleIcon />
-        </span>
-        {isEditing ? (
-          <Tooltip trigger="manual" isVisible={!!error} position="top" content={error}>
-            <>
-              <TextInputGroup>
-                <TextInputGroupMain
-                  value={title}
-                  onChange={handleInputChange}
-                  aria-label="Edit conversation title"
-                  aria-invalid={!!error}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const next = title.trim();
-                      if (!next) {
-                        setError('Title cannot be empty.');
-                        return;
+    <>
+      {(apiError || localError) && (
+        <Alert
+          variant={AlertVariant.danger}
+          title={t('chat.header.error.updateFailed')}
+          isInline
+          className="pf-v6-u-mb-md"
+        >
+          {localError || apiError}
+        </Alert>
+      )}
+      <ChatbotHeader>
+        <ChatbotHeaderMain>
+          <span className="chat-header-icon">
+            <RhStandardThoughtBubbleIcon />
+          </span>
+          {isEditing ? (
+            <Tooltip
+              trigger="manual"
+              isVisible={!!validationError}
+              position="top"
+              content={validationError}
+            >
+              <>
+                <TextInputGroup>
+                  <TextInputGroupMain
+                    value={title}
+                    onChange={handleInputChange}
+                    aria-label="Edit conversation title"
+                    aria-invalid={!!validationError}
+                    disabled={isUpdating}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSave();
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCancel();
                       }
-                      setIsEditing(false);
-                    }
-                  }}
-                />
-              </TextInputGroup>
-              <ActionList isIconList>
-                <ActionListItem>
-                  <Button
-                    variant="plain"
-                    aria-label="Cancel title edit"
-                    icon={<TimesIcon />}
-                    onClick={() => {
-                      setIsEditing(false);
-                      setTitle(originalTitleRef.current);
-                      setError(undefined);
                     }}
                   />
-                </ActionListItem>
-                <ActionListItem>
-                  <Button
-                    variant="plain"
-                    aria-label="Save title"
-                    icon={<CheckIcon />}
-                    onClick={() => {
-                      const next = title.trim();
-                      if (!next) {
-                        setError('Title cannot be empty.');
-                        return;
-                      }
-                      setIsEditing(false);
-                    }}
-                  />
-                </ActionListItem>
-              </ActionList>
-            </>
-          </Tooltip>
-        ) : (
-          <Button
-            variant="plain"
-            isInline
-            onClick={onEditClick}
-            aria-label="Edit conversation title"
-          >
-            {title}
-          </Button>
-        )}
-      </ChatbotHeaderMain>
-      <ChatbotHeaderActions>
-        {!isEditing && (
-          <ChatbotHeaderOptionsDropdown
-            isCompact
-            tooltipProps={{ content: 'More actions' }}
-            toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
-          >
-            <DropdownList>
-              <DropdownItem value="rename" onClick={onEditClick}>
-                Rename
-              </DropdownItem>
-            </DropdownList>
-          </ChatbotHeaderOptionsDropdown>
-        )}
-      </ChatbotHeaderActions>
-    </ChatbotHeader>
+                </TextInputGroup>
+                <ActionList isIconList>
+                  <ActionListItem>
+                    <Button
+                      variant="plain"
+                      aria-label="Cancel title edit"
+                      icon={<TimesIcon />}
+                      onClick={handleCancel}
+                      isDisabled={isUpdating}
+                    />
+                  </ActionListItem>
+                  <ActionListItem>
+                    <Button
+                      variant="plain"
+                      aria-label="Save title"
+                      icon={isUpdating ? <Spinner size="md" /> : <CheckIcon />}
+                      onClick={handleSave}
+                      isDisabled={isUpdating}
+                    />
+                  </ActionListItem>
+                </ActionList>
+              </>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="plain"
+              isInline
+              onClick={onEditClick}
+              aria-label="Edit conversation title"
+            >
+              {title}
+            </Button>
+          )}
+        </ChatbotHeaderMain>
+        <ChatbotHeaderActions>
+          {!isEditing && (
+            <ChatbotHeaderOptionsDropdown
+              isCompact
+              tooltipProps={{ content: t('chat.header.moreActions') }}
+              toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
+            >
+              <DropdownList>
+                <DropdownItem value="rename" onClick={onEditClick}>
+                  {t('chat.rename')}
+                </DropdownItem>
+              </DropdownList>
+            </ChatbotHeaderOptionsDropdown>
+          )}
+        </ChatbotHeaderActions>
+      </ChatbotHeader>
+    </>
   );
 };
 
