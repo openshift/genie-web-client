@@ -23,4 +23,3 @@ export const LayoutMessageBar: FC<LayoutMessageBarProps> = ({ messageBarRef }) =
 
   return <MessageBar ref={messageBarRef} onSendMessage={handleSendMessage} />;
 };
-

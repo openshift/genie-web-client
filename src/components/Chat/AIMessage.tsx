@@ -21,6 +21,8 @@ import { toMessageQuickResponses } from '../new-chat/suggestions';
 import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
+import { useBadResponseModal } from './feedback/BadResponseModal';
+
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
   onQuickResponse: (text: string) => void;
@@ -47,7 +49,9 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
 
-    // Extract quick responses, referenced documents, and tool calls from message additionalAttributes
+    const { badResponseModalToggle } = useBadResponseModal();
+
+    // Extract quick responses, referenced documents, and tool calls from message additionalAttributes.
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
     const referencedDocuments = (additionalAttrs?.referencedDocuments ?? []) as ReferencedDocument[];
@@ -61,9 +65,17 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       console.log('Regenerate');
     }, []);
 
-    const handleFeedback = useCallback((isPositive: boolean): void => {
-      console.log('Feedback', isPositive);
-    }, []);
+    const handleFeedback = useCallback(
+      (isPositive: boolean): void => {
+        if (isPositive) {
+          console.log('Positive feedback');
+          return;
+        } else {
+          badResponseModalToggle(message);
+        }
+      },
+      [badResponseModalToggle, message],
+    );
 
     const handleShare = useCallback((): void => {
       console.log('Share');

@@ -50,6 +50,12 @@ jest.mock('./MessageList', () => ({
   },
 }));
 
+// Mock BadResponseModal to avoid useActiveConversation bug
+jest.mock('./feedback/BadResponseModal', () => ({
+  BadResponseModalProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  BadResponseModal: () => null,
+}));
+
 describe('Chat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
