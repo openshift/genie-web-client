@@ -9,7 +9,9 @@ const mockUseSendMessage = jest.fn();
 const mockUseSendStreamMessage = jest.fn();
 const mockUseStreamChunk = jest.fn();
 const mockUseInProgress = jest.fn();
+const mockUseActiveConversation = jest.fn();
 const mockUseParams = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
@@ -18,11 +20,13 @@ jest.mock('../../hooks/AIState', () => ({
   useSendStreamMessage: () => mockUseSendStreamMessage(),
   useStreamChunk: () => mockUseStreamChunk(),
   useInProgress: () => mockUseInProgress(),
+  useActiveConversation: () => mockUseActiveConversation(),
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
   ...jest.requireActual('react-router-dom-v5-compat'),
   useParams: () => mockUseParams(),
+  useNavigate: () => mockNavigate,
 }));
 
 // Mock MessageList to isolate Chat component testing
@@ -64,7 +68,9 @@ describe('Chat', () => {
     mockUseSendStreamMessage.mockReturnValue(jest.fn());
     mockUseStreamChunk.mockReturnValue(undefined);
     mockUseInProgress.mockReturnValue(false);
+    mockUseActiveConversation.mockReturnValue(null);
     mockUseParams.mockReturnValue({});
+    mockNavigate.mockClear();
   });
 
   const renderChat = () => {
@@ -318,6 +324,124 @@ describe('Chat', () => {
 
       // MessageList should render since isValidConversationId defaults to true
       expect(screen.getByTestId('message-list')).toBeInTheDocument();
+    });
+  });
+
+  describe('URL Update with ConversationId', () => {
+    it('updates URL with conversationId when new conversation starts and URL has no conversationId', async () => {
+      mockUseParams.mockReturnValue({});
+      mockUseActiveConversation.mockReturnValue({
+        id: 'new-conversation-123',
+        messages: [],
+      });
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/genie/chat/new-conversation-123', {
+          replace: true,
+        });
+      });
+    });
+
+    it('does not update URL when conversationId is already in URL', () => {
+      mockUseParams.mockReturnValue({ conversationId: 'existing-conversation-123' });
+      mockUseActiveConversation.mockReturnValue({
+        id: 'existing-conversation-123',
+        messages: [],
+      });
+
+      renderChat();
+
+      // Navigate should not be called when conversationId is already in URL
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not update URL when active conversation has temporary ID', async () => {
+      mockUseParams.mockReturnValue({});
+      mockUseActiveConversation.mockReturnValue({
+        id: 'conversation__temp123',
+        messages: [],
+      });
+
+      renderChat();
+
+      // Wait a bit to ensure the effect doesn't trigger
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Navigate should not be called for temporary conversation IDs
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not update URL when there is no active conversation', () => {
+      mockUseParams.mockReturnValue({});
+      mockUseActiveConversation.mockReturnValue(null);
+
+      renderChat();
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not update URL when active conversation has no ID', () => {
+      mockUseParams.mockReturnValue({});
+      mockUseActiveConversation.mockReturnValue({
+        messages: [],
+      });
+
+      renderChat();
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('updates URL when conversationId transitions from temp to permanent', async () => {
+      mockUseParams.mockReturnValue({});
+
+      // Start with a temporary conversation ID
+      mockUseActiveConversation.mockReturnValue({
+        id: 'conversation__temp123',
+        messages: [],
+      });
+
+      const { rerender } = renderChat();
+
+      // Navigate should not be called for temporary ID
+      expect(mockNavigate).not.toHaveBeenCalled();
+
+      // Simulate conversation ID becoming permanent
+      mockUseActiveConversation.mockReturnValue({
+        id: 'permanent-conversation-123',
+        messages: [],
+      });
+
+      // Force re-render to trigger the effect with new conversation ID
+      rerender(
+        <ChatBarProvider>
+          <Chat />
+        </ChatBarProvider>,
+      );
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/genie/chat/permanent-conversation-123', {
+          replace: true,
+        });
+      });
+    });
+
+    it('uses replace: true to avoid adding to browser history', async () => {
+      mockUseParams.mockReturnValue({});
+      mockUseActiveConversation.mockReturnValue({
+        id: 'conversation-456',
+        messages: [],
+      });
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ replace: true }),
+        );
+      });
     });
   });
 });

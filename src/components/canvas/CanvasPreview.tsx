@@ -1,12 +1,15 @@
 import { CanvasLayout } from './CanvasLayout';
+import { CanvasToolbar } from './CanvasToolbar';
 
 export const CanvasPreview: React.FC = () => {
   return (
     <CanvasLayout
       toolbar={
-        <div className="pf-v6-u-p-md">
-          <span className="pf-v6-u-font-weight-bold">Canvas Toolbar (sticky)</span>
-        </div>
+        <CanvasToolbar
+          left={<span className="pf-v6-u-font-weight-bold">Left slot</span>}
+          center={<span>Center slot</span>}
+          right={<span>Right slot</span>}
+        />
       }
       footer={
         <div className="pf-v6-u-p-md pf-v6-u-text-align-center">
@@ -15,10 +18,10 @@ export const CanvasPreview: React.FC = () => {
       }
     >
       <div className="pf-v6-u-p-lg">
-        {Array.from({ length: 50 }, (_, i) => (
+        <h2 className="pf-v6-u-mb-md">Canvas content</h2>
+        {Array.from({ length: 30 }, (_, i) => (
           <p key={i} className="pf-v6-u-mb-md">
-            Content paragraph {i + 1} - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Scroll to test sticky behavior.
+            Content paragraph {i + 1} – Scroll to test sticky toolbar behavior.
           </p>
         ))}
       </div>
