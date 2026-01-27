@@ -1,11 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import type { Message } from './AIState';
-import {
-  useMessages,
-  useStreamChunk,
-  useInProgress,
-  useSendStreamMessage,
-} from './AIState';
+import { useMessages, useStreamChunk, useInProgress, useSendStreamMessage } from './AIState';
 import type { GenieAdditionalProperties } from '../types/chat';
 import { useThrottle } from './useThrottle';
 export { getToolCallsFromMessage } from '../utils/toolCallHelpers';
@@ -29,7 +24,7 @@ export interface UseChatMessagesReturn {
 /**
  * Hook to get the messages and streaming message from the server.
  * Throttles the streaming message to avoid excessive re-renders.
- * 
+ *
  * @see useThrottle
  * @returns UseChatMessagesReturn
  * @property messages - The messages in the conversation.
@@ -45,10 +40,7 @@ export function useChatMessages(): UseChatMessagesReturn {
   const inProgress = useInProgress();
   const sendStreamMessage = useSendStreamMessage();
 
-  const sendMessage = useCallback(
-    (text: string) => sendStreamMessage(text),
-    [sendStreamMessage],
-  );
+  const sendMessage = useCallback((text: string) => sendStreamMessage(text), [sendStreamMessage]);
 
   const lastUserMessageIndex = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {

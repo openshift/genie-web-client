@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 
 /**
  * Hook to throttle a value to avoid excessive re-renders.
- * 
+ *
  * @param value - The value to throttle.
  * @param ms - The minimum interval between updates in milliseconds.
  * @returns The throttled value.
