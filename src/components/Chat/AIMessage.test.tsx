@@ -32,6 +32,16 @@ jest.mock('../../hooks/AIState', () => ({
   }),
 }));
 
+// mock toast alerts
+const mockAddAlert = jest.fn();
+jest.mock('../toast-alerts/ToastAlertProvider', () => ({
+  useToastAlerts: () => ({
+    addAlert: mockAddAlert,
+    removeAlert: jest.fn(),
+    alerts: [],
+  }),
+}));
+
 describe('<AIMessage />', () => {
   const mockOnQuickResponse = jest.fn();
   const defaultConversationId = 'test-conversation-id';
@@ -256,6 +266,7 @@ describe('<AIMessage />', () => {
       mockSendFeedback.mockClear();
       mockSendFeedback.mockResolvedValue(undefined);
       mockBadResponseModalToggle.mockClear();
+      mockAddAlert.mockClear();
     });
 
     it('calls sendFeedback with positive sentiment when thumbs up is clicked', async () => {
@@ -325,7 +336,7 @@ describe('<AIMessage />', () => {
       expect(mockSendFeedback).toHaveBeenCalledTimes(1);
     });
 
-    it('deselects thumbs down when clicked again', async () => {
+    it('toggles thumbs down button selection', async () => {
       const message = createMessage();
 
       render(
@@ -339,13 +350,15 @@ describe('<AIMessage />', () => {
 
       const thumbsDownButton = screen.getByLabelText('Bad response');
 
-      // first click - should open modal
+      // first click - should open modal and set button state
       await user.click(thumbsDownButton);
       expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
+      expect(thumbsDownButton).toHaveAttribute('data-is-clicked', 'true');
 
-      // second click - should not open modal again
+      // second click - should deselect button (no modal opens)
       await user.click(thumbsDownButton);
-      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1); // still 1
+      expect(thumbsDownButton).toHaveAttribute('data-is-clicked', 'false');
     });
 
     it('switches from thumbs up to thumbs down', async () => {
@@ -371,12 +384,17 @@ describe('<AIMessage />', () => {
         llm_response: 'Response text',
         isPositive: true,
       });
+      expect(thumbsUpButton).toHaveAttribute('data-is-clicked', 'true');
+      expect(thumbsDownButton).toHaveAttribute('data-is-clicked', 'false');
 
-      // switch to bad rating - opens modal instead of sending feedback
+      // switch to bad rating - opens modal and updates button states
       await user.click(thumbsDownButton);
       expect(mockSendFeedback).toHaveBeenCalledTimes(1);
       expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
       expect(mockBadResponseModalToggle).toHaveBeenCalledWith(message);
+      // thumbs up should be deselected, thumbs down should be selected
+      expect(thumbsUpButton).toHaveAttribute('data-is-clicked', 'false');
+      expect(thumbsDownButton).toHaveAttribute('data-is-clicked', 'true');
     });
 
     it('switches from thumbs down to thumbs up', async () => {
@@ -430,6 +448,31 @@ describe('<AIMessage />', () => {
         llm_response: '',
         isPositive: true,
       });
+    });
+
+    it('resets button state on feedback submission error', async () => {
+      const message = createMessage({ answer: 'Test response' });
+      mockSendFeedback.mockRejectedValueOnce(new Error('Network error'));
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const thumbsUpButton = screen.getByLabelText('Good response');
+
+      // button should have isClicked=false initially
+      expect(thumbsUpButton).toHaveAttribute('data-is-clicked', 'false');
+
+      // click thumbs up
+      await user.click(thumbsUpButton);
+
+      // button state gets reset after error, so should be unclicked again
+      expect(thumbsUpButton).toHaveAttribute('data-is-clicked', 'false');
     });
   });
 });

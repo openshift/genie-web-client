@@ -115,5 +115,17 @@
   "feedback.badResponse.error.generic": "An error occurred while submitting feedback",
   "feedback.badResponse.error.unexpected": "An unexpected error occurred",
   "feedback.badResponse.error.title": "Error submitting feedback",
-  "feedback.badResponse.success.title": "Feedback submitted"
+  "feedback.badResponse.success.title": "Feedback submitted",
+  "message.action.copy": "Copy",
+  "message.action.copied": "Copied",
+  "message.action.regenerate": "Regenerate",
+  "message.action.goodResponse": "Good response",
+  "message.action.goodResponseRated": "Response rated good",
+  "message.action.badResponse": "Bad response",
+  "message.action.badResponseRated": "Response rated bad",
+  "message.action.share": "Share",
+  "message.action.readAloud": "Read aloud",
+  "message.action.report": "Report",
+  "feedback.success.title": "Feedback submitted successfully",
+  "feedback.error.title": "Failed to submit feedback"
 }

@@ -19,6 +19,15 @@ import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
 import { useBadResponseModal } from './feedback/BadResponseModal';
+import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
+
+// feedback rating constants to prevent typos
+const FEEDBACK_RATING = {
+  GOOD: 'good',
+  BAD: 'bad',
+} as const;
+
+type FeedbackRating = (typeof FEEDBACK_RATING)[keyof typeof FEEDBACK_RATING] | null;
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -49,9 +58,10 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
   }) => {
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
-    const [feedbackRating, setFeedbackRating] = useState<'good' | 'bad' | null>(null);
-    const { sendFeedback } = useSendFeedback();
+    const [feedbackRating, setFeedbackRating] = useState<FeedbackRating>(null);
+    const { sendFeedback, isLoading } = useSendFeedback();
     const { badResponseModalToggle } = useBadResponseModal();
+    const { addAlert } = useToastAlerts();
 
     // extract quick responses from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
@@ -67,31 +77,54 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     const handleFeedback = useCallback(
       async (isPositive: boolean): Promise<void> => {
-        const newRating = isPositive ? 'good' : 'bad';
+        const newRating = isPositive ? FEEDBACK_RATING.GOOD : FEEDBACK_RATING.BAD;
 
         // clicking same button again clears the selection
         if (
-          (isPositive && feedbackRating === 'good') ||
-          (!isPositive && feedbackRating === 'bad')
+          (isPositive && feedbackRating === FEEDBACK_RATING.GOOD) ||
+          (!isPositive && feedbackRating === FEEDBACK_RATING.BAD)
         ) {
           setFeedbackRating(null);
           return;
         }
 
-        // update button state right away so user sees it
-        setFeedbackRating(newRating);
+        // thumbs down opens the feedback form
+        if (!isPositive) {
+          // set state to show thumbs down is selected
+          setFeedbackRating(newRating);
+          badResponseModalToggle(message);
+          return;
+        }
 
         // thumbs up sends feedback directly
-        if (isPositive) {
+        // update button state optimistically so user sees immediate feedback
+        setFeedbackRating(newRating);
+
+        try {
           await sendFeedback({
             conversation_id: conversationId,
             user_question: userQuestion,
             llm_response: content,
             isPositive: true,
           });
-        } else {
-          // thumbs down opens the feedback form
-          badResponseModalToggle(message);
+
+          // show success toast
+          addAlert({
+            id: `feedback-success-${message.id}-${Date.now()}`,
+            variant: 'success',
+            title: t('feedback.success.title'),
+          });
+        } catch (err) {
+          // reset state on error so user can retry
+          setFeedbackRating(null);
+
+          // show error toast
+          addAlert({
+            id: `feedback-error-${message.id}-${Date.now()}`,
+            variant: 'danger',
+            title: t('feedback.error.title'),
+            children: typeof err === 'string' ? err : t('feedback.badResponse.error.unexpected'),
+          });
         }
       },
       [
@@ -102,6 +135,8 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         sendFeedback,
         badResponseModalToggle,
         message,
+        addAlert,
+        t,
       ],
     );
 
@@ -122,46 +157,47 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         copy: {
           icon: <CopyIcon />,
           onClick: handleCopy,
-          tooltipContent: t('Copy'),
-          clickedTooltipContent: t('Copied'),
+          tooltipContent: t('message.action.copy'),
+          clickedTooltipContent: t('message.action.copied'),
         },
         regenerate: {
           icon: <RedoIcon />,
           onClick: handleRegenerate,
-          tooltipContent: t('Regenerate'),
+          tooltipContent: t('message.action.regenerate'),
         },
         positive: {
           icon: <ThumbsUpIcon />,
           onClick: () => handleFeedback(true),
-          tooltipContent: t('Good response'),
-          clickedTooltipContent: t('Response rated good'),
-          ariaLabel: t('Good response'),
-          clickedAriaLabel: t('Response rated good'),
-          isClicked: feedbackRating === 'good',
+          tooltipContent: t('message.action.goodResponse'),
+          clickedTooltipContent: t('message.action.goodResponseRated'),
+          ariaLabel: t('message.action.goodResponse'),
+          clickedAriaLabel: t('message.action.goodResponseRated'),
+          isClicked: feedbackRating === FEEDBACK_RATING.GOOD,
+          isDisabled: isLoading,
         },
         negative: {
           icon: <ThumbsDownIcon />,
           onClick: () => handleFeedback(false),
-          tooltipContent: t('Bad response'),
-          clickedTooltipContent: t('Response rated bad'),
-          ariaLabel: t('Bad response'),
-          clickedAriaLabel: t('Response rated bad'),
-          isClicked: feedbackRating === 'bad',
+          tooltipContent: t('message.action.badResponse'),
+          clickedTooltipContent: t('message.action.badResponseRated'),
+          ariaLabel: t('message.action.badResponse'),
+          clickedAriaLabel: t('message.action.badResponseRated'),
+          isClicked: feedbackRating === FEEDBACK_RATING.BAD,
         },
         share: {
           icon: <ShareIcon />,
           onClick: handleShare,
-          tooltipContent: t('Share'),
+          tooltipContent: t('message.action.share'),
         },
         listen: {
           icon: <VolumeUpIcon />,
           onClick: handleReadAloud,
-          tooltipContent: t('Read aloud'),
+          tooltipContent: t('message.action.readAloud'),
         },
         report: {
           icon: <FlagIcon />,
           onClick: handleReport,
-          tooltipContent: t('Report'),
+          tooltipContent: t('message.action.report'),
         },
       }),
       [
@@ -172,6 +208,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         handleReadAloud,
         handleReport,
         feedbackRating,
+        isLoading,
         t,
       ],
     );

@@ -15,7 +15,7 @@ import { AIMessage } from './AIMessage';
 import { useToolCalls } from './useToolCalls';
 import { GenieAdditionalProperties } from 'src/types/chat';
 import { EditableChatHeader } from './EditableChatHeader';
-import { getUserQuestionForBotMessage } from './messageHelpers';
+import { getUserQuestionForBotMessage } from './feedback/utils';
 
 interface MessageListProps {
   isLoading: boolean;
@@ -71,7 +71,9 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
             // use role + message.id + index as key to ensure uniqueness
             // (message.id can be duplicated between user/bot in same conversation)
             const toolCalls = toolCallsByMessage[message.id];
-            const userQuestion = getUserQuestionForBotMessage(messages, index);
+            // get the user question that precedes this bot message
+            const userQuestionMessage = getUserQuestionForBotMessage(messages, message.id);
+            const userQuestion = userQuestionMessage?.answer || '';
             return (
               <AIMessage
                 key={`bot-${message.id}-${index}`}
@@ -96,6 +98,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
         }),
       [
         messages,
+        conversationId,
         handleQuickResponse,
         lastUserMessageIndex,
         lastBotMessageIndex,

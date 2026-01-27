@@ -66,8 +66,8 @@ jest.mock('./useToolCalls', () => ({
   useToolCalls: () => ({ toolCallsByMessage: {} }),
 }));
 
-jest.mock('./messageHelpers', () => ({
-  getUserQuestionForBotMessage: () => 'Test user question',
+jest.mock('./feedback/utils', () => ({
+  getUserQuestionForBotMessage: () => ({ answer: 'Test user question', role: 'user' }),
 }));
 
 describe('<MessageList />', () => {
