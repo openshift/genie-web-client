@@ -17,7 +17,9 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
 
     const timestamp = useMemo(() => {
       const date = new Date(message.date as Date);
-      return isNaN(date.getTime()) ? '' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+      return isNaN(date.getTime())
+        ? ''
+        : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }, [message.date]);
 
     const handleEdit = useCallback((): void => {

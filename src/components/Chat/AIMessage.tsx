@@ -161,7 +161,9 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
 
     const timestamp = useMemo(() => {
       const date = new Date(message.date as Date);
-      return isNaN(date.getTime()) ? '' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+      return isNaN(date.getTime())
+        ? ''
+        : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }, [message.date]);
 
     const hasContent = content.length > 0;
