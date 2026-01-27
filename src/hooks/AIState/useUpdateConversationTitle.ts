@@ -14,9 +14,9 @@ type ClientWithFetch = {
 };
 
 /**
- * Hook to update a conversation's title via PUT API
+ * Custom hook for updating conversation titles through the API
  *
- * @returns Object containing updateTitle function, loading state, and error state
+ * @returns object containing updateTitle function, loading state, and error state
  */
 export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -36,7 +36,7 @@ export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
         const stateManager = getState();
         const client = stateManager.getClient() as ClientWithFetch;
 
-        // Use the client's fetch function to maintain CSRF token handling
+        // preserve CSRF token handling by using the client's fetch function
         const fetchFn = client.fetchFunction || fetch;
         const baseUrl = client.baseUrl || '';
         const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
@@ -59,7 +59,7 @@ export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
           );
         }
 
-        // Update the conversation title in the local state
+        // sync local state with the updated title
         const state = stateManager.getState();
         const conversation = state.conversations[conversationId];
         if (conversation) {

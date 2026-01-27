@@ -35,7 +35,7 @@ export const EditableChatHeader: React.FC = () => {
   const [localError, setLocalError] = useState<string | null>(null);
   const originalTitleRef = useRef<string>(title);
 
-  // Sync title with active conversation
+  // sync title with active conversation
   useEffect(() => {
     if (isEditing) {
       return;
@@ -43,7 +43,7 @@ export const EditableChatHeader: React.FC = () => {
     if (activeConversation?.title) {
       setTitle(activeConversation.title);
     } else {
-      // Fallback for null/empty topic_summary
+      // fallback when title is missing
       setTitle(t('chat.defaultTitle'));
     }
   }, [activeConversation?.title, isEditing, t]);
@@ -86,7 +86,7 @@ export const EditableChatHeader: React.FC = () => {
       setValidationError(undefined);
       setLocalError(null);
     } catch (error) {
-      // Error is handled by the hook, we just stay in edit mode
+      // error already tracked by hook, stay in edit mode
       console.error('Failed to update title:', error);
     }
   };
