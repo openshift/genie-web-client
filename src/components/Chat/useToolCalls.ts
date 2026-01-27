@@ -51,12 +51,12 @@ export interface UseToolCallsResult {
 function isCompleteToolCall(call: ToolCallEvent): boolean {
   const data = call.data;
   if (!data) return false;
-  
+
   // V2 format: name is directly on data
   if ('name' in data && typeof data.name === 'string') {
     return true;
   }
-  
+
   // V1 format: tool_name is nested in token object
   const token = data.token;
   return typeof token === 'object' && token !== null && 'tool_name' in token;
@@ -65,14 +65,14 @@ function isCompleteToolCall(call: ToolCallEvent): boolean {
 /**
  * Extract tool name and arguments from a tool call event (supports both V1 and V2 formats)
  */
-function extractToolCallData(call: ToolCallEvent): { 
-  id: number | string; 
-  name: string; 
+function extractToolCallData(call: ToolCallEvent): {
+  id: number | string;
+  name: string;
   arguments?: Record<string, unknown>;
 } | null {
   const data = call.data;
   if (!data) return null;
-  
+
   // V2 format: { id: "xxx", name: "tool_name", args: {...}, type: "..." }
   if ('name' in data && typeof data.name === 'string') {
     return {
@@ -81,9 +81,11 @@ function extractToolCallData(call: ToolCallEvent): {
       arguments: (data as Record<string, unknown>).args as Record<string, unknown> | undefined,
     };
   }
-  
+
   // V1 format: { id: 52, token: { tool_name: "...", arguments: {...} } }
-  const token = data.token as { tool_name: string; arguments?: Record<string, unknown> } | undefined;
+  const token = data.token as
+    | { tool_name: string; arguments?: Record<string, unknown> }
+    | undefined;
   if (token && typeof token === 'object' && 'tool_name' in token) {
     return {
       id: data.id,
@@ -91,7 +93,7 @@ function extractToolCallData(call: ToolCallEvent): {
       arguments: token.arguments,
     };
   }
-  
+
   return null;
 }
 
@@ -161,12 +163,12 @@ export function useToolCalls(
           // V2: { id: "...", status: "success", content: "...", type: "..." }
           const data = result.data as Record<string, unknown>;
           const token = data?.token as { tool_name?: string; response?: unknown } | undefined;
-          
+
           // Get response from V1 format (token.response) or V2 format (content)
           const responseContent = token?.response ?? data?.content;
           // Get tool name from V1 format (token.tool_name) or V2 format (type or look up from existing call)
           const resultToolName = token?.tool_name ?? (data?.type as string | undefined);
-          
+
           processedToolResultIds.current.add(resultId);
           hasUpdates = true;
 
@@ -176,10 +178,9 @@ export function useToolCalls(
           );
 
           // Parse artifacts from the tool result
-          const toolName = callIndex !== -1 
-            ? updatedCalls[callIndex].name 
-            : (resultToolName || 'Unknown tool');
-            
+          const toolName =
+            callIndex !== -1 ? updatedCalls[callIndex].name : resultToolName || 'Unknown tool';
+
           const artifacts = parseToolResultToArtifacts(toolName, responseContent);
 
           if (callIndex !== -1) {
