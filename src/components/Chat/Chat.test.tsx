@@ -422,9 +422,11 @@ describe('Chat', () => {
 
       // Force re-render to trigger the effect with new conversation ID
       rerender(
-        <ChatBarProvider>
-          <Chat />
-        </ChatBarProvider>,
+        <SplitScreenDrawerProvider>
+          <ChatBarProvider>
+            <Chat />
+          </ChatBarProvider>
+        </SplitScreenDrawerProvider>,
       );
 
       await waitFor(() => {
