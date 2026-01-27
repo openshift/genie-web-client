@@ -1,19 +1,38 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { MessageBox } from '@patternfly/chatbot';
 import type { Message } from '../../hooks/AIState';
-import {
-  useMessages,
-  useSendStreamMessage,
-  useStreamChunk,
-  useInProgress,
-} from '../../hooks/AIState';
+import { useChatMessages } from '../../hooks/useChatMessages';
+import type { GenieAdditionalProperties } from '../../types/chat';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
-import { useToolCalls } from './useToolCalls';
-import { GenieAdditionalProperties } from 'src/types/chat';
 import { EditableChatHeader } from './EditableChatHeader';
+
+// TODO: Remove this stub data after testing
+const STUB_REFERENCED_DOCUMENTS = [
+  {
+    doc_url: 'https://docs.redhat.com/en/documentation/openshift_container_platform',
+    doc_title: 'Red Hat OpenShift Documentation: Understanding OpenShift builds',
+  },
+  {
+    doc_url:
+      'https://docs.redhat.com/en/documentation/openshift_container_platform/troubleshooting',
+    doc_title: 'KCS Article #6985012: Troubleshooting CrashLoopBackOff',
+  },
+  {
+    doc_url: 'https://docs.redhat.com/en/documentation/openshift_container_platform/blog',
+    doc_title: 'Red Hat Blog: A Guide to OpenShift Security Best Practices',
+  },
+  {
+    doc_url: 'https://docs.redhat.com/en/documentation/openshift_commons',
+    doc_title: 'OpenShift Commons Briefing: Security and Compliance',
+  },
+  {
+    doc_url: 'https://docs.redhat.com/en/documentation/rhel',
+    doc_title: 'Red Hat Enterprise Linux (RHEL) Documentation',
+  },
+];
 
 interface MessageListProps {
   isLoading: boolean;
@@ -24,78 +43,64 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = React.memo(
   // eslint-disable-next-line react/prop-types
   ({ isLoading, isValidConversationId }) => {
-    const messages = useMessages();
-    const sendStreamMessage = useSendStreamMessage();
-    const streamChunk = useStreamChunk<GenieAdditionalProperties>();
-    const { toolCallsByMessage } = useToolCalls(streamChunk);
-    const inProgress = useInProgress();
+    const {
+      messages,
+      streamingMessage,
+      isStreaming,
+      lastUserMessageIndex,
+      lastBotMessageIndex,
+      sendMessage,
+    } = useChatMessages();
+
     const bottomRef = useRef<HTMLDivElement>(null);
 
-    const handleQuickResponse = useCallback(
-      (text: string) => sendStreamMessage(text),
-      [sendStreamMessage],
-    );
+    const renderedMessages = useMemo(() => {
+      const streamingContent = streamingMessage?.content ?? '';
 
-    // Find the last user message index for edit functionality
-    const lastUserMessageIndex = useMemo(() => {
-      for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].role !== 'bot') {
-          return i;
-        }
-      }
-      return -1;
-    }, [messages]);
+      return messages.map((message: Message<GenieAdditionalProperties>, index) => {
+        const isBot = message.role !== 'user';
 
-    // Find the last bot message index for streaming indicator
-    const lastBotMessageIndex = useMemo(() => {
-      for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].role === 'bot') {
-          return i;
-        }
-      }
-      return -1;
-    }, [messages]);
+        if (isBot) {
+          const isCurrentlyStreaming = isStreaming && index === lastBotMessageIndex;
 
-    const renderedMessages = useMemo(
-      () =>
-        messages.map((message: Message, index) => {
-          const isBot = message.role === 'bot';
+          // If the message is currently streaming, use the throttled streaming content
+          const messageToRender: Message<GenieAdditionalProperties> = isCurrentlyStreaming
+            ? { ...message, answer: streamingContent }
+            : message;
 
-          if (isBot) {
-            // Only the last bot message can be streaming
-            const isStreaming = inProgress && index === lastBotMessageIndex;
-            // Use role + message.id + index as key to ensure uniqueness
-            // (message.id can be duplicated between user/bot in same conversation)
-            const toolCalls = toolCallsByMessage[message.id];
-            return (
-              <AIMessage
-                key={`bot-${message.id}-${index}`}
-                message={message}
-                onQuickResponse={handleQuickResponse}
-                isStreaming={isStreaming}
-                toolCalls={toolCalls}
-              />
-            );
-          }
-
-          // Use role + message.id + index as key to ensure uniqueness
           return (
-            <UserMessage
-              key={`user-${message.id}-${index}`}
-              message={message}
-              isLastUserMessage={index === lastUserMessageIndex}
+            <AIMessage
+              key={`bot-${message.id}-${index}`}
+              message={{
+                ...messageToRender,
+                // stub referencedDocuments for now
+                additionalAttributes: {
+                  ...messageToRender.additionalAttributes,
+                  referencedDocuments: STUB_REFERENCED_DOCUMENTS,
+                },
+              }}
+              onQuickResponse={sendMessage}
+              isStreaming={isCurrentlyStreaming}
             />
           );
-        }),
-      [
-        messages,
-        handleQuickResponse,
-        lastUserMessageIndex,
-        lastBotMessageIndex,
-        inProgress,
-        toolCallsByMessage,
-      ],
-    );
+        }
+
+        return (
+          <UserMessage
+            key={`user-${message.id}-${index}`}
+            message={message}
+            isLastUserMessage={index === lastUserMessageIndex}
+          />
+        );
+      });
+    }, [
+      messages,
+      isStreaming,
+      sendMessage,
+      streamingMessage,
+      lastUserMessageIndex,
+      lastBotMessageIndex,
+    ]);
 
     return (
       <MessageBox>

@@ -24,3 +24,72 @@
     background-color: transparent;
 }
 
+/* Shared drawer content styles for Sources and Tools drawers */
+.chat-drawer-content {
+    --pf-v6-l-stack--m-gutter--Gap: 24px;
+
+    .chat-drawer-content__header {
+        color: var(--pf-t--global--text--color--subtle);
+        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+
+        .chat-drawer-content__header__icon {
+            --pf-v6-c-icon__content--Color: var(--pf-t--global--text--color--subtle);
+        }
+    }
+
+    /* Reusable grid layout for drawer items */
+    .drawer-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2) var(--pf-v6-l-grid--m-gutter--GridGap);
+        justify-items: start;
+        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+    }
+
+    .drawer-item__col-2 {
+        grid-column-start: 2;
+    }
+
+    .drawer-item__col-3 {
+        grid-column-start: 3;
+    }
+
+    .drawer-item__col-2-span {
+        grid-column: 2 / -1;
+    }
+
+    .drawer-item__col-full {
+        grid-column: 1 / -1;
+    }
+
+    .drawer-item__align-center {
+        align-self: center;
+    }
+
+    /* temporary placeholder icon for sources and tools */
+    .icon-stub {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+        min-height: 20px;
+        background-color: #F3F4F6;
+        border-radius: 4px;
+        background-image: repeating-linear-gradient(-45deg,
+                transparent,
+                transparent 2px,
+                #a2a2a2 2px,
+                #a2a2a2 4px);
+    }
+
+    .pf-v6-c-expandable-section__toggle {
+        .pf-v6-c-button {
+            align-items: center;
+        }
+    }
+
+    /* Wrap code blocks in drawer to prevent horizontal overflow */
+    .drawer-code-block {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+}

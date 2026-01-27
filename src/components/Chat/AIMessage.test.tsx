@@ -68,26 +68,28 @@ describe('<AIMessage />', () => {
   });
 
   describe('Loading State', () => {
-    it('passes isLoading=true to Message when isStreaming is true', () => {
-      const message = createMessage();
+    it('passes isLoading=true to Message when isStreaming is true and message has no content', () => {
+      const message = createMessage({ answer: '' });
 
       render(
         <AIMessage message={message} onQuickResponse={mockOnQuickResponse} isStreaming={true} />,
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
+      // isLoading should be true because isStreaming=true AND hasContent=false (showLoading = isStreaming && !hasContent)
       const messageElement = screen.getByTestId('message');
       expect(messageElement).toHaveAttribute('data-is-loading', 'true');
     });
 
-    it('passes isLoading=false to Message when isStreaming is false', () => {
-      const message = createMessage();
+    it('passes isLoading=false to Message when isStreaming is true but message has content', () => {
+      const message = createMessage({ answer: 'Some content' });
 
       render(
-        <AIMessage message={message} onQuickResponse={mockOnQuickResponse} isStreaming={false} />,
+        <AIMessage message={message} onQuickResponse={mockOnQuickResponse} isStreaming={true} />,
       );
 
       // NOTE: Using getByTestId because the PatternFly Message mock uses data-is-loading attribute
+      // isLoading should be false because hasContent is true (showLoading = isStreaming && !hasContent)
       const messageElement = screen.getByTestId('message');
       expect(messageElement).toHaveAttribute('data-is-loading', 'false');
     });
@@ -107,7 +109,7 @@ describe('<AIMessage />', () => {
     it('does not pass null beforeMainContent when toolCalls is empty', () => {
       const message = createMessage();
 
-      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} toolCalls={[]} />);
+      render(<AIMessage message={message} onQuickResponse={mockOnQuickResponse} />);
 
       // NOTE: Using getByTestId because the PatternFly Message mock renders with data-testid="message"
       // Component renders without ToolCallsList when toolCalls is empty
