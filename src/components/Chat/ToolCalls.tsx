@@ -11,20 +11,17 @@ export interface ToolCallsProps {
 }
 
 export const ToolCalls: FunctionComponent<ToolCallsProps> = ({ toolCalls }) => {
-  const { drawerState, openDrawer, closeDrawer } = useDrawer();
+  const { openDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
   const handleClick = useCallback((): void => {
-    if (drawerState.isOpen) {
-      closeDrawer();
-    } else {
-      openDrawer({
-        heading: t('chat.tools'),
-        icon: <RhUiInformationIcon />,
-        children: <ToolsDrawerContent toolCalls={toolCalls} />,
-        position: 'right',
-      });
-    }
-  }, [drawerState.isOpen, openDrawer, closeDrawer, toolCalls]);
+    openDrawer({
+      id: 'tools',
+      heading: t('chat.tools'),
+      icon: <RhUiInformationIcon />,
+      children: <ToolsDrawerContent toolCalls={toolCalls} />,
+      position: 'right',
+    });
+  }, [openDrawer, toolCalls, t]);
 
   return (
     <Button variant="link" onClick={handleClick} icon={<RhUiInformationIcon />} aria-label={t('chat.tools.ariaLabel')}>

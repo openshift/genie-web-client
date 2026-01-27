@@ -15,20 +15,17 @@ export interface SourcesProps {
 }
 
 export const Sources: FunctionComponent<SourcesProps> = ({ sources }) => {
-  const { drawerState, openDrawer, closeDrawer } = useDrawer();
+  const { openDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
   const handleClick = useCallback((): void => {
-    if (drawerState.isOpen) {
-      closeDrawer();
-    } else {
-      openDrawer({
-        heading: t('chat.sources'),
-        icon: <RhUiLinkIcon />,
-        children: <SourcesDrawerContent sources={sources} />,
-        position: 'right',
-      });
-    }
-  }, [drawerState.isOpen, openDrawer, closeDrawer, sources]);
+    openDrawer({
+      id: 'sources',
+      heading: t('chat.sources'),
+      icon: <RhUiLinkIcon />,
+      children: <SourcesDrawerContent sources={sources} />,
+      position: 'right',
+    });
+  }, [openDrawer, sources, t]);
 
   return (
     <Button
