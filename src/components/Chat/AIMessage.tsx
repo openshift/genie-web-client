@@ -147,7 +147,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     };
 
     const timestamp = useMemo(() => {
-      const date = message.date;
+      const date = message.date ?? new Date();
       return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }, [message.date]);
 
