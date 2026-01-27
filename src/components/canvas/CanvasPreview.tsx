@@ -25,4 +25,3 @@ export const CanvasPreview: React.FC = () => {
     </CanvasLayout>
   );
 };
-

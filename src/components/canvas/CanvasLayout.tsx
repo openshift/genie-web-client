@@ -11,23 +11,14 @@ export interface CanvasLayoutProps {
   children: ReactNode;
 }
 
-export const CanvasLayout: React.FC<CanvasLayoutProps> = ({
-  toolbar,
-  footer,
-  children,
-}) => {
+export const CanvasLayout: React.FC<CanvasLayoutProps> = ({ toolbar, footer, children }) => {
   return (
     <Stack hasGutter className="canvas-layout">
-      <StackItem className="canvas-layout__toolbar">
-        {toolbar}
-      </StackItem>
+      <StackItem className="canvas-layout__toolbar">{toolbar}</StackItem>
       <StackItem isFilled className="canvas-layout__content">
         {children}
       </StackItem>
-      <StackItem className="canvas-layout__footer">
-        {footer}
-      </StackItem>
+      <StackItem className="canvas-layout__footer">{footer}</StackItem>
     </Stack>
   );
 };
-

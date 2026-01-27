@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { render, screen, user } from '../../unitTestUtils';
 import { ToastAlertProvider, useToastAlerts } from './ToastAlertProvider';
 
@@ -135,12 +136,12 @@ describe('<ToastAlertProvider />', () => {
     );
 
     expect(contextValue).not.toBeNull();
-    expect(contextValue).toHaveProperty('alerts');
-    expect(contextValue).toHaveProperty('addAlert');
-    expect(contextValue).toHaveProperty('removeAlert');
-    expect(typeof contextValue?.addAlert).toBe('function');
-    expect(typeof contextValue?.removeAlert).toBe('function');
-    expect(Array.isArray(contextValue?.alerts)).toBe(true);
+    expect(contextValue!).toHaveProperty('alerts');
+    expect(contextValue!).toHaveProperty('addAlert');
+    expect(contextValue!).toHaveProperty('removeAlert');
+    expect(typeof contextValue!.addAlert).toBe('function');
+    expect(typeof contextValue!.removeAlert).toBe('function');
+    expect(Array.isArray(contextValue!.alerts)).toBe(true);
   });
 
   it('maintains alerts in the correct order when multiple are added', async () => {
