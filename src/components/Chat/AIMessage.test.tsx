@@ -1,7 +1,14 @@
-import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
+import { render as baseRender, screen } from '../../unitTestUtils';
 import { AIMessage } from './AIMessage';
 import type { Message } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from 'src/types/chat';
+
+// Mock the useBadResponseModal hook to avoid useActiveConversation bug
+jest.mock('./feedback/BadResponseModal', () => ({
+  useBadResponseModal: () => ({
+    badResponseModalToggle: jest.fn(),
+  }),
+}));
 
 // Mock clipboard API
 const mockWriteText = jest.fn();
@@ -11,6 +18,11 @@ Object.defineProperty(navigator, 'clipboard', {
   },
   writable: true,
 });
+
+// Helper to render with required providers
+const render = (ui: React.ReactElement) => {
+  return baseRender(ui);
+};
 
 describe('<AIMessage />', () => {
   const mockOnQuickResponse = jest.fn();

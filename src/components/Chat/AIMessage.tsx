@@ -17,6 +17,7 @@ import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { useBadResponseModal } from './feedback/BadResponseModal';
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -44,7 +45,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
   ({ message, onQuickResponse, isStreaming = false, toolCalls = [] }) => {
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
-
+    const { badResponseModalToggle } = useBadResponseModal();
     // Extract quick responses from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
@@ -57,9 +58,17 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       console.log('Regenerate');
     }, []);
 
-    const handleFeedback = useCallback((isPositive: boolean): void => {
-      console.log('Feedback', isPositive);
-    }, []);
+    const handleFeedback = useCallback(
+      (isPositive: boolean): void => {
+        if (isPositive) {
+          console.log('Positive feedback');
+          return;
+        } else {
+          badResponseModalToggle(message);
+        }
+      },
+      [badResponseModalToggle, message],
+    );
 
     const handleShare = useCallback((): void => {
       console.log('Share');
