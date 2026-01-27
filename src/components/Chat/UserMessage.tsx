@@ -16,7 +16,7 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
     const content = message.answer || '';
 
     const timestamp = useMemo(() => {
-      const date = message.date;
+      const date = message.date ?? new Date();
       return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
     }, [message.date]);
     
