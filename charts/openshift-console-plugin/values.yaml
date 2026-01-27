@@ -3,7 +3,7 @@ plugin:
   name: ""
   description: ""
   image: ""
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
   imagePullSecrets: []
   replicas: 2
   port: 9443

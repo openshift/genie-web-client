@@ -18,6 +18,7 @@ import { ToolCallsList } from './ToolCallsList';
 import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { useBadResponseModal } from './feedback/BadResponseModal';
 
 export interface AIMessageProps {
   message: MessageType<GenieAdditionalProperties>;
@@ -50,6 +51,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const content = message.answer || '';
     const [feedbackRating, setFeedbackRating] = useState<'good' | 'bad' | null>(null);
     const { sendFeedback } = useSendFeedback();
+    const { badResponseModalToggle } = useBadResponseModal();
 
     // extract quick responses from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
@@ -79,15 +81,28 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         // update button state right away so user sees it
         setFeedbackRating(newRating);
 
-        // send the feedback to backend
-        await sendFeedback({
-          conversation_id: conversationId,
-          user_question: userQuestion,
-          llm_response: content,
-          isPositive: isPositive,
-        });
+        // thumbs up sends feedback directly
+        if (isPositive) {
+          await sendFeedback({
+            conversation_id: conversationId,
+            user_question: userQuestion,
+            llm_response: content,
+            isPositive: true,
+          });
+        } else {
+          // thumbs down opens the feedback form
+          badResponseModalToggle(message);
+        }
       },
-      [feedbackRating, conversationId, userQuestion, content, sendFeedback],
+      [
+        feedbackRating,
+        conversationId,
+        userQuestion,
+        content,
+        sendFeedback,
+        badResponseModalToggle,
+        message,
+      ],
     );
 
     const handleShare = useCallback((): void => {

@@ -3,7 +3,7 @@ import { ToolResponse } from '@patternfly/chatbot';
 import { Spinner } from '@patternfly/react-core';
 
 export interface ToolResultCardProps {
-  toolId: number;
+  toolId: number | string;
   displayName: string;
   arguments?: Record<string, unknown>;
   resultString?: string;

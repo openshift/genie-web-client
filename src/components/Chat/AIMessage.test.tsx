@@ -3,6 +3,14 @@ import { AIMessage } from './AIMessage';
 import type { Message } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from 'src/types/chat';
 
+// mock the useBadResponseModal hook
+const mockBadResponseModalToggle = jest.fn();
+jest.mock('./feedback/BadResponseModal', () => ({
+  useBadResponseModal: () => ({
+    badResponseModalToggle: mockBadResponseModalToggle,
+  }),
+}));
+
 // mock clipboard API
 const mockWriteText = jest.fn();
 Object.defineProperty(navigator, 'clipboard', {
@@ -247,6 +255,7 @@ describe('<AIMessage />', () => {
     beforeEach(() => {
       mockSendFeedback.mockClear();
       mockSendFeedback.mockResolvedValue(undefined);
+      mockBadResponseModalToggle.mockClear();
     });
 
     it('calls sendFeedback with positive sentiment when thumbs up is clicked', async () => {
@@ -273,7 +282,7 @@ describe('<AIMessage />', () => {
       });
     });
 
-    it('calls sendFeedback with negative sentiment when thumbs down is clicked', async () => {
+    it('opens bad response modal when thumbs down is clicked', async () => {
       const message = createMessage({ answer: 'Test AI response' });
 
       render(
@@ -288,13 +297,9 @@ describe('<AIMessage />', () => {
       const thumbsDownButton = screen.getByLabelText('Bad response');
       await user.click(thumbsDownButton);
 
-      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
-      expect(mockSendFeedback).toHaveBeenCalledWith({
-        conversation_id: defaultConversationId,
-        user_question: defaultUserQuestion,
-        llm_response: 'Test AI response',
-        isPositive: false,
-      });
+      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledWith(message);
+      expect(mockSendFeedback).not.toHaveBeenCalled();
     });
 
     it('deselects thumbs up when clicked again', async () => {
@@ -334,13 +339,13 @@ describe('<AIMessage />', () => {
 
       const thumbsDownButton = screen.getByLabelText('Bad response');
 
-      // first click - should send feedback
+      // first click - should open modal
       await user.click(thumbsDownButton);
-      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
 
-      // second click - should not send feedback again
+      // second click - should not open modal again
       await user.click(thumbsDownButton);
-      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
     });
 
     it('switches from thumbs up to thumbs down', async () => {
@@ -367,15 +372,11 @@ describe('<AIMessage />', () => {
         isPositive: true,
       });
 
-      // switch to bad rating
+      // switch to bad rating - opens modal instead of sending feedback
       await user.click(thumbsDownButton);
-      expect(mockSendFeedback).toHaveBeenCalledTimes(2);
-      expect(mockSendFeedback).toHaveBeenCalledWith({
-        conversation_id: defaultConversationId,
-        user_question: defaultUserQuestion,
-        llm_response: 'Response text',
-        isPositive: false,
-      });
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledTimes(1);
+      expect(mockBadResponseModalToggle).toHaveBeenCalledWith(message);
     });
 
     it('switches from thumbs down to thumbs up', async () => {
@@ -393,18 +394,13 @@ describe('<AIMessage />', () => {
       const thumbsUpButton = screen.getByLabelText('Good response');
       const thumbsDownButton = screen.getByLabelText('Bad response');
 
-      // rate as bad
+      // rate as bad - opens modal
       await user.click(thumbsDownButton);
-      expect(mockSendFeedback).toHaveBeenCalledWith({
-        conversation_id: defaultConversationId,
-        user_question: defaultUserQuestion,
-        llm_response: 'Response text',
-        isPositive: false,
-      });
+      expect(mockBadResponseModalToggle).toHaveBeenCalledWith(message);
 
       // switch to good rating
       await user.click(thumbsUpButton);
-      expect(mockSendFeedback).toHaveBeenCalledTimes(2);
+      expect(mockSendFeedback).toHaveBeenCalledTimes(1);
       expect(mockSendFeedback).toHaveBeenCalledWith({
         conversation_id: defaultConversationId,
         user_question: defaultUserQuestion,

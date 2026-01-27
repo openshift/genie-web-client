@@ -141,11 +141,13 @@ This is the easiest way to get started - no need to clone repos or install Pytho
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 podman run --rm -it -p 8080:8080 \
-  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
-  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack-podman.yaml:/app-root/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app-root/run.yaml:z \
   --env OPENAI_API_KEY=$OPENAI_API_KEY \
-  quay.io/lightspeed-core/lightspeed-stack:0.3.0
+  quay.io/lightspeed-core/lightspeed-stack:0.4.0
 ```
+
+**Note:** We use `lightspeed-stack-podman.yaml` which has `host: 0.0.0.0` and `host.containers.internal` URLs to work inside the container.
 
 This will start:
 - Lightspeed Core Service on port 8080
@@ -216,7 +218,17 @@ Once the full stack is running (backend + frontend + console), test obs-mcp inte
 
 ### `lightspeed-stack.yaml`
 
-Main configuration for Lightspeed Core Service:
+Configuration for running from source (Option B):
+- **Host**: `localhost`
+- **MCP Servers**: Use `localhost` URLs
+
+### `lightspeed-stack-podman.yaml`
+
+Configuration for running with Podman (Option A):
+- **Host**: `0.0.0.0` (listens on all interfaces for port forwarding)
+- **MCP Servers**: Use `host.containers.internal` URLs to reach host services from inside the container
+
+**Common settings (both files):**
 - **Port**: 8080 (matches what the UI expects)
 - **Model**: `gpt-4o-mini` (tested and working)
 - **MCP Servers**: Configured for obs-mcp (9100), kube-mcp (8081), and ngui-mcp (9200)
@@ -357,10 +369,10 @@ podman run --rm -it -p 9200:9200 \
 cd ~/Documents/GHRepos/genie-web-client
 export OPENAI_API_KEY="sk-..."
 podman run --rm -it -p 8080:8080 \
-  -v $PWD/backend/lightspeed-stack/lightspeed-stack.yaml:/app/lightspeed-stack.yaml:z \
-  -v $PWD/backend/lightspeed-stack/run.yaml:/app/run.yaml:z \
+  -v $PWD/backend/lightspeed-stack/lightspeed-stack-podman.yaml:/app-root/lightspeed-stack.yaml:z \
+  -v $PWD/backend/lightspeed-stack/run.yaml:/app-root/run.yaml:z \
   --env OPENAI_API_KEY=$OPENAI_API_KEY \
-  quay.io/lightspeed-core/lightspeed-stack:0.3.0
+  quay.io/lightspeed-core/lightspeed-stack:0.4.0
 ```
 
 **Terminal 5: Frontend Dev Server**
