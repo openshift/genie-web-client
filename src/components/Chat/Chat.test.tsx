@@ -1,6 +1,7 @@
 import { renderWithoutProviders, screen, waitFor } from '../../unitTestUtils';
 import { Chat } from './Chat';
 import { ChatBarProvider, useChatBar } from '../ChatBarContext';
+import { SplitScreenDrawerProvider } from '../drawer/SplitScreenDrawerProvider';
 
 // Mock the hooks
 const mockUseMessages = jest.fn();
@@ -77,9 +78,11 @@ describe('Chat', () => {
     // NOTE:  This may cause a "Warning: React does not recognize the `isPrimary` prop on a DOM element" warning when running tests
     // This is due to a bug in PatternFly' Message component that incorrect passes the prop down to the HTML
     return renderWithoutProviders(
-      <ChatBarProvider>
-        <Chat />
-      </ChatBarProvider>,
+      <SplitScreenDrawerProvider>
+        <ChatBarProvider>
+          <Chat />
+        </ChatBarProvider>
+      </SplitScreenDrawerProvider>,
     );
   };
 
@@ -248,10 +251,12 @@ describe('Chat', () => {
       };
 
       renderWithoutProviders(
-        <ChatBarProvider>
-          <TestComponent />
-          <Chat />
-        </ChatBarProvider>,
+        <SplitScreenDrawerProvider>
+          <ChatBarProvider>
+            <TestComponent />
+            <Chat />
+          </ChatBarProvider>
+        </SplitScreenDrawerProvider>,
       );
 
       // Wait for the async operation to complete and the effect to update visibility
@@ -282,10 +287,12 @@ describe('Chat', () => {
       };
 
       renderWithoutProviders(
-        <ChatBarProvider>
-          <TestComponent />
-          <Chat />
-        </ChatBarProvider>,
+        <SplitScreenDrawerProvider>
+          <ChatBarProvider>
+            <TestComponent />
+            <Chat />
+          </ChatBarProvider>
+        </SplitScreenDrawerProvider>,
       );
 
       // Wait for the async operation to reject, error to be caught, and visibility updated

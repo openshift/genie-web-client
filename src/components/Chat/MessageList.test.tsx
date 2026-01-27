@@ -1,6 +1,8 @@
-import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
+import React from 'react';
+import { renderWithoutProviders, screen } from '../../unitTestUtils';
 import { MessageList } from './MessageList';
 import type { StreamingMessage } from '../../hooks/useChatMessages';
+import { SplitScreenDrawerProvider } from '../drawer/SplitScreenDrawerProvider';
 
 // mocked hook for chat messages
 const mockUseChatMessages = jest.fn();
@@ -100,6 +102,10 @@ describe('<MessageList />', () => {
       clearError: jest.fn(),
     });
   });
+
+  const render = (ui: React.ReactElement) => {
+    return renderWithoutProviders(<SplitScreenDrawerProvider>{ui}</SplitScreenDrawerProvider>);
+  };
 
   describe('Loading State', () => {
     it('shows ChatLoading when isLoading is true and messages are empty', () => {

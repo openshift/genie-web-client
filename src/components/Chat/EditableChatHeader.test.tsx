@@ -1,5 +1,6 @@
 import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
+import { SplitScreenDrawerProvider } from '../drawer/SplitScreenDrawerProvider';
 
 // mocked hooks for testing
 const mockUseActiveConversation = jest.fn();
@@ -35,7 +36,12 @@ describe('EditableChatHeader', () => {
     mockUpdateTitle.mockResolvedValue(undefined);
   });
 
-  const renderHeader = () => render(<EditableChatHeader />);
+  const renderHeader = () =>
+    render(
+      <SplitScreenDrawerProvider>
+        <EditableChatHeader />
+      </SplitScreenDrawerProvider>,
+    );
 
   it('renders initial title and actions', async () => {
     renderHeader();
