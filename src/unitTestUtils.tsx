@@ -7,6 +7,7 @@ import { AIStateProvider } from './hooks/AIState';
 import { ChatBarProvider } from './components/ChatBarContext';
 import { stateManager } from './components/utils/aiStateManager';
 export * from '@testing-library/react';
+export { renderHook } from '@testing-library/react-hooks';
 
 const user = userEvent.setup();
 export { user };
