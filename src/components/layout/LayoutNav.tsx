@@ -1,12 +1,6 @@
 import { useEffect, useState, useCallback, type FC, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
-import {
-  CompassPanel,
-  Nav,
-  NavItem,
-  NavList,
-  Button,
-} from '@patternfly/react-core';
+import { CompassPanel, Nav, NavItem, NavList, Button } from '@patternfly/react-core';
 import { HomeIcon, SearchIcon } from '@patternfly/react-icons';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 
@@ -28,7 +22,6 @@ const CreateNavItem: FC<{
     </NavItem>
   );
 };
-
 
 export const LayoutNav: FC = () => {
   const [activeItem, setActiveItem] = useState<string | number>(0);
@@ -85,4 +78,3 @@ export const LayoutNav: FC = () => {
     </div>
   );
 };
-
