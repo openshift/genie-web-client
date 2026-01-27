@@ -4,7 +4,6 @@ import { Chatbot, ChatbotContent, ChatbotDisplayMode } from '@patternfly/chatbot
 import { useParams } from 'react-router-dom-v5-compat';
 import './Chat.css';
 import { MessageList } from './MessageList';
-import { RenderCounter } from '../layout/RenderTest';
 
 export const Chat: React.FunctionComponent = () => {
   const { conversationId } = useParams();
@@ -40,7 +39,6 @@ export const Chat: React.FunctionComponent = () => {
         />
       </ChatbotContent>
     </Chatbot>
-    <RenderCounter label="Chat Component" />
     </>
   );
 };
