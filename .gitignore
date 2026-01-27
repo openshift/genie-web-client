@@ -5,3 +5,6 @@
 integration-tests/videos
 integration-tests/screenshots
 coverage
+.cursor/rules/personal-reminders.mdc
+.cursor/rules/refinement-to-dos.mdc
+.cursor/rules/vishalis-rules.mdc
