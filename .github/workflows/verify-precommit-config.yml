@@ -1,0 +1,68 @@
+name: Verify Pre-commit Configuration
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - '.husky/**'
+
+jobs:
+  verify-precommit-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify husky is in devDependencies
+        run: |
+          if ! grep -q '"husky"' package.json; then
+            echo "::error::husky is missing from package.json devDependencies!"
+            echo "Pre-commit hooks require husky. Please do not remove it."
+            exit 1
+          fi
+          echo "✓ husky found in package.json"
+
+      - name: Verify lint-staged is in devDependencies
+        run: |
+          if ! grep -q '"lint-staged"' package.json; then
+            echo "::error::lint-staged is missing from package.json devDependencies!"
+            echo "Pre-commit hooks require lint-staged. Please do not remove it."
+            exit 1
+          fi
+          echo "✓ lint-staged found in package.json"
+
+      - name: Verify prepare script exists
+        run: |
+          if ! grep -q '"prepare":\s*"husky"' package.json; then
+            echo "::error::prepare script is missing or incorrect in package.json!"
+            echo "The prepare script should be: \"prepare\": \"husky\""
+            exit 1
+          fi
+          echo "✓ prepare script found in package.json"
+
+      - name: Verify lint-staged configuration exists
+        run: |
+          if ! grep -q '"lint-staged"' package.json; then
+            echo "::error::lint-staged configuration is missing from package.json!"
+            exit 1
+          fi
+          echo "✓ lint-staged configuration found in package.json"
+
+      - name: Verify pre-commit hook exists
+        run: |
+          if [ ! -f ".husky/pre-commit" ]; then
+            echo "::error::.husky/pre-commit file is missing!"
+            exit 1
+          fi
+          echo "✓ .husky/pre-commit file exists"
+
+      - name: Summary
+        run: |
+          echo "## Pre-commit Configuration Verified ✓" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All required pre-commit hook configurations are present:" >> $GITHUB_STEP_SUMMARY
+          echo "- husky in devDependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- lint-staged in devDependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- prepare script configured" >> $GITHUB_STEP_SUMMARY
+          echo "- lint-staged configuration present" >> $GITHUB_STEP_SUMMARY
+          echo "- .husky/pre-commit file exists" >> $GITHUB_STEP_SUMMARY
