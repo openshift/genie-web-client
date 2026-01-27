@@ -38,7 +38,6 @@ interface ToolItemProps {
 const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
   const { t } = useTranslation('plugin__genie-web-client');
   const [isExpanded, setIsExpanded] = useState(false);
-  const isCompleted = toolCall.status === 'success';
   const displayName = formatToolName(toolCall.name);
 
   const formatResult = (result?: unknown): string => {
@@ -51,7 +50,7 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
     return JSON.stringify(result, null, 2);
   };
 
-  const hasDetails = toolCall.arguments || (isCompleted && toolCall.result !== undefined);
+  const hasDetails = toolCall.arguments;
   const toggleId = `tool-details-toggle-${toolCall.id}`;
   const contentId = `tool-details-content-${toolCall.id}`;
 
@@ -95,7 +94,7 @@ const ToolItem: FunctionComponent<ToolItemProps> = ({ toolCall }) => {
                 </CodeBlock>
               </StackItem>
             )}
-            {isCompleted && toolCall.result !== undefined && (
+            {toolCall.result !== undefined && (
               <StackItem>
                 <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold">
                   {t('chat.tools.result')}
