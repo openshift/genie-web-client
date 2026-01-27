@@ -1,6 +1,7 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 export interface DrawerConfig {
+  id?: string;
   heading: ReactNode;
   icon: ReactNode;
   children: ReactNode;
