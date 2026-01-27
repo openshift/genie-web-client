@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import './CanvasToolbar.css';
 
 export interface CanvasToolbarProps {
@@ -13,16 +13,6 @@ export interface CanvasToolbarProps {
   className?: string;
 }
 
-/**
- * CanvasToolbar (GIE-77 layout-only) – Three-slot toolbar layout for the Canvas frame.
- *
- * - Left slot: align start, grows to fill space
- * - Center slot: centered actions
- * - Right slot: align end
- *
- * Slot content and behavior are implemented in GIE-78, GIE-340, GIE-342, GIE-344, GIE-346.
- * Full toolbar implementation is preserved in branch GIE-77-full-toolbar-wip.
- */
 export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   left,
   center,
@@ -36,7 +26,6 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
           <ToolbarGroup align={{ default: 'alignStart' }} className="canvas-toolbar__left-slot">
             {left}
           </ToolbarGroup>
-          <ToolbarItem className="canvas-toolbar__spacer" />
           <ToolbarGroup variant="action-group" className="canvas-toolbar__center-slot">
             {center}
           </ToolbarGroup>

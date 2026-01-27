@@ -1,21 +1,9 @@
-/* Canvas toolbar layout (GIE-77). Slot content styles live in action tickets. */
-
-.canvas-toolbar__wrapper {
-  width: 100%;
-}
-
 .canvas-toolbar {
   padding: var(--pf-t--global--spacer--sm, 0.5rem) var(--pf-t--global--spacer--md, 1rem);
   background: var(--pf-t--global--background--color--secondary--default);
   border-bottom: 1px solid var(--pf-t--global--border--color--default);
   border-radius: var(--pf-t--global--border--radius--md, 8px)
     var(--pf-t--global--border--radius--md, 8px) 0 0;
-}
-
-.canvas-toolbar .pf-v6-c-toolbar__item,
-.canvas-toolbar .pf-v6-c-toolbar__group {
-  display: flex;
-  align-items: center;
 }
 
 .canvas-toolbar__left-slot {
@@ -25,11 +13,6 @@
   display: flex;
   align-items: center;
   gap: var(--pf-t--global--spacer--md, 1rem);
-}
-
-.canvas-toolbar__spacer {
-  flex: 1;
-  min-width: 0;
 }
 
 .canvas-toolbar__center-slot {

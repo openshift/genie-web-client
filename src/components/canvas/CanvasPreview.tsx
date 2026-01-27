@@ -1,11 +1,6 @@
 import { CanvasLayout } from './CanvasLayout';
 import { CanvasToolbar } from './CanvasToolbar';
 
-/**
- * CanvasPreview – Demo of the layout-only Canvas toolbar (GIE-77).
- * Slot content (toggle, artifact switcher, time controls, etc.) is implemented in
- * GIE-78, GIE-340, GIE-342, GIE-344, GIE-346.
- */
 export const CanvasPreview: React.FC = () => {
   return (
     <CanvasLayout
