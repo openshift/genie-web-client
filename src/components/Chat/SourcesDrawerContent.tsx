@@ -28,7 +28,7 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
       <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">{hostname}</span>
       <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold drawer-item-grid__col-2-span">
         {source.doc_title}
-      </span> 
+      </span>
     </a>
   );
 };

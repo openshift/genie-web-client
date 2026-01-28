@@ -99,9 +99,7 @@ const getStepVariant = (
 /**
  * Get the label color based on status
  */
-const getLabelColor = (
-  status: ToolCallState['status'],
-): 'green' | 'red' | 'blue' | 'grey' => {
+const getLabelColor = (status: ToolCallState['status']): 'green' | 'red' | 'blue' | 'grey' => {
   switch (status) {
     case 'success':
       return 'green';
@@ -293,8 +291,8 @@ export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({
               toolCall.status === 'success'
                 ? t('chat.tools.statusSuccess')
                 : toolCall.status === 'failure'
-                  ? t('chat.tools.statusFail')
-                  : t('chat.tools.running');
+                ? t('chat.tools.statusFail')
+                : t('chat.tools.running');
 
             return (
               <ProgressStep
