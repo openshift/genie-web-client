@@ -1,0 +1,13 @@
+diff --git a/node_modules/@redhat-cloud-services/lightspeed-client/src/lib/client.js b/node_modules/@redhat-cloud-services/lightspeed-client/src/lib/client.js
+index fa54959..ee53c01 100644
+--- a/node_modules/@redhat-cloud-services/lightspeed-client/src/lib/client.js
++++ b/node_modules/@redhat-cloud-services/lightspeed-client/src/lib/client.js
+@@ -39,7 +39,7 @@ class LightspeedClient {
+                 const conversationsResponse = yield this.getConversations();
+                 const conversations = conversationsResponse.conversations.map((conv) => ({
+                     id: conv.conversation_id,
+-                    title: `Conversation (${conv.message_count || 0} messages)`,
++                    title: conv.topic_summary || `Conversation (${conv.message_count || 0} messages)`,
+                     locked: false,
+                     createdAt: conv.created_at ? new Date(conv.created_at) : new Date(),
+                 }));
