@@ -13,14 +13,12 @@ export const SplitScreenDrawerProvider: FC<SplitScreenDrawerProviderProps> = ({ 
   const [splitScreenDrawerState, setSplitScreenDrawerState] = useState<SplitScreenDrawerState>({
     isOpen: false,
     children: null,
-    position: 'right',
   });
 
   const openSplitScreenDrawer = useCallback((config: SplitScreenDrawerConfig) => {
     setSplitScreenDrawerState({
       isOpen: true,
       children: config.children,
-      position: config.position || 'right',
       onClose: config.onClose,
     });
   }, []);

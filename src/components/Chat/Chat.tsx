@@ -4,6 +4,7 @@ import {
   useSendStreamMessage,
   useSetActiveConversation,
 } from '../../hooks/AIState';
+import { useChatDrawerState } from '../../hooks/useChatDrawerState';
 import {
   Chatbot,
   ChatbotContent,
@@ -30,32 +31,9 @@ import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSplitScreenDrawer } from '../drawer/SplitScreenDrawerContext';
 import './Chat.css';
 
-const CHAT_SPLIT_SCREEN = 'genie-split-screen';
-
-interface DrawerState {
-  active: boolean;
-  width?: number;
-}
-
-const getDrawerStateFromStorage = (): DrawerState => {
-  try {
-    const drawerLocalState = localStorage.getItem(CHAT_SPLIT_SCREEN);
-    if (drawerLocalState) {
-      return JSON.parse(drawerLocalState);
-    }
-  } catch (error) {
-    console.error('Error reading drawer state from localStorage:', error);
-  }
-  return { active: false };
-};
-
-const saveDrawerStateToStorage = (state: DrawerState): void => {
-  try {
-    localStorage.setItem(CHAT_SPLIT_SCREEN, JSON.stringify(state));
-  } catch (error) {
-    console.error('Error saving drawer state to localStorage:', error);
-  }
-};
+const CHAT_DRAWER_MAX_WIDTH = '80%';
+const CHAT_DRAWER_MIN_WIDTH = '33.33%';
+const CHAT_DRAWER_DEFAULT_WIDTH = '60%';
 
 export const Chat: React.FunctionComponent = () => {
   const { conversationId } = useParams();
@@ -69,7 +47,7 @@ export const Chat: React.FunctionComponent = () => {
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const { splitScreenDrawerState, closeSplitScreenDrawer } = useSplitScreenDrawer();
-  const [drawerState, setDrawerState] = useState<DrawerState>(getDrawerStateFromStorage);
+  const [drawerState, setDrawerState] = useChatDrawerState();
 
   const handleSendMessage = useCallback(
     (value: string | number) => {
@@ -81,31 +59,19 @@ export const Chat: React.FunctionComponent = () => {
 
   const onCloseClick = useCallback(() => {
     closeSplitScreenDrawer();
-    setDrawerState((prevState) => {
-      const newState = { ...prevState, active: false };
-      saveDrawerStateToStorage(newState);
-      return newState;
-    });
-  }, [closeSplitScreenDrawer]);
+    setDrawerState((prevState) => ({ ...prevState, active: false }));
+  }, [closeSplitScreenDrawer, setDrawerState]);
 
   const onExpand = useCallback(() => {
     drawerRef.current && drawerRef.current.focus();
-    setDrawerState((prevState) => {
-      const newState = { ...prevState, active: true };
-      saveDrawerStateToStorage(newState);
-      return newState;
-    });
-  }, []);
+    setDrawerState((prevState) => ({ ...prevState, active: true }));
+  }, [setDrawerState]);
 
   const onResize = useCallback(
     (_event: MouseEvent | TouchEvent | React.KeyboardEvent<Element>, width: number) => {
-      setDrawerState((prevState) => {
-        const newState = { ...prevState, active: true, width };
-        saveDrawerStateToStorage(newState);
-        return newState;
-      });
+      setDrawerState((prevState) => ({ ...prevState, active: true, width }));
     },
-    [],
+    [setDrawerState],
   );
 
   useEffect(() => {
@@ -124,7 +90,7 @@ export const Chat: React.FunctionComponent = () => {
 
       setConversation();
     }
-  }, [conversationId, setActiveConversation]);
+  }, [conversationId, activeConversation?.id, setActiveConversation]);
 
   useEffect(() => {
     if (!conversationId && activeConversation?.id && !activeConversation?.id.includes('__temp')) {
@@ -141,9 +107,9 @@ export const Chat: React.FunctionComponent = () => {
     <DrawerPanelContent
       isResizable
       onResize={onResize}
-      defaultSize={drawerState.width ? `${drawerState.width}px` : '60%'}
-      maxSize="80%"
-      minSize="20%"
+      defaultSize={drawerState.width ? `${drawerState.width}px` : CHAT_DRAWER_DEFAULT_WIDTH}
+      maxSize={CHAT_DRAWER_MAX_WIDTH}
+      minSize={CHAT_DRAWER_MIN_WIDTH}
     >
       <DrawerHead>
         <span tabIndex={splitScreenDrawerState.isOpen ? 0 : -1} ref={drawerRef}>

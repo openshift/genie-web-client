@@ -64,7 +64,6 @@ describe('SplitScreenDrawerProvider and Context', () => {
 
     CheckDrawerState('isOpen', 'true');
     CheckDrawerState('children', 'ReactNode');
-    CheckDrawerState('position', 'left');
   });
 
   it('closes drawer when closeSplitScreenDrawer is called', async () => {
@@ -83,7 +82,7 @@ describe('SplitScreenDrawerProvider and Context', () => {
     CheckDrawerState('isOpen', 'false');
   });
 
-  it('defaults position to right when not specified', async () => {
+  it('opens drawer without position when position is not specified', async () => {
     render(
       <SplitScreenDrawerProvider>
         <TestComponent openDrawerConfig={{ ...defaultOpenDrawerConfig, position: undefined }} />
@@ -91,7 +90,8 @@ describe('SplitScreenDrawerProvider and Context', () => {
     );
 
     await user.click(screen.getByText('Open Drawer'));
-    CheckDrawerState('position', 'right');
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('children', 'ReactNode');
   });
 
   it('invokes custom onClose callback when drawer is closed', async () => {
@@ -116,21 +116,21 @@ describe('SplitScreenDrawerProvider and Context', () => {
     );
 
     await user.click(screen.getByText('Open Drawer'));
-    CheckDrawerState('position', 'left');
+    CheckDrawerState('isOpen', 'true');
+    CheckDrawerState('children', 'ReactNode');
 
     rerender(
       <SplitScreenDrawerProvider>
         <TestComponent
           openDrawerConfig={{
             ...defaultOpenDrawerConfig,
-            position: 'right',
             children: <>Updated content</>,
           }}
         />
       </SplitScreenDrawerProvider>,
     );
     await user.click(screen.getByText('Open Drawer'));
-    CheckDrawerState('position', 'right');
+    CheckDrawerState('isOpen', 'true');
   });
 
   it('throws error when useSplitScreenDrawer is used outside SplitScreenDrawerProvider', () => {
@@ -158,11 +158,11 @@ describe('SplitScreenDrawerProvider and Context', () => {
 
     await user.click(screen.getByText('Open Drawer'));
     CheckDrawerState('isOpen', 'true');
-    CheckDrawerState('position', 'left');
+    CheckDrawerState('children', 'ReactNode');
 
     await user.click(screen.getByText('Close Drawer'));
     CheckDrawerState('isOpen', 'false');
-    // Position should still be preserved from previous state
-    CheckDrawerState('position', 'left');
+    // Children should still be preserved from previous state
+    CheckDrawerState('children', 'ReactNode');
   });
 });
