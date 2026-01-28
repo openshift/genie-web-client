@@ -120,7 +120,7 @@
     "@patternfly/react-component-groups": "6.4.0-prerelease.7",
     "@patternfly/react-core": "6.5.0-prerelease.16",
     "@patternfly/react-icons": "6.5.0-prerelease.8",
-    "@patternfly/react-table": "6.5.0-prerelease.11",
+    "@patternfly/react-table": "6.5.0-prerelease.29",
     "@redhat-cloud-services/ai-client-common": "^0.13.0",
     "@redhat-cloud-services/ai-client-state": "^0.15.0",
     "@redhat-cloud-services/ai-react-state": "^0.15.0",
