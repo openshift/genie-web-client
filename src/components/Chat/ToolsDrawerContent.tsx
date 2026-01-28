@@ -14,7 +14,6 @@ import {
   ProgressStep,
   Content,
   ContentVariants,
-  ProgressStepVariant,
 } from '@patternfly/react-core';
 import {
   RhUiAiExperienceIcon,
@@ -76,6 +75,42 @@ const getStatusIcon = (status: ToolCallState['status']): React.ReactNode => {
     case 'running':
     default:
       return <InProgressIcon />;
+  }
+};
+
+/**
+ * Get the appropriate variant for ProgressStep based on status
+ */
+const getStepVariant = (
+  status: ToolCallState['status'],
+): 'success' | 'danger' | 'info' | 'default' => {
+  switch (status) {
+    case 'success':
+      return 'success';
+    case 'failure':
+      return 'danger';
+    case 'running':
+      return 'info';
+    default:
+      return 'default';
+  }
+};
+
+/**
+ * Get the label color based on status
+ */
+const getLabelColor = (
+  status: ToolCallState['status'],
+): 'green' | 'red' | 'blue' | 'grey' => {
+  switch (status) {
+    case 'success':
+      return 'green';
+    case 'failure':
+      return 'red';
+    case 'running':
+      return 'blue';
+    default:
+      return 'grey';
   }
 };
 
@@ -264,7 +299,7 @@ export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({
             return (
               <ProgressStep
                 key={toolCall.id}
-                variant={ProgressStepVariant.default}
+                variant={getStepVariant(toolCall.status)}
                 icon={getStatusIcon(toolCall.status)}
                 id={`tool-step-${toolCall.id}`}
                 titleId={`tool-step-title-${toolCall.id}`}
@@ -279,7 +314,9 @@ export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({
                     <span className="pf-v6-u-font-weight-bold">{displayName}</span>
                   </FlexItem>
                   <FlexItem>
-                    <Label isCompact>{statusLabel}</Label>
+                    <Label isCompact color={getLabelColor(toolCall.status)}>
+                      {statusLabel}
+                    </Label>
                   </FlexItem>
                 </Flex>
                 <ToolStepContent
