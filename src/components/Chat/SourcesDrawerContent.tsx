@@ -22,11 +22,11 @@ const SourceItem: FunctionComponent<SourceItemProps> = ({ source }) => {
       href={source.doc_url}
       target="_blank"
       rel="noopener noreferrer"
-      className="source-item drawer-item"
+      className="source-item drawer-item drawer-item-grid"
     >
       <img src={faviconUrl} alt="" className="source-item__favicon" />
       <span className="pf-v6-u-font-size-xs pf-v6-u-text-color-subtle">{hostname}</span>
-      <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold drawer-item__col-2 ">
+      <span className="pf-v6-u-font-family-heading pf-v6-u-font-weight-bold drawer-item-grid__col-2-span">
         {source.doc_title}
       </span>
     </a>

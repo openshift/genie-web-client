@@ -38,31 +38,35 @@
     }
 
     /* Reusable grid layout for drawer items */
-    .drawer-item {
+
+    .drawer-item { 
+        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+    }
+
+    .drawer-item-grid {
         display: grid;
         grid-template-columns: auto 1fr auto;
         gap: calc(var(--pf-v6-l-grid--m-gutter--GridGap) / 2) var(--pf-v6-l-grid--m-gutter--GridGap);
         justify-items: start;
-        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
     }
 
-    .drawer-item__col-2 {
+    .drawer-item-grid__col-2 {
         grid-column-start: 2;
     }
 
-    .drawer-item__col-3 {
+    .drawer-item-grid__col-3 {
         grid-column-start: 3;
     }
 
-    .drawer-item__col-2-span {
+    .drawer-item-grid__col-2-span {
         grid-column: 2 / -1;
     }
 
-    .drawer-item__col-full {
+    .drawer-item-grid__col-full {
         grid-column: 1 / -1;
     }
 
-    .drawer-item__align-center {
+    .drawer-item-grid__align-center {
         align-self: center;
     }
 
