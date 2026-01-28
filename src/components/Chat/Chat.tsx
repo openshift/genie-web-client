@@ -31,6 +31,9 @@ import { useSplitScreenDrawer } from '../drawer/SplitScreenDrawerContext';
 import './Chat.css';
 
 const CHAT_SPLIT_SCREEN = 'genie-split-screen';
+const CHAT_DRAWER_MAX_WIDTH = '80%';
+const CHAT_DRAWER_MIN_WIDTH = '33.33%';
+const CHAT_DRAWER_DEFAULT_WIDTH = '60%';
 
 interface DrawerState {
   active: boolean;
@@ -141,9 +144,9 @@ export const Chat: React.FunctionComponent = () => {
     <DrawerPanelContent
       isResizable
       onResize={onResize}
-      defaultSize={drawerState.width ? `${drawerState.width}px` : '60%'}
-      maxSize="80%"
-      minSize="20%"
+      defaultSize={drawerState.width ? `${drawerState.width}px` : CHAT_DRAWER_DEFAULT_WIDTH}
+      maxSize={CHAT_DRAWER_MAX_WIDTH}
+      minSize={CHAT_DRAWER_MIN_WIDTH}
     >
       <DrawerHead>
         <span tabIndex={splitScreenDrawerState.isOpen ? 0 : -1} ref={drawerRef}>
@@ -161,7 +164,10 @@ export const Chat: React.FunctionComponent = () => {
     <BadResponseModalProvider>
       <Drawer
         isInline
-        isExpanded={splitScreenDrawerState.isOpen || drawerState.active}
+        isExpanded={
+          (splitScreenDrawerState.isOpen || drawerState.active) &&
+          splitScreenDrawerState.children !== null
+        }
         isPill
         position="right"
         onExpand={onExpand}

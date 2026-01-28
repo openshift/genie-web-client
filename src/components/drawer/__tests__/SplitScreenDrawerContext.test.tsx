@@ -34,7 +34,6 @@ describe('SplitScreenDrawerContext', () => {
       expect(result.current.openSplitScreenDrawer).toBeDefined();
       expect(result.current.closeSplitScreenDrawer).toBeDefined();
       expect(result.current.splitScreenDrawerState.isOpen).toBe(false);
-      expect(result.current.splitScreenDrawerState.position).toBe('right');
       expect(result.current.splitScreenDrawerState.children).toBe(null);
     });
 
@@ -43,10 +42,9 @@ describe('SplitScreenDrawerContext', () => {
         wrapper: SplitScreenDrawerProvider,
       });
 
-      const initialState: SplitScreenDrawerState = {
+      const initialState = {
         isOpen: false,
         children: null,
-        position: 'right',
       };
 
       expect(result.current.splitScreenDrawerState).toMatchObject(initialState);
@@ -67,11 +65,10 @@ describe('SplitScreenDrawerContext', () => {
       });
 
       expect(result.current.splitScreenDrawerState.isOpen).toBe(true);
-      expect(result.current.splitScreenDrawerState.position).toBe('left');
       expect(result.current.splitScreenDrawerState.children).toBeDefined();
     });
 
-    it('defaults position to right when not specified in config', () => {
+    it('opens drawer without position when position is not specified in config', () => {
       const { result } = renderHook(() => useSplitScreenDrawer(), {
         wrapper: SplitScreenDrawerProvider,
       });
@@ -85,7 +82,7 @@ describe('SplitScreenDrawerContext', () => {
       });
 
       expect(result.current.splitScreenDrawerState.isOpen).toBe(true);
-      expect(result.current.splitScreenDrawerState.position).toBe('right');
+      expect(result.current.splitScreenDrawerState.children).toBeDefined();
     });
 
     it('closes drawer when closeSplitScreenDrawer is called', () => {
@@ -103,14 +100,15 @@ describe('SplitScreenDrawerContext', () => {
       });
 
       expect(result.current.splitScreenDrawerState.isOpen).toBe(true);
+      expect(result.current.splitScreenDrawerState.children).toBeDefined();
 
       act(() => {
         result.current.closeSplitScreenDrawer();
       });
 
       expect(result.current.splitScreenDrawerState.isOpen).toBe(false);
-      // Position should be preserved
-      expect(result.current.splitScreenDrawerState.position).toBe('left');
+      // Children should be preserved
+      expect(result.current.splitScreenDrawerState.children).toBeDefined();
     });
 
     it('invokes onClose callback when drawer is closed', () => {
@@ -158,7 +156,6 @@ describe('SplitScreenDrawerContext', () => {
       });
 
       expect(result.current.splitScreenDrawerState.isOpen).toBe(false);
-      expect(result.current.splitScreenDrawerState.position).toBe(stateBeforeClose.position);
       expect(result.current.splitScreenDrawerState.children).toBe(stateBeforeClose.children);
     });
   });
@@ -178,7 +175,9 @@ describe('SplitScreenDrawerContext', () => {
         return (
           <div>
             <div data-testid="is-open">{String(context.splitScreenDrawerState.isOpen)}</div>
-            <div data-testid="position">{context.splitScreenDrawerState.position}</div>
+            <div data-testid="children">
+              {context.splitScreenDrawerState.children ? 'has-children' : 'no-children'}
+            </div>
           </div>
         );
       };
@@ -190,7 +189,7 @@ describe('SplitScreenDrawerContext', () => {
       );
 
       expect(screen.getByTestId('is-open')).toHaveTextContent('false');
-      expect(screen.getByTestId('position')).toHaveTextContent('right');
+      expect(screen.getByTestId('children')).toHaveTextContent('no-children');
     });
   });
 
