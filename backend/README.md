@@ -70,17 +70,19 @@ The Genie Web Client local development stack:
 The obs-mcp server provides observability tools (metrics, queries) to the AI.
 
 **Prerequisites:**
+
 - Go 1.24.6+ installed
 - Logged into your OpenShift cluster (`oc login`)
 
 **Clone and start obs-mcp server (Terminal 1)**
+
 ```bash
 # Clone the obs-mcp repo (one time only, skip if you already have it)
 cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
 
-# Start the server (auto-discovers Prometheus in the cluster)
+# Start obs-mcp (auto-discovers thanos-querier in the cluster, falls back to prometheus if not found)
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 
 # Runs on port 9100 - keep this terminal running
@@ -93,6 +95,7 @@ go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --inse
 The kube-mcp server provides Kubernetes resource queries to the AI.
 
 **Start kube-mcp server (Terminal 2)**
+
 ```bash
 npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
 ```
@@ -102,6 +105,7 @@ npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --t
 The ngui-mcp server enables dynamic UI component generation.
 
 **Start ngui-mcp server (Terminal 3)**
+
 ```bash
 podman run --rm -it -p 9200:9200 \
    -v $PWD/backend/lightspeed-stack/ngui_openshift_mcp_config.yaml:/opt/app-root/config/ngui_openshift_mcp_config.yaml:z \
@@ -124,6 +128,7 @@ export OPENAI_API_KEY="sk-your-api-key-here"
 ```
 
 **Tip:** Add this to your `~/.zshrc` or `~/.bashrc` to persist it:
+
 ```bash
 echo 'export OPENAI_API_KEY="sk-your-api-key-here"' >> ~/.zshrc
 source ~/.zshrc
@@ -138,6 +143,7 @@ You have two options for running the backend. **Option A (Podman)** is recommend
 This is the easiest way to get started - no need to clone repos or install Python dependencies.
 
 **Start lightspeed-stack with Podman (Terminal 4)**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 podman run --rm -it -p 8080:8080 \
@@ -150,6 +156,7 @@ podman run --rm -it -p 8080:8080 \
 **Note:** We use `lightspeed-stack-podman.yaml` which has `host: 0.0.0.0` and `host.containers.internal` URLs to work inside the container.
 
 This will start:
+
 - Lightspeed Core Service on port 8080
 - Llama Stack with OpenAI provider
 - Ready to accept requests from the UI
@@ -161,6 +168,7 @@ This will start:
 Use this option if you want to develop or debug the lightspeed-stack itself.
 
 **Clone and setup (one time only)**
+
 ```bash
 # Clone the upstream lightspeed-stack repo
 cd ~/Documents/GHRepos  # or wherever you keep repos
@@ -178,12 +186,14 @@ uv sync
 **Tip:** If you want to keep your existing configs, copy these with different names like `lightspeed-stack-genie.yaml` instead.
 
 **Start the backend**
+
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 uv run python -m src.lightspeed_stack
 ```
 
 **Note:** `uv run` automatically uses the virtual environment. If you prefer the traditional approach:
+
 ```bash
 cd ~/Documents/GHRepos/lightspeed-stack
 source .venv/bin/activate
@@ -219,16 +229,19 @@ Once the full stack is running (backend + frontend + console), test obs-mcp inte
 ### `lightspeed-stack.yaml`
 
 Configuration for running from source (Option B):
+
 - **Host**: `localhost`
 - **MCP Servers**: Use `localhost` URLs
 
 ### `lightspeed-stack-podman.yaml`
 
 Configuration for running with Podman (Option A):
+
 - **Host**: `0.0.0.0` (listens on all interfaces for port forwarding)
 - **MCP Servers**: Use `host.containers.internal` URLs to reach host services from inside the container
 
 **Common settings (both files):**
+
 - **Port**: 8080 (matches what the UI expects)
 - **Model**: `gpt-4o-mini` (tested and working)
 - **MCP Servers**: Configured for obs-mcp (9100), kube-mcp (8081), and ngui-mcp (9200)
@@ -237,12 +250,14 @@ Configuration for running with Podman (Option A):
 ### `ngui_openshift_mcp_config.yaml`
 
 Configuration for Next Gen UI MCP server:
+
 - **Data transformers**: Defines how data is transformed for UI components
 - **Component mappings**: Maps data types to UI components (tables, logs, etc.)
 
 ### `run.yaml`
 
 Llama Stack configuration:
+
 - **Providers**: OpenAI (uses `$OPENAI_API_KEY`)
 - **Models**: Registers `gpt-4o-mini`, `gpt-4o`
 - **Tool Runtime**: MCP support enabled
@@ -253,8 +268,10 @@ Llama Stack configuration:
 The provided `lightspeed-stack.yaml` includes all three MCP servers. You can enable/disable them as needed:
 
 **To disable specific MCP servers:**
+
 1. Edit `lightspeed-stack.yaml`
 2. Comment out the servers you don't need:
+
    ```yaml
    mcp_servers:
      - name: "obs"
@@ -267,9 +284,11 @@ The provided `lightspeed-stack.yaml` includes all three MCP servers. You can ena
      #   provider_id: "model-context-protocol"
      #   url: "http://localhost:9200/mcp"
    ```
+
 3. Restart the backend
 
 All three MCP servers are required for full Genie functionality:
+
 - `obs-mcp` - Prometheus metrics queries
 - `kube-mcp` - Kubernetes resource queries  
 - `ngui-mcp` - Dynamic UI component generation
@@ -289,6 +308,7 @@ kill -9 <PID>
 ### "uv: command not found"
 
 Install `uv` (Python package installer):
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
@@ -325,11 +345,13 @@ This happens because `uv sync` only installs dependencies from `pyproject.toml`,
 ### API Key Issues
 
 Make sure your OpenAI API key:
+
 - Starts with `sk-`
 - Is exported in the same terminal where you start the backend
 - Has sufficient credits
 
 Test your key:
+
 ```bash
 curl https://api.openai.com/v1/models \
   -H "Authorization: Bearer $OPENAI_API_KEY" | head -20
@@ -340,17 +362,20 @@ curl https://api.openai.com/v1/models \
 ### Full Stack Development (All MCP Servers)
 
 **Terminal 1: OBS-MCP Server**
+
 ```bash
 cd ~/Documents/GHRepos/obs-mcp
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 ```
 
 **Terminal 2: Kube-MCP Server**
+
 ```bash
 npx kubernetes-mcp-server@latest --port 8081 --list-output table --read-only --toolsets core
 ```
 
 **Terminal 3: NGUI-MCP Server**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 podman run --rm -it -p 9200:9200 \
@@ -365,6 +390,7 @@ podman run --rm -it -p 9200:9200 \
 ```
 
 **Terminal 4: Backend (Podman - Recommended)**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 export OPENAI_API_KEY="sk-..."
@@ -376,22 +402,25 @@ podman run --rm -it -p 8080:8080 \
 ```
 
 **Terminal 5: Frontend Dev Server**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start
 ```
 
 **Terminal 6: Console**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn start-console
 ```
 
-**Access:** http://localhost:9000/genie
+**Access:** <http://localhost:9000/genie>
 
 ### Test Queries
 
 Once everything is running, try these queries:
+
 - `"what are my pods in namespace openshift-lightspeed"` - Tests kube-mcp
 - `"what are my pods in namespace openshift-lightspeed, generate ui"` - Tests kube-mcp + ngui-mcp
 - `"show me CPU usage metrics"` - Tests obs-mcp
@@ -399,6 +428,7 @@ Once everything is running, try these queries:
 ### Backend-Only Changes
 
 If you're only modifying backend config:
+
 1. Stop the backend (Ctrl+C in Terminal 4)
 2. Edit `lightspeed-stack.yaml` or `run.yaml` in `backend/lightspeed-stack/`
 3. Restart the backend (use the same Podman or Python command from section 5)
