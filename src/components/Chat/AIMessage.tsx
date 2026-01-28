@@ -104,11 +104,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
             llm_response: content,
             isPositive: true,
           });
-          // no toast notification - button state is the sole confirmation per AC
+          // no toast notification - button state is the sole confirmation
         } catch (err) {
           // reset state on error so user can retry
           setFeedbackRating(null);
-          // no error toast - silently fail and allow retry per AC
+          // no error toast - silently fail and allow retry
         }
       },
       [
