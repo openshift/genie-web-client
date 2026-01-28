@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
+import { useSplitScreenDrawer } from '../drawer/SplitScreenDrawerContext';
 
 export const EditableChatHeader: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,7 +24,7 @@ export const EditableChatHeader: React.FC = () => {
   const [title, setTitle] = useState<string>('Chat title');
   const [error, setError] = useState<string | undefined>();
   const originalTitleRef = useRef<string>(title);
-
+  const { openSplitScreenDrawer } = useSplitScreenDrawer();
   const onEditClick = () => {
     originalTitleRef.current = title;
     setIsEditing(true);
@@ -107,17 +108,25 @@ export const EditableChatHeader: React.FC = () => {
       </ChatbotHeaderMain>
       <ChatbotHeaderActions>
         {!isEditing && (
-          <ChatbotHeaderOptionsDropdown
-            isCompact
-            tooltipProps={{ content: 'More actions' }}
-            toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
-          >
-            <DropdownList>
-              <DropdownItem value="rename" onClick={onEditClick}>
-                Rename
-              </DropdownItem>
-            </DropdownList>
-          </ChatbotHeaderOptionsDropdown>
+          <>
+            <Button
+              variant="primary"
+              onClick={() => openSplitScreenDrawer({ children: <div>Split screen body</div> })}
+            >
+              Open split screen
+            </Button>
+            <ChatbotHeaderOptionsDropdown
+              isCompact
+              tooltipProps={{ content: 'More actions' }}
+              toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
+            >
+              <DropdownList>
+                <DropdownItem value="rename" onClick={onEditClick}>
+                  Rename
+                </DropdownItem>
+              </DropdownList>
+            </ChatbotHeaderOptionsDropdown>
+          </>
         )}
       </ChatbotHeaderActions>
     </ChatbotHeader>

@@ -1,8 +1,14 @@
 import { render, screen, user } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
+import { SplitScreenDrawerProvider } from '../drawer/SplitScreenDrawerProvider';
 
 describe('EditableChatHeader', () => {
-  const renderHeader = () => render(<EditableChatHeader />);
+  const renderHeader = () =>
+    render(
+      <SplitScreenDrawerProvider>
+        <EditableChatHeader />
+      </SplitScreenDrawerProvider>,
+    );
 
   it('renders initial title and actions', async () => {
     renderHeader();
