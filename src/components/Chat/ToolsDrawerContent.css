@@ -1,0 +1,15 @@
+.tools-drawer-content {
+    --pf-v6-l-stack--m-gutter--Gap: var(--pf-t--global--spacer--lg);
+
+    .pf-v6-c-progress-stepper {
+        --pf-v6-c-progress-stepper--GridRowGap: var(--pf-t--global--spacer--lg);
+    }
+
+    .tools-drawer-content__step-body {
+        --pf-v6-l-stack--m-gutter--Gap: var(--pf-t--global--spacer--lg);
+    }
+
+    .pf-v6-c-expandable-section {
+        --pf-v6-c-expandable-section__toggle--FontSize: var(--pf-t--global--font--size--body--sm);
+    }
+}
