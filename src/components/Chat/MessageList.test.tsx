@@ -2,22 +2,24 @@ import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
 import { MessageList } from './MessageList';
 import type { StreamingMessage } from '../../hooks/useChatMessages';
 
-// Mock the useChatMessages hook
+// mocked hook for chat messages
 const mockUseChatMessages = jest.fn();
+
+// mocked hooks for editable chat header
+const mockUseActiveConversation = jest.fn();
+const mockUseUpdateConversationTitle = jest.fn();
 
 jest.mock('../../hooks/useChatMessages', () => ({
   useChatMessages: () => mockUseChatMessages(),
 }));
 
-// Mock useActiveConversation for conversationId
-const mockUseActiveConversation = jest.fn();
-
 jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useActiveConversation: () => mockUseActiveConversation(),
+  useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
 }));
 
-// Mock child components to isolate MessageList testing
+// mock child components to isolate testing
 jest.mock('./ChatLoading', () => ({
   ChatLoading: () => <div data-testid="chat-loading">Loading...</div>,
 }));
@@ -91,6 +93,12 @@ describe('<MessageList />', () => {
     jest.clearAllMocks();
     mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn());
     mockUseActiveConversation.mockReturnValue({ id: 'test-conversation-id' });
+    mockUseUpdateConversationTitle.mockReturnValue({
+      updateTitle: jest.fn(),
+      isUpdating: false,
+      error: null,
+      clearError: jest.fn(),
+    });
   });
 
   describe('Loading State', () => {
