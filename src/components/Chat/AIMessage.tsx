@@ -23,7 +23,6 @@ import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
 import { useBadResponseModal } from './feedback/BadResponseModal';
-import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
 
 // feedback rating constants to prevent typos
 const FEEDBACK_RATING = {
@@ -57,7 +56,6 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const [feedbackRating, setFeedbackRating] = useState<FeedbackRating>(null);
     const { sendFeedback, isLoading } = useSendFeedback();
     const { badResponseModalToggle } = useBadResponseModal();
-    const { addAlert } = useToastAlerts();
 
     // extract quick responses, referenced documents, and tool calls from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
@@ -106,24 +104,11 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
             llm_response: content,
             isPositive: true,
           });
-
-          // show success toast
-          addAlert({
-            id: `feedback-success-${message.id}-${Date.now()}`,
-            variant: 'success',
-            title: t('feedback.success.title'),
-          });
+          // no toast notification - button state is the sole confirmation per AC
         } catch (err) {
           // reset state on error so user can retry
           setFeedbackRating(null);
-
-          // show error toast
-          addAlert({
-            id: `feedback-error-${message.id}-${Date.now()}`,
-            variant: 'danger',
-            title: t('feedback.error.title'),
-            children: typeof err === 'string' ? err : t('feedback.badResponse.error.unexpected'),
-          });
+          // no error toast - silently fail and allow retry per AC
         }
       },
       [
@@ -134,8 +119,6 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         sendFeedback,
         badResponseModalToggle,
         message,
-        addAlert,
-        t,
       ],
     );
 
