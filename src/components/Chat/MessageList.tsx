@@ -2,12 +2,14 @@ import React, { useRef, useMemo } from 'react';
 import { MessageBox } from '@patternfly/chatbot';
 import type { Message } from '../../hooks/AIState';
 import { useChatMessages } from '../../hooks/useChatMessages';
+import { useActiveConversation } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from '../../types/chat';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { EditableChatHeader } from './EditableChatHeader';
+import { getUserQuestionForBotMessage } from './feedback/utils';
 
 // TODO: Remove this stub data after testing
 const STUB_REFERENCED_DOCUMENTS = [
@@ -51,7 +53,8 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       lastBotMessageIndex,
       sendMessage,
     } = useChatMessages();
-
+    const activeConversation = useActiveConversation();
+    const conversationId = activeConversation?.id || '';
     const bottomRef = useRef<HTMLDivElement>(null);
 
     const renderedMessages = useMemo(() => {
@@ -68,6 +71,10 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
             ? { ...message, answer: streamingContent }
             : message;
 
+          // get the user question that precedes this bot message
+          const userQuestionMessage = getUserQuestionForBotMessage(messages, message.id);
+          const userQuestion = userQuestionMessage?.answer || '';
+
           return (
             <AIMessage
               key={`bot-${message.id}-${index}`}
@@ -79,6 +86,8 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
                   referencedDocuments: STUB_REFERENCED_DOCUMENTS,
                 },
               }}
+              conversationId={conversationId}
+              userQuestion={userQuestion}
               onQuickResponse={sendMessage}
               isStreaming={isCurrentlyStreaming}
             />
@@ -95,6 +104,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       });
     }, [
       messages,
+      conversationId,
       isStreaming,
       sendMessage,
       streamingMessage,

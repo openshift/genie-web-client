@@ -9,6 +9,14 @@ jest.mock('../../hooks/useChatMessages', () => ({
   useChatMessages: () => mockUseChatMessages(),
 }));
 
+// Mock useActiveConversation for conversationId
+const mockUseActiveConversation = jest.fn();
+
+jest.mock('../../hooks/AIState', () => ({
+  ...jest.requireActual('../../hooks/AIState'),
+  useActiveConversation: () => mockUseActiveConversation(),
+}));
+
 // Mock child components to isolate MessageList testing
 jest.mock('./ChatLoading', () => ({
   ChatLoading: () => <div data-testid="chat-loading">Loading...</div>,
@@ -36,11 +44,20 @@ jest.mock('./AIMessage', () => ({
   AIMessage: ({
     message,
     isStreaming,
+    conversationId,
+    userQuestion,
   }: {
     message: { id: string; answer: string };
     isStreaming: boolean;
+    conversationId: string;
+    userQuestion: string;
   }) => (
-    <div data-testid={`ai-message-${message.id}`} data-is-streaming={isStreaming}>
+    <div
+      data-testid={`ai-message-${message.id}`}
+      data-is-streaming={isStreaming}
+      data-conversation-id={conversationId}
+      data-user-question={userQuestion}
+    >
       {message.answer}
     </div>
   ),
@@ -65,10 +82,15 @@ const createMockChatMessagesReturn = (
   ...overrides,
 });
 
+jest.mock('./feedback/utils', () => ({
+  getUserQuestionForBotMessage: () => ({ answer: 'Test user question', role: 'user' }),
+}));
+
 describe('<MessageList />', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn());
+    mockUseActiveConversation.mockReturnValue({ id: 'test-conversation-id' });
   });
 
   describe('Loading State', () => {
