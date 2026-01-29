@@ -8,6 +8,7 @@ import { OnboardingModal } from './onboarding';
 import { ThemeProvider } from './theme';
 import { ToastAlertProvider } from './toast-alerts/ToastAlertProvider';
 import { SplitScreenDrawerProvider } from './drawer/SplitScreenDrawerProvider';
+import { CreateModeProvider } from './create-mode';
 import './genie.css';
 
 export const GeniePage = () => {
@@ -16,13 +17,15 @@ export const GeniePage = () => {
       <div className="global-layout-container">
         <AIProvider>
           <ChatBarProvider>
-            <SplitScreenDrawerProvider>
-              <DrawerProvider>
-                <ToastAlertProvider>
-                  <Layout />
-                </ToastAlertProvider>
-              </DrawerProvider>
-            </SplitScreenDrawerProvider>
+            <CreateModeProvider>
+              <SplitScreenDrawerProvider>
+                <DrawerProvider>
+                  <ToastAlertProvider>
+                    <Layout />
+                  </ToastAlertProvider>
+                </DrawerProvider>
+              </SplitScreenDrawerProvider>
+            </CreateModeProvider>
           </ChatBarProvider>
         </AIProvider>
         <OnboardingModal />

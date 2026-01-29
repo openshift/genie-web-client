@@ -29,6 +29,7 @@ import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import { useSplitScreenDrawer } from '../drawer/SplitScreenDrawerContext';
+import { useCreateMode } from '../create-mode';
 import './Chat.css';
 
 const CHAT_DRAWER_MAX_WIDTH = '80%';
@@ -46,8 +47,10 @@ export const Chat: React.FunctionComponent = () => {
   const sendStreamMessage = useSendStreamMessage();
   const messageBarRef = useRef<HTMLTextAreaElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const { splitScreenDrawerState, closeSplitScreenDrawer } = useSplitScreenDrawer();
+  const { splitScreenDrawerState, closeSplitScreenDrawer, openSplitScreenDrawer } =
+    useSplitScreenDrawer();
   const [drawerState, setDrawerState] = useChatDrawerState();
+  const { isCreateModeActive, setCreateModeActive } = useCreateMode();
 
   const handleSendMessage = useCallback(
     (value: string | number) => {
@@ -59,8 +62,9 @@ export const Chat: React.FunctionComponent = () => {
 
   const onCloseClick = useCallback(() => {
     closeSplitScreenDrawer();
+    setCreateModeActive(false);
     setDrawerState((prevState) => ({ ...prevState, active: false }));
-  }, [closeSplitScreenDrawer, setDrawerState]);
+  }, [closeSplitScreenDrawer, setCreateModeActive, setDrawerState]);
 
   const onExpand = useCallback(() => {
     drawerRef.current && drawerRef.current.focus();
@@ -102,6 +106,15 @@ export const Chat: React.FunctionComponent = () => {
   useEffect(() => {
     setShowChatBar(isValidConversationId);
   }, [isValidConversationId, setShowChatBar]);
+
+  useEffect(() => {
+    if (isCreateModeActive && !splitScreenDrawerState.isOpen) {
+      openSplitScreenDrawer({
+        children: <div>Create Mode - Dashboard creation panel</div>,
+      });
+      setDrawerState((prevState) => ({ ...prevState, active: true }));
+    }
+  }, [isCreateModeActive, splitScreenDrawerState.isOpen, openSplitScreenDrawer, setDrawerState]);
 
   const panelContent = (
     <DrawerPanelContent
