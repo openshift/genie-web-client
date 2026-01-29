@@ -1,4 +1,4 @@
-import { render, screen, user, waitFor, act } from '../../unitTestUtils';
+import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
 
 // mocked hooks for testing
@@ -68,14 +68,8 @@ describe('EditableChatHeader', () => {
     }) as HTMLInputElement;
 
     // simulate typing
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'New header title');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'New header title');
 
     await user.click(screen.getByRole('button', { name: 'Cancel title edit' }));
     expect(screen.getByText('Chat title')).toBeInTheDocument();
@@ -88,14 +82,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'Draft title');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'Draft title');
 
     mockUseActiveConversation.mockReturnValue({
       id: 'test-conversation-id',
@@ -118,14 +106,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'Saved title');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'Saved title');
 
     await user.click(screen.getByRole('button', { name: 'Save title' }));
 
@@ -141,14 +123,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'Enter saved');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'Enter saved');
 
     input.focus();
     await user.keyboard('{Enter}');
@@ -231,14 +207,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, '   ');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, '   ');
 
     await user.click(screen.getByRole('button', { name: 'Save title' }));
 
@@ -253,14 +223,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'Saved title');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'Saved title');
 
     await user.click(screen.getByRole('button', { name: 'Save title' }));
 
@@ -277,14 +241,8 @@ describe('EditableChatHeader', () => {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await act(async () => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, 'Changed title');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await user.clear(input);
+    await user.type(input, 'Changed title');
 
     input.focus();
     await user.keyboard('{Escape}');
