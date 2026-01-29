@@ -40,7 +40,7 @@ export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
         const fetchFn = client.fetchFunction || fetch;
         const baseUrl = client.baseUrl || '';
         const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-        const url = `${normalizedBaseUrl}v2/conversations/${conversationId}`;
+        const url = `${normalizedBaseUrl}v1/conversations/${conversationId}`;
 
         const response = await fetchFn(url, {
           method: 'PUT',
