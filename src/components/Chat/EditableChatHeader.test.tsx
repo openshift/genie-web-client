@@ -6,17 +6,11 @@ const mockUseActiveConversation = jest.fn();
 const mockUpdateTitle = jest.fn();
 const mockClearError = jest.fn();
 const mockUseUpdateConversationTitle = jest.fn();
-const mockUseParams = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useActiveConversation: () => mockUseActiveConversation(),
   useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
-}));
-
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
-  useParams: () => mockUseParams(),
 }));
 
 describe('EditableChatHeader', () => {
@@ -38,7 +32,6 @@ describe('EditableChatHeader', () => {
       clearError: mockClearError,
     });
 
-    mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
     mockUpdateTitle.mockResolvedValue(undefined);
   });
 
@@ -216,7 +209,12 @@ describe('EditableChatHeader', () => {
   });
 
   it('shows an error when conversationId is missing on save', async () => {
-    mockUseParams.mockReturnValue({});
+    mockUseActiveConversation.mockReturnValue({
+      id: undefined,
+      title: 'Chat title',
+      locked: false,
+      createdAt: new Date(),
+    });
     renderHeader();
     await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     const input = screen.getByRole('textbox', {

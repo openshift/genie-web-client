@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import {
   ChatbotHeader,
@@ -24,9 +23,9 @@ import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/r
 import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
 
 export const EditableChatHeader: React.FC = () => {
-  const { conversationId } = useParams<{ conversationId: string }>();
   const { t } = useTranslation('plugin__genie-web-client');
   const activeConversation = useActiveConversation();
+  const conversationId = activeConversation?.id;
   const { updateTitle, isUpdating, error: apiError, clearError } = useUpdateConversationTitle();
 
   const [isEditing, setIsEditing] = useState(false);
