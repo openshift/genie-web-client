@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo, FunctionComponent, memo, useCallback, useState } from 'react';
+import { useMemo, FunctionComponent, memo, useCallback, useState, useEffect } from 'react';
 import { Message } from '@patternfly/chatbot';
 import { Flex, FlexItem } from '@patternfly/react-core';
 import {
@@ -23,7 +23,6 @@ import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
 import { useBadResponseModal } from './feedback/BadResponseModal';
-import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
 
 // feedback rating constants to prevent typos
 const FEEDBACK_RATING = {
@@ -55,9 +54,16 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const { t } = useTranslation('plugin__genie-web-client');
     const content = message.answer || '';
     const [feedbackRating, setFeedbackRating] = useState<FeedbackRating>(null);
+    const [feedbackAnnouncement, setFeedbackAnnouncement] = useState<string | null>(null);
     const { sendFeedback, isLoading } = useSendFeedback();
     const { badResponseModalToggle } = useBadResponseModal();
-    const { addAlert } = useToastAlerts();
+
+    // clear screen reader announcement after a delay so it can announce again on next click
+    useEffect(() => {
+      if (!feedbackAnnouncement) return;
+      const id = setTimeout(() => setFeedbackAnnouncement(null), 1500);
+      return () => clearTimeout(id);
+    }, [feedbackAnnouncement]);
 
     // extract quick responses, referenced documents, and tool calls from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
@@ -106,24 +112,12 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
             llm_response: content,
             isPositive: true,
           });
-
-          // show success toast
-          addAlert({
-            id: `feedback-success-${message.id}-${Date.now()}`,
-            variant: 'success',
-            title: t('feedback.success.title'),
-          });
+          // no toast - button state is the sole confirmation; announce for screen readers
+          setFeedbackAnnouncement(t('message.action.goodResponseRated'));
         } catch (err) {
           // reset state on error so user can retry
           setFeedbackRating(null);
-
-          // show error toast
-          addAlert({
-            id: `feedback-error-${message.id}-${Date.now()}`,
-            variant: 'danger',
-            title: t('feedback.error.title'),
-            children: typeof err === 'string' ? err : t('feedback.badResponse.error.unexpected'),
-          });
+          // no error toast - silently fail and allow retry
         }
       },
       [
@@ -134,7 +128,6 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
         sendFeedback,
         badResponseModalToggle,
         message,
-        addAlert,
         t,
       ],
     );
@@ -258,18 +251,42 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const hasContent = content.length > 0;
     const showLoading = isStreaming && !hasContent;
 
+    // visually hidden live region so screen readers hear "response rated good" after thumbs up
+    const screenReaderOnlyStyle: React.CSSProperties = {
+      position: 'absolute',
+      width: 1,
+      height: 1,
+      padding: 0,
+      margin: -1,
+      overflow: 'hidden',
+      clip: 'rect(0, 0, 0, 0)',
+      whiteSpace: 'nowrap',
+      border: 0,
+    };
+
     return (
-      <Message
-        name="Genie"
-        isLoading={showLoading}
-        role="bot"
-        content={content}
-        timestamp={timestamp}
-        extraContent={extraContent}
-        actions={actions}
-        quickResponses={quickResponses}
-        persistActionSelection={true}
-      />
+      <>
+        <div
+          aria-live="polite"
+          role="status"
+          style={screenReaderOnlyStyle}
+          data-testid="feedback-announcement"
+        >
+          {feedbackAnnouncement}
+        </div>
+        <Message
+          name="Genie"
+          isLoading={showLoading}
+          role="bot"
+          content={content}
+          timestamp={timestamp}
+          extraContent={extraContent}
+          actions={actions}
+          quickResponses={quickResponses}
+          persistActionSelection={true}
+          isLiveRegion={showLoading}
+        />
+      </>
     );
   },
   (prevProps, nextProps) => {

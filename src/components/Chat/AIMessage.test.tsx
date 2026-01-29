@@ -277,6 +277,28 @@ describe('<AIMessage />', () => {
       });
     });
 
+    it('announces feedback success to screen readers when thumbs up succeeds', async () => {
+      const message = createMessage({ answer: 'Test AI response' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion={defaultUserQuestion}
+          onQuickResponse={mockOnQuickResponse}
+        />,
+      );
+
+      const announcementEl = screen.getByTestId('feedback-announcement');
+      expect(announcementEl).toHaveAttribute('aria-live', 'polite');
+      expect(announcementEl).toHaveAttribute('role', 'status');
+      expect(announcementEl).toBeEmptyDOMElement();
+
+      await user.click(screen.getByLabelText('Good response'));
+
+      expect(announcementEl).toHaveTextContent('Response rated good');
+    });
+
     it('opens bad response modal when thumbs down is clicked', async () => {
       const message = createMessage({ answer: 'Test AI response' });
 
