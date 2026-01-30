@@ -1,5 +1,6 @@
 import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
+import { SplitScreenDrawerProvider } from '../drawer/SplitScreenDrawerProvider';
 
 // mocked hooks for testing
 const mockUseActiveConversation = jest.fn();
@@ -12,6 +13,12 @@ jest.mock('../../hooks/AIState', () => ({
   useActiveConversation: () => mockUseActiveConversation(),
   useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
 }));
+
+const editableChatHeader = () => (
+  <SplitScreenDrawerProvider>
+    <EditableChatHeader />
+  </SplitScreenDrawerProvider>
+);
 
 describe('EditableChatHeader', () => {
   beforeEach(() => {
@@ -35,7 +42,7 @@ describe('EditableChatHeader', () => {
     mockUpdateTitle.mockResolvedValue(undefined);
   });
 
-  const renderHeader = () => render(<EditableChatHeader />);
+  const renderHeader = () => render(editableChatHeader());
 
   it('renders initial title and actions', async () => {
     renderHeader();
@@ -69,7 +76,7 @@ describe('EditableChatHeader', () => {
   });
 
   it('keeps draft title when active conversation updates during edit', async () => {
-    const { rerender } = render(<EditableChatHeader />);
+    const { rerender } = render(editableChatHeader());
     await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     const input = screen.getByRole('textbox', {
       name: 'Edit conversation title',
@@ -85,7 +92,7 @@ describe('EditableChatHeader', () => {
       createdAt: new Date(),
     });
 
-    rerender(<EditableChatHeader />);
+    rerender(editableChatHeader());
 
     expect(screen.getByRole('textbox', { name: 'Edit conversation title' })).toHaveValue(
       'Draft title',

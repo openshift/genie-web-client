@@ -21,6 +21,7 @@ import {
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
+import { useSplitScreenDrawer } from '../drawer/SplitScreenDrawerContext';
 
 export const EditableChatHeader: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
@@ -47,6 +48,7 @@ export const EditableChatHeader: React.FC = () => {
     }
   }, [activeConversation?.title, isEditing, t]);
 
+  const { openSplitScreenDrawer } = useSplitScreenDrawer();
   const onEditClick = () => {
     originalTitleRef.current = title;
     setIsEditing(true);
@@ -178,17 +180,25 @@ export const EditableChatHeader: React.FC = () => {
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
           {!isEditing && (
-            <ChatbotHeaderOptionsDropdown
-              isCompact
-              tooltipProps={{ content: t('chat.header.moreActions') }}
-              toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
-            >
-              <DropdownList>
-                <DropdownItem value="rename" onClick={onEditClick}>
-                  {t('chat.rename')}
-                </DropdownItem>
-              </DropdownList>
-            </ChatbotHeaderOptionsDropdown>
+            <>
+              <Button
+                variant="primary"
+                onClick={() => openSplitScreenDrawer({ children: <div>Split screen body</div> })}
+              >
+                Open split screen
+              </Button>
+              <ChatbotHeaderOptionsDropdown
+                isCompact
+                tooltipProps={{ content: t('chat.header.moreActions') }}
+                toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
+              >
+                <DropdownList>
+                  <DropdownItem value="rename" onClick={onEditClick}>
+                    {t('chat.rename')}
+                  </DropdownItem>
+                </DropdownList>
+              </ChatbotHeaderOptionsDropdown>
+            </>
           )}
         </ChatbotHeaderActions>
       </ChatbotHeader>

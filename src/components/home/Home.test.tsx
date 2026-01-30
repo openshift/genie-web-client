@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '../../unitTestUtils';
 import { Home } from './Home';
 import { AIProvider } from '../../hooks/AIState';
+import { CreateModeProvider } from '../create-mode';
 
 // Stub out MessageBar so it doesn't render (but remains a valid component)
 jest.mock('@patternfly/chatbot', () => ({
@@ -13,7 +14,9 @@ describe('Home', () => {
   const renderWithProviders = () =>
     render(
       <AIProvider>
-        <Home />
+        <CreateModeProvider>
+          <Home />
+        </CreateModeProvider>
       </AIProvider>,
     );
 
@@ -27,7 +30,11 @@ describe('Home', () => {
   });
 
   it('displays description and CTA on initial render', () => {
-    render(<Home />);
+    render(
+      <CreateModeProvider>
+        <Home />
+      </CreateModeProvider>,
+    );
 
     expect(
       screen.getByText(

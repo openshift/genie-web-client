@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
+import { useCreateMode } from '../create-mode';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 
 export const Home: React.FC = () => {
@@ -19,6 +20,7 @@ export const Home: React.FC = () => {
   const sendStreamMessage = useSendStreamMessage();
   const navigate = useNavigate();
   const { setShowChatBar } = useChatBar();
+  const { setCreateModeActive } = useCreateMode();
 
   useEffect(() => {
     setShowChatBar(true);
@@ -40,9 +42,10 @@ export const Home: React.FC = () => {
     : t('dashboard.emptyState.headingNoName');
 
   const handleCreateDashboardClick = useCallback(() => {
+    setCreateModeActive(true);
     sendStreamMessage('Can you help me create a new dashboard?');
     navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-  }, [sendStreamMessage, navigate]);
+  }, [sendStreamMessage, navigate, setCreateModeActive]);
 
   return (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>
