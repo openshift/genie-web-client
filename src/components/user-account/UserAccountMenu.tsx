@@ -26,12 +26,8 @@ import { UserAccountMenuHeader } from './UserAccountMenuHeader';
 import { help } from '../../externalLinks';
 import './menuDropDown.css';
 
-const ProfileIcon = ({ name, title }: { name: string; title: string }) => {
-  return (
-    <Tooltip content={name}>
-      <Avatar src={AvatarImg} alt={title} />
-    </Tooltip>
-  );
+const ProfileIcon = ({ title }: { title: string }) => {
+  return <Avatar src={AvatarImg} alt={title} />;
 };
 
 export const UserAccountMenu = () => {
@@ -75,14 +71,16 @@ export const UserAccountMenu = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label={t('userAccount.menu.title')}
-          variant="plain"
-          onClick={onToggleClick}
-          isExpanded={isOpen}
-          icon={<ProfileIcon name={name} title={t('userAccount.menu.title')} />}
-        />
+        <Tooltip content={name} position="bottom-end" enableFlip={false}>
+          <MenuToggle
+            ref={toggleRef}
+            aria-label={t('userAccount.menu.title')}
+            variant="plain"
+            onClick={onToggleClick}
+            isExpanded={isOpen}
+            icon={<ProfileIcon title={t('userAccount.menu.title')} />}
+          />
+        </Tooltip>
       )}
       shouldFocusToggleOnSelect
       className="user-account-menu-dropdown"
