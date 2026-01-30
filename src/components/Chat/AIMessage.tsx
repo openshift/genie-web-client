@@ -283,6 +283,10 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           extraContent={extraContent}
           actions={actions}
           quickResponses={quickResponses}
+          quickResponseContainerProps={{
+            isVertical: true,
+            numLabels: quickResponses?.length,
+          }}
           persistActionSelection={true}
           isLiveRegion={showLoading}
         />
