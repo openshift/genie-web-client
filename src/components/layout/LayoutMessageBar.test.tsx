@@ -95,4 +95,21 @@ describe('<LayoutMessageBar />', () => {
     expect(mockSendStreamMessage).toHaveBeenCalledWith('Start new conversation');
     expect(mockNavigate).toHaveBeenCalledWith('/genie/chat');
   });
+
+  it('starts a new conversation when on home page even with active conversation', async () => {
+    // Arrange
+    const activeConversation = { id: 'conv-789', messages: [{ role: 'user', answer: 'existing' }] };
+    mockUseActiveConversation.mockReturnValue(activeConversation);
+    render(<LayoutMessageBar messageBarRef={mockRef} />, { initialEntries: ['/genie'] });
+    const messageInput = screen.getByRole('textbox', { name: 'Send a message...' });
+
+    // Act
+    await user.type(messageInput, 'New message from home');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    // Assert
+    expect(mockCreateNewConversation).toHaveBeenCalledTimes(1);
+    expect(mockSendStreamMessage).toHaveBeenCalledWith('New message from home');
+    expect(mockNavigate).toHaveBeenCalledWith('/genie/chat');
+  });
 });
