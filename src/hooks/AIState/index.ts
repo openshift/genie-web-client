@@ -5,3 +5,4 @@ export * from './stateHooks';
 export * from './types';
 export * from './useInjectBotMessage';
 export * from './feedbackHooks';
+export * from './useUpdateConversationTitle';
