@@ -961,20 +961,9 @@
     react-dropzone "14.3.5"
     tslib "^2.8.1"
 
-"@patternfly/react-component-groups@6.4.0-prerelease.7":
-  version "6.4.0-prerelease.7"
-  resolved "https://registry.npmjs.org/@patternfly/react-component-groups/-/react-component-groups-6.4.0-prerelease.7.tgz#258a3fa86b7209b562b3f640120b3821861b9acb"
-  integrity sha512-zTJ5zLE1X4ubnHQcERkfIoWdhqKl01Uu+TN4tx2Ds46N7aF68q9fDWSjBHfO3TEIpO7hyaLTwxNhgPZH0kZ8sQ==
-  dependencies:
-    "@patternfly/react-core" "^6.0.0"
-    "@patternfly/react-icons" "^6.0.0"
-    "@patternfly/react-styles" "^6.0.0"
-    "@patternfly/react-table" "^6.0.0"
-    react-jss "^10.10.0"
-
-"@patternfly/react-component-groups@^6.1.0":
+"@patternfly/react-component-groups@6.4.0", "@patternfly/react-component-groups@^6.1.0":
   version "6.4.0"
-  resolved "https://registry.npmjs.org/@patternfly/react-component-groups/-/react-component-groups-6.4.0.tgz#f657eefb059cd41ff91af2e273e14bf8c48f77a2"
+  resolved "https://registry.yarnpkg.com/@patternfly/react-component-groups/-/react-component-groups-6.4.0.tgz#f657eefb059cd41ff91af2e273e14bf8c48f77a2"
   integrity sha512-vg0761nQ/7hfggbp6+XowRcQQSd9oIToh77+4lmsyrs41MkA5ppQIPBCZ4lUZW87kmEPhkHqglpJcVfsrrIM/g==
   dependencies:
     "@patternfly/react-core" "^6.0.0"
