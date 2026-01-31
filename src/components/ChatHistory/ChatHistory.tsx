@@ -11,6 +11,8 @@ import {
   List,
   ListItem,
   Skeleton,
+  Split,
+  SplitItem,
 } from '@patternfly/react-core';
 import { PlusSquareIcon } from '@patternfly/react-icons';
 import { useMemo, useState, useCallback } from 'react';
@@ -133,6 +135,11 @@ export const ChatHistory: React.FC = () => {
   const { closeDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
 
+  const handleNewChatClick = useCallback(() => {
+    closeDrawer();
+    navigate(`${mainGenieRoute}/${ChatNew}`);
+  }, [closeDrawer, navigate]);
+
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const allConversations = (conversations as unknown as Conversation[]) || [];
@@ -179,7 +186,22 @@ export const ChatHistory: React.FC = () => {
   return (
     <>
       {!isInitializing && (
-        <ChatHistorySearch onSearch={setSearchTerm} resultsCount={filteredConversations.length} />
+        <Split hasGutter>
+          <SplitItem isFilled>
+            <ChatHistorySearch
+              onSearch={setSearchTerm}
+              resultsCount={filteredConversations.length}
+            />
+          </SplitItem>
+          <SplitItem>
+            <Button
+              variant="control"
+              icon={<PlusSquareIcon />}
+              onClick={handleNewChatClick}
+              aria-label="New Chat"
+            />
+          </SplitItem>
+        </Split>
       )}
       {searchTerm.trim() && !hasSearchResults && !isInitializing ? (
         <EmptyState
