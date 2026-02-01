@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { useSendStreamMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 
 export const Home: React.FC = () => {
@@ -18,11 +17,6 @@ export const Home: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
   const sendStreamMessage = useSendStreamMessage();
   const navigate = useNavigate();
-  const { setShowChatBar } = useChatBar();
-
-  useEffect(() => {
-    setShowChatBar(true);
-  }, [setShowChatBar]);
 
   useEffect(() => {
     try {

@@ -4,12 +4,12 @@ import type { Message } from '../../hooks/AIState';
 import { useChatMessages } from '../../hooks/useChatMessages';
 import { useActiveConversation } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from '../../types/chat';
+import { AIMessage } from './AIMessage';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
+import EditableChatHeader from './EditableChatHeader';
+import { getUserQuestionForBotMessage } from './feedback';
 import { UserMessage } from './UserMessage';
-import { AIMessage } from './AIMessage';
-import { EditableChatHeader } from './EditableChatHeader';
-import { getUserQuestionForBotMessage } from './feedback/utils';
 
 // TODO: Remove this stub data after testing
 const STUB_REFERENCED_DOCUMENTS = [

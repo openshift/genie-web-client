@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useActiveConversation, useSetActiveConversation } from '../../hooks/AIState';
 import { Chatbot, ChatbotContent, ChatbotDisplayMode, ChatbotFooter } from '@patternfly/chatbot';
 import { useNavigate, useParams } from 'react-router-dom-v5-compat';
-import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
@@ -16,7 +15,7 @@ export const Chat: React.FunctionComponent = () => {
   const activeConversation = useActiveConversation();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
-  const { setShowChatBar } = useChatBar();
+
   useEffect(() => {
     if (conversationId && activeConversation?.id !== conversationId) {
       const setConversation = async () => {
@@ -41,10 +40,6 @@ export const Chat: React.FunctionComponent = () => {
       navigate(`/genie/chat/${activeConversation.id}`, { replace: true });
     }
   }, [conversationId, activeConversation, navigate]);
-
-  useEffect(() => {
-    setShowChatBar(isValidConversationId);
-  }, [isValidConversationId, setShowChatBar]);
 
   return (
     <BadResponseModalProvider>

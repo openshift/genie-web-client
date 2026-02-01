@@ -5,7 +5,6 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { MessageBar } from '@patternfly/chatbot';
 import {
   RhStandardBarGraphIcon,
   RhStandardBugIcon,
@@ -15,29 +14,19 @@ import {
 } from '@patternfly/react-icons';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  useSendStreamMessage,
-  useCreateNewConversation,
-  useInjectBotMessage,
-} from '../../hooks/AIState';
+import { useCreateNewConversation, useInjectBotMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
-import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import './NewChat.css';
+import { ChatMessageBar } from '../chat/ChatMessageBar';
 
 export const NewChat: React.FC = () => {
-  const { setShowChatBar } = useChatBar();
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
-  const sendStreamMessage = useSendStreamMessage();
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
   const createNewConversation = useCreateNewConversation();
-
-  useEffect(() => {
-    setShowChatBar(false);
-  }, [setShowChatBar]);
 
   useEffect(() => {
     try {
@@ -60,14 +49,6 @@ export const NewChat: React.FC = () => {
   const titleText = userName
     ? t('newChat.heading', { name: userName })
     : t('newChat.headingNoName');
-
-  const handleSendMessage = useCallback(
-    (message: string | number) => {
-      sendStreamMessage(message);
-      navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-    },
-    [sendStreamMessage, navigate],
-  );
 
   const handleSuggestionClick = useCallback(
     (key: SuggestionKey) => {
@@ -101,10 +82,10 @@ export const NewChat: React.FC = () => {
   return (
     <EmptyState className="new-chat" variant="xl" titleText={titleText}>
       <EmptyStateBody className="pf-v6-u-font-size-lg">{t('newChat.description')}</EmptyStateBody>
-      <MessageBar
-        aria-label={t('newChat.promptPlaceholder') as string}
-        placeholder={t('newChat.promptPlaceholder') as string}
-        onSendMessage={handleSendMessage}
+      <ChatMessageBar
+        onSendMessage={() => {
+          navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
+        }}
       />
       <EmptyStateFooter>
         <EmptyStateActions>
