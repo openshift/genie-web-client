@@ -14,19 +14,20 @@ import {
 } from '@patternfly/react-icons';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCreateNewConversation, useInjectBotMessage } from '../../hooks/AIState';
+import { useInjectBotMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import './NewChat.css';
 import { ChatMessageBar } from '../chat/ChatMessageBar';
+import { useChatConversation } from '../../hooks/useChatConversation';
 
 export const NewChat: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
-  const createNewConversation = useCreateNewConversation();
+  const { createNewConversation } = useChatConversation();
 
   useEffect(() => {
     try {

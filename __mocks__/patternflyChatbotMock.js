@@ -1,5 +1,18 @@
 const React = require('react');
 
+// CompassPanel mock (from @patternfly/react-core - not yet exported publicly)
+const CompassPanel = ({ children, className, isFullHeight, ...props }) => {
+  return React.createElement(
+    'div',
+    {
+      className: `pf-v6-c-compass-panel ${className || ''} ${isFullHeight ? 'pf-m-full-height' : ''}`.trim(),
+      'data-testid': 'compass-panel',
+      ...props,
+    },
+    children
+  );
+};
+
 const MessageBar = React.forwardRef((props, ref) => {
   return React.createElement('div', { 'data-test': 'mock-message-bar', ref });
 });
@@ -56,6 +69,10 @@ const ChatbotHeaderOptionsDropdown = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot-header-options', ...props }, children);
 };
 
+const ChatbotFooter = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-footer', ...props }, children);
+};
+
 const ChatbotDisplayMode = {
   embedded: 'embedded',
   overlay: 'overlay',
@@ -71,7 +88,9 @@ module.exports = {
   ChatbotHeaderActions,
   ChatbotHeaderOptionsDropdown,
   ChatbotContent,
+  ChatbotFooter,
   MessageBox,
   Message,
   ChatbotDisplayMode,
+  CompassPanel,
 };

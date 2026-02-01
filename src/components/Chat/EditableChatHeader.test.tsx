@@ -1,38 +1,39 @@
 import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { EditableChatHeader } from './EditableChatHeader';
 
-// mocked hooks for testing
-const mockUseActiveConversation = jest.fn();
-const mockUpdateTitle = jest.fn();
-const mockClearError = jest.fn();
-const mockUseUpdateConversationTitle = jest.fn();
+// mocked useChatConversation hook for testing
+const mockStartEditingTitle = jest.fn();
+const mockCancelEditingTitle = jest.fn();
+const mockUpdateTitleValue = jest.fn();
+const mockSaveTitle = jest.fn();
 
-jest.mock('../../hooks/AIState', () => ({
-  ...jest.requireActual('../../hooks/AIState'),
-  useActiveConversation: () => mockUseActiveConversation(),
-  useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
+const mockUseChatConversation = jest.fn();
+
+jest.mock('../../hooks/useChatConversation', () => ({
+  useChatConversation: () => mockUseChatConversation(),
 }));
 
 describe('EditableChatHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // setup default mock return values
-    mockUseActiveConversation.mockReturnValue({
-      id: 'test-conversation-id',
+    // setup default mock return values for useChatConversation
+    mockUseChatConversation.mockReturnValue({
       title: 'Chat title',
-      locked: false,
-      createdAt: new Date(),
+      titleEditState: {
+        isEditing: false,
+        editValue: 'Chat title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
-    mockUseUpdateConversationTitle.mockReturnValue({
-      updateTitle: mockUpdateTitle,
-      isUpdating: false,
-      error: null,
-      clearError: mockClearError,
-    });
-
-    mockUpdateTitle.mockResolvedValue(undefined);
+    mockSaveTitle.mockResolvedValue(undefined);
   });
 
   const renderHeader = () => render(<EditableChatHeader />);
@@ -43,46 +44,93 @@ describe('EditableChatHeader', () => {
   });
 
   it('enters edit mode on title click and hides actions', async () => {
+    // Set isEditing to true to simulate edit mode
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Chat title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     // input appears
     expect(screen.getByRole('textbox', { name: 'Edit conversation title' })).toBeInTheDocument();
     // actions hidden while editing
     expect(screen.queryByRole('button', { name: 'kebab dropdown toggle' })).not.toBeInTheDocument();
   });
 
-  it('cancel discards edits and restores original title', async () => {
+  it('calls startEditingTitle when title button is clicked', async () => {
     renderHeader();
     const editButton = screen.getByRole('button', { name: 'Edit conversation title' });
     await user.click(editButton);
 
-    const input = screen.getByRole('textbox', {
-      name: 'Edit conversation title',
-    }) as HTMLInputElement;
+    expect(mockStartEditingTitle).toHaveBeenCalled();
+  });
 
-    // simulate typing
-    await user.clear(input);
-    await user.type(input, 'New header title');
+  it('cancel discards edits by calling cancelEditingTitle', async () => {
+    // Set isEditing to true to show the cancel button
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'New header title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
 
+    renderHeader();
     await user.click(screen.getByRole('button', { name: 'Cancel title edit' }));
-    expect(screen.getByText('Chat title')).toBeInTheDocument();
+
+    expect(mockCancelEditingTitle).toHaveBeenCalled();
   });
 
   it('keeps draft title when active conversation updates during edit', async () => {
+    // Initial state with editing mode
+    mockUseChatConversation.mockReturnValue({
+      title: 'Original title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Draft title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
     const { rerender } = render(<EditableChatHeader />);
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
-    const input = screen.getByRole('textbox', {
-      name: 'Edit conversation title',
-    }) as HTMLInputElement;
 
-    await user.clear(input);
-    await user.type(input, 'Draft title');
-
-    mockUseActiveConversation.mockReturnValue({
-      id: 'test-conversation-id',
+    // Simulate server update while editing - the editValue should stay the same
+    mockUseChatConversation.mockReturnValue({
       title: 'Server updated title',
-      locked: false,
-      createdAt: new Date(),
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Draft title', // This should persist during edit
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
     rerender(<EditableChatHeader />);
@@ -92,58 +140,93 @@ describe('EditableChatHeader', () => {
     );
   });
 
-  it('save commits the edited title via button and calls API', async () => {
+  it('save commits the edited title via button and calls saveTitle', async () => {
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Saved title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
-    const input = screen.getByRole('textbox', {
-      name: 'Edit conversation title',
-    }) as HTMLInputElement;
-
-    await user.clear(input);
-    await user.type(input, 'Saved title');
-
     await user.click(screen.getByRole('button', { name: 'Save title' }));
 
     await waitFor(() => {
-      expect(mockUpdateTitle).toHaveBeenCalledWith('test-conversation-id', 'Saved title');
+      expect(mockSaveTitle).toHaveBeenCalled();
     });
   });
 
-  it('save commits the edited title via Enter key and calls API', async () => {
+  it('save commits the edited title via Enter key and calls saveTitle', async () => {
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Enter saved',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     const input = screen.getByRole('textbox', {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
-
-    await user.clear(input);
-    await user.type(input, 'Enter saved');
 
     input.focus();
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(mockUpdateTitle).toHaveBeenCalledWith('test-conversation-id', 'Enter saved');
+      expect(mockSaveTitle).toHaveBeenCalled();
     });
   });
 
-  it('displays fallback title when topic_summary is null', () => {
-    mockUseActiveConversation.mockReturnValue({
-      id: 'test-conversation-id',
+  it('displays fallback title when title is null', () => {
+    mockUseChatConversation.mockReturnValue({
       title: null,
-      locked: false,
-      createdAt: new Date(),
+      titleEditState: {
+        isEditing: false,
+        editValue: '',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
     renderHeader();
     expect(screen.getByText('New conversation')).toBeInTheDocument();
   });
 
-  it('displays fallback title when conversation has no title', () => {
-    mockUseActiveConversation.mockReturnValue({
-      id: 'test-conversation-id',
-      locked: false,
-      createdAt: new Date(),
+  it('displays fallback title when title is empty string', () => {
+    mockUseChatConversation.mockReturnValue({
+      title: '',
+      titleEditState: {
+        isEditing: false,
+        editValue: '',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
     renderHeader();
@@ -151,15 +234,22 @@ describe('EditableChatHeader', () => {
   });
 
   it('shows loading state while updating title', async () => {
-    mockUseUpdateConversationTitle.mockReturnValue({
-      updateTitle: mockUpdateTitle,
-      isUpdating: true,
-      error: null,
-      clearError: mockClearError,
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Saving title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: true,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
 
     // buttons disabled while updating
     expect(screen.getByRole('button', { name: 'Save title' })).toBeDisabled();
@@ -167,11 +257,19 @@ describe('EditableChatHeader', () => {
   });
 
   it('displays error alert when API update fails', async () => {
-    mockUseUpdateConversationTitle.mockReturnValue({
-      updateTitle: mockUpdateTitle,
-      isUpdating: false,
-      error: 'Network error occurred',
-      clearError: mockClearError,
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: false,
+        editValue: 'Chat title',
+        validationError: undefined,
+        apiError: 'Network error occurred',
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
 
     renderHeader();
@@ -179,73 +277,76 @@ describe('EditableChatHeader', () => {
     expect(screen.getByText('Network error occurred')).toBeInTheDocument();
   });
 
-  it('clears API error when user starts editing again', async () => {
-    mockUseUpdateConversationTitle.mockReturnValue({
-      updateTitle: mockUpdateTitle,
-      isUpdating: false,
-      error: 'Previous error',
-      clearError: mockClearError,
-    });
-
-    renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
-
-    expect(mockClearError).toHaveBeenCalled();
-  });
-
-  it('prevents saving empty title with whitespace', async () => {
-    renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
-    const input = screen.getByRole('textbox', {
-      name: 'Edit conversation title',
-    }) as HTMLInputElement;
-
-    await user.clear(input);
-    await user.type(input, '   ');
-
-    await user.click(screen.getByRole('button', { name: 'Save title' }));
-
-    expect(mockUpdateTitle).not.toHaveBeenCalled();
-  });
-
-  it('shows an error when conversationId is missing on save', async () => {
-    mockUseActiveConversation.mockReturnValue({
-      id: undefined,
+  it('calls updateTitleValue when input changes', async () => {
+    mockUseChatConversation.mockReturnValue({
       title: 'Chat title',
-      locked: false,
-      createdAt: new Date(),
+      titleEditState: {
+        isEditing: true,
+        editValue: '',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
     });
+
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     const input = screen.getByRole('textbox', {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
 
-    await user.clear(input);
-    await user.type(input, 'Saved title');
+    await user.type(input, 'a');
 
-    await user.click(screen.getByRole('button', { name: 'Save title' }));
+    expect(mockUpdateTitleValue).toHaveBeenCalledWith('a');
+  });
 
-    expect(
-      screen.getByText('Unable to save without a conversation ID. Try again after the chat loads.'),
-    ).toBeInTheDocument();
-    expect(mockUpdateTitle).not.toHaveBeenCalled();
+  it('shows validation error in tooltip', async () => {
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: '',
+        validationError: 'Title cannot be empty',
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
+    renderHeader();
+    expect(screen.getByText('Title cannot be empty')).toBeInTheDocument();
   });
 
   it('supports Escape key to cancel editing', async () => {
+    mockUseChatConversation.mockReturnValue({
+      title: 'Chat title',
+      titleEditState: {
+        isEditing: true,
+        editValue: 'Changed title',
+        validationError: undefined,
+        apiError: null,
+        isUpdating: false,
+      },
+      startEditingTitle: mockStartEditingTitle,
+      cancelEditingTitle: mockCancelEditingTitle,
+      updateTitleValue: mockUpdateTitleValue,
+      saveTitle: mockSaveTitle,
+    });
+
     renderHeader();
-    await user.click(screen.getByRole('button', { name: 'Edit conversation title' }));
     const input = screen.getByRole('textbox', {
       name: 'Edit conversation title',
     }) as HTMLInputElement;
-
-    await user.clear(input);
-    await user.type(input, 'Changed title');
 
     input.focus();
     await user.keyboard('{Escape}');
 
-    expect(screen.getByText('Chat title')).toBeInTheDocument();
-    expect(mockUpdateTitle).not.toHaveBeenCalled();
+    expect(mockCancelEditingTitle).toHaveBeenCalled();
   });
 });

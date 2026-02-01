@@ -128,6 +128,51 @@ jest.mock('./components/utils/aiStateManager', () => {
   };
 });
 
+// Mock @redhat-cloud-services/ai-react-state to prevent "AIStateContext not initialized" errors
+// This is needed because jest.requireActual('../../hooks/AIState') in test files loads the actual
+// wrapper hooks, which in turn import from this package and call its hooks during module load.
+jest.mock('@redhat-cloud-services/ai-react-state', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const React = require('react');
+
+  // Create a mock context that provides default values
+  const mockContextValue = {
+    getState: jest.fn().mockReturnValue({
+      getState: jest.fn().mockReturnValue({
+        conversations: {},
+        activeConversationId: null,
+        messages: [],
+        isInitializing: false,
+      }),
+      notifyAll: jest.fn(),
+      getConversations: jest.fn().mockReturnValue([]),
+    }),
+  };
+
+  const AIStateContext = React.createContext(mockContextValue);
+
+  return {
+    AIStateContext,
+    AIStateProvider: ({ children }: { children: React.ReactNode }) =>
+      React.createElement(AIStateContext.Provider, { value: mockContextValue }, children),
+    // Conversation hooks
+    useActiveConversation: jest.fn().mockReturnValue(undefined),
+    useSetActiveConversation: jest.fn().mockReturnValue(jest.fn().mockResolvedValue(undefined)),
+    useConversations: jest.fn().mockReturnValue([]),
+    useCreateNewConversation: jest
+      .fn()
+      .mockReturnValue(jest.fn().mockResolvedValue({ id: 'new-conversation' })),
+    // Message hooks
+    useSendMessage: jest.fn().mockReturnValue(jest.fn()),
+    useMessages: jest.fn().mockReturnValue([]),
+    useSendStreamMessage: jest.fn().mockReturnValue(jest.fn()),
+    // State hooks
+    useInProgress: jest.fn().mockReturnValue(false),
+    useIsInitializing: jest.fn().mockReturnValue(false),
+    useStreamChunk: jest.fn().mockReturnValue(undefined),
+  };
+});
+
 // Load real translations from the JSON file for use in tests
 // Resolve path relative to project root (where jest.config.js is located)
 const translationsPath = path.resolve(process.cwd(), 'locales/en/plugin__genie-web-client.json');

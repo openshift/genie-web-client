@@ -16,11 +16,12 @@ import { PlusSquareIcon } from '@patternfly/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { Conversation, useConversations, useIsInitializing } from '../../hooks/AIState';
+import { Conversation, useIsInitializing } from '../../hooks/AIState';
 import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
+import { useChatConversation } from '../../hooks/useChatConversation';
 
 /**
  * Filters conversations by search term (case-insensitive, matches anywhere in title)
@@ -128,14 +129,14 @@ const LoadingComponent: React.FC = () => {
 
 export const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
-  const conversations = useConversations();
+  const { conversations } = useChatConversation();
   const isInitializing = useIsInitializing();
   const { closeDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const allConversations = (conversations as unknown as Conversation[]) || [];
+  const allConversations = conversations || [];
   const filteredConversations = useMemo(
     () => filterConversations(allConversations, searchTerm),
     [allConversations, searchTerm],
