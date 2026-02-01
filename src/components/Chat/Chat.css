@@ -7,6 +7,10 @@
         backdrop-filter: none;
     }
 
+    .pf-chatbot__header-main {
+        align-items: center;
+    }
+
     /* Shared drawer content styles for Sources and Tools drawers */
     .chat-drawer-content {
         --pf-v6-l-stack--m-gutter--Gap: 24px;
