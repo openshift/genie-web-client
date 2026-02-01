@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useActiveConversation, useSetActiveConversation } from '../../hooks/AIState';
-import { Chatbot, ChatbotContent, ChatbotDisplayMode } from '@patternfly/chatbot';
+import { Chatbot, ChatbotContent, ChatbotDisplayMode, ChatbotFooter } from '@patternfly/chatbot';
 import { useNavigate, useParams } from 'react-router-dom-v5-compat';
 import { useChatBar } from '../ChatBarContext';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
+import { ChatMessageBar } from './ChatMessageBar';
+import { CompassPanel } from '@patternfly/react-core';
 
 export const Chat: React.FunctionComponent = () => {
   const { conversationId } = useParams();
@@ -46,16 +48,21 @@ export const Chat: React.FunctionComponent = () => {
 
   return (
     <BadResponseModalProvider>
-      <Chatbot displayMode={ChatbotDisplayMode.embedded}>
-        <ChatbotContent>
-          <MessageList
-            key={conversationId}
-            isLoading={isLoading}
-            isValidConversationId={isValidConversationId}
-          />
-        </ChatbotContent>
-        <BadResponseModal />
-      </Chatbot>
+      <CompassPanel isFullHeight className="chat">
+        <Chatbot displayMode={ChatbotDisplayMode.embedded} className="chat-bot">
+          <ChatbotContent>
+            <MessageList
+              key={conversationId}
+              isLoading={isLoading}
+              isValidConversationId={isValidConversationId}
+            />
+          </ChatbotContent>
+          <ChatbotFooter>
+            <ChatMessageBar />
+          </ChatbotFooter>
+          <BadResponseModal />
+        </Chatbot>
+      </CompassPanel>
     </BadResponseModalProvider>
   );
 };
