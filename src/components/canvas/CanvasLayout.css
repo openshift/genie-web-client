@@ -1,18 +1,14 @@
 .canvas-layout {
   overflow-y: auto;
-  background-color: #f3f4f6;
-  border-radius: var(--pf-t--global--border--radius--large, 32px);
 }
 
 .canvas-layout__toolbar {
-  background-color: inherit;
   position: sticky;
   top: 0;
 }
 
 .canvas-layout__footer {
   border-top: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
-  background-color: inherit;
   position: sticky;
   bottom: 0;
 }

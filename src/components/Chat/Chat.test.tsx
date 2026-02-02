@@ -65,7 +65,7 @@ const defaultMockValues = {
   setActiveConversation: jest.fn(),
   createNewConversation: jest.fn(),
   navigateToConversation: jest.fn(),
-  canvasState: 'closed' as const,
+  canvasState: 'open' as const,
   openCanvas: jest.fn(),
   closeCanvas: jest.fn(),
   maximizeCanvas: jest.fn(),

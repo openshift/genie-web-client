@@ -1,5 +1,95 @@
 .chat {
-    .pf-chatbot,
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--pf-t--global--spacer--md);
+    width: 100%;
+
+    .chat__chatbot {
+        grid-column: 4 / 10;
+        min-width: 0;
+        transform: translateX(0);
+        transition: transform 0.3s ease-out;
+        padding-inline: 0;
+        padding-block-start: 0;
+    }
+
+    .chat__canvas {
+        display: none;
+        grid-column: 5 / 13;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    /* When canvas is visible, chatbot moves left and canvas fills remaining space */
+    &.chat--canvas-open {
+        .pf-chatbot {
+            /* 4 columns on the left */
+            grid-column: 1 / 5;
+
+            /* Slide in from the right */
+            animation: chatbot-slide-left 0.3s ease-out;
+        }
+
+        .chat__canvas {
+            display: block;
+
+            /* 8 columns on the right */
+            grid-column: 5 / 13;
+
+            /* Slide in from the right, slightly delayed */
+            animation: canvas-slide-in 0.3s ease-out;
+        }
+    }
+
+    /* When canvas is maximized, chatbot is hidden and canvas spans full width */
+    &.chat--canvas-maximized {
+        .pf-chatbot {
+            display: none;
+        }
+
+        .chat__canvas {
+            display: block;
+
+            /* Full 12 columns */
+            grid-column: 1 / 13;
+            animation: canvas-expand 0.3s ease-out;
+        }
+    }
+
+    @keyframes canvas-expand {
+        from {
+            grid-column: 5 / 13;
+        }
+
+        to {
+            grid-column: 1 / 13;
+        }
+    }
+
+
+    @keyframes chatbot-slide-left {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes canvas-slide-in {
+        from {
+            opacity: 0;
+            transform: translateX(50%);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Chatbot customizations */
     .pf-chatbot__content,
     .pf-chatbot__header,
     .pf-chatbot__footer {
@@ -24,12 +114,11 @@
             }
         }
 
-        /* Reusable grid layout for drawer items */
-
         .drawer-item {
             padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
         }
 
+        /* Reusable grid layout for drawer items */
         .drawer-item-grid {
             display: grid;
             grid-template-columns: auto 1fr auto;
@@ -57,31 +146,10 @@
             align-self: center;
         }
 
-        /* temporary placeholder icon for sources and tools */
-        .icon-stub {
-            width: 20px;
-            height: 20px;
-            min-width: 20px;
-            min-height: 20px;
-            background-color: #F3F4F6;
-            border-radius: 4px;
-            background-image: repeating-linear-gradient(-45deg,
-                    transparent,
-                    transparent 2px,
-                    #a2a2a2 2px,
-                    #a2a2a2 4px);
-        }
-
         .pf-v6-c-expandable-section__toggle {
             .pf-v6-c-button {
                 align-items: center;
             }
-        }
-
-        /* Wrap code blocks in drawer to prevent horizontal overflow */
-        .drawer-code-block {
-            white-space: pre-wrap;
-            word-break: break-word;
         }
     }
 }
