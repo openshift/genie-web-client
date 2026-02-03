@@ -31,7 +31,7 @@ module.exports = {
     '\\.css$': '<rootDir>/__mocks__/styleMock.js',
     // Stub image imports (e.g., SVGs) to a simple string
     '\\.(svg|png|jpe?g|gif|webp|avif)$': '<rootDir>/__mocks__/fileMock.js',
-    '^@patternfly/chatbot$': '<rootDir>/__mocks__/patternflyChatbotMock.js',
+    '^@patternfly/chatbot$': '<rootDir>/__mocks__/patternflyChatbotMock.js'
   },
 
   // Specify which files should be included in coverage reports

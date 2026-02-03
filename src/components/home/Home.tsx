@@ -8,21 +8,16 @@ import {
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { useSendStreamMessage } from '../../hooks/AIState';
+import { useCreateNewConversation, useSendStreamMessage } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const { t } = useTranslation('plugin__genie-web-client');
+  const createNewConversation = useCreateNewConversation();
   const sendStreamMessage = useSendStreamMessage();
   const navigate = useNavigate();
-  const { setShowChatBar } = useChatBar();
-
-  useEffect(() => {
-    setShowChatBar(true);
-  }, [setShowChatBar]);
 
   useEffect(() => {
     try {
@@ -39,10 +34,11 @@ export const Home: React.FC = () => {
     ? t('dashboard.emptyState.heading', { name: userName })
     : t('dashboard.emptyState.headingNoName');
 
-  const handleCreateDashboardClick = useCallback(() => {
+  const handleCreateDashboardClick = useCallback(async () => {
+    await createNewConversation();
     sendStreamMessage('Can you help me create a new dashboard?');
     navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-  }, [sendStreamMessage, navigate]);
+  }, [createNewConversation, sendStreamMessage, navigate]);
 
   return (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>

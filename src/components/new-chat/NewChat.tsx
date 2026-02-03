@@ -22,22 +22,16 @@ import {
 } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
-import { useChatBar } from '../ChatBarContext';
 import { mainGenieRoute, SubRoutes } from '../routeList';
 import './NewChat.css';
 
 export const NewChat: React.FC = () => {
-  const { setShowChatBar } = useChatBar();
   const { t } = useTranslation('plugin__genie-web-client');
   const [userName, setUserName] = useState<string>('');
   const sendStreamMessage = useSendStreamMessage();
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
   const createNewConversation = useCreateNewConversation();
-
-  useEffect(() => {
-    setShowChatBar(false);
-  }, [setShowChatBar]);
 
   useEffect(() => {
     try {

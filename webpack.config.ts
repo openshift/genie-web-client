@@ -6,6 +6,7 @@ import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-serv
 import { ConsoleRemotePlugin } from '@openshift-console/dynamic-plugin-sdk-webpack';
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -77,6 +78,9 @@ const config: Configuration = {
     new ConsoleRemotePlugin(),
     new CopyWebpackPlugin({
       patterns: [{ from: path.resolve(__dirname, 'locales'), to: 'locales' }],
+    }),
+    new MonacoWebpackPlugin({
+      languages: ['json', 'yaml', 'javascript', 'typescript', 'html', 'css', 'markdown', 'shell'],
     }),
   ],
   devtool: isProd ? false : 'source-map',

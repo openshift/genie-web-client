@@ -98,6 +98,10 @@ const ChatbotHeaderOptionsDropdown = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot-header-options', ...props }, children);
 };
 
+const ChatbotFooter = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-footer', ...props }, children);
+};
+
 const ChatbotDisplayMode = {
   embedded: 'embedded',
   overlay: 'overlay',
@@ -113,6 +117,7 @@ module.exports = {
   ChatbotHeaderActions,
   ChatbotHeaderOptionsDropdown,
   ChatbotContent,
+  ChatbotFooter,
   MessageBox,
   Message,
   ChatbotDisplayMode,

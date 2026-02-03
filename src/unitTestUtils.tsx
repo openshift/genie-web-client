@@ -4,7 +4,6 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom-v5-compat';
 import { render, RenderOptions } from '@testing-library/react';
 import { AIStateProvider } from './hooks/AIState';
-import { ChatBarProvider } from './components/ChatBarContext';
 import { stateManager } from './components/utils/aiStateManager';
 export * from '@testing-library/react';
 export { renderHook } from '@testing-library/react-hooks';
@@ -24,7 +23,7 @@ export interface RouterOptions {
 }
 
 /**
- * Custom render function that wraps components in common providers (AIStateProvider, ChatBarProvider) and MemoryRouter.
+ * Custom render function that wraps components in common providers (AIStateProvider) and MemoryRouter.
  * This eliminates the need to manually wrap components in providers in each test.
  *
  * Note: react-i18next is automatically mocked globally in setupTests.ts with real translations
@@ -50,9 +49,7 @@ const renderWithProviders = (
   const Wrapper = ({ children }: { children: ReactNode }) => {
     return (
       <MemoryRouter initialEntries={initialEntries} future={future}>
-        <AIStateProvider stateManager={stateManager}>
-          <ChatBarProvider>{children}</ChatBarProvider>
-        </AIStateProvider>
+        <AIStateProvider stateManager={stateManager}>{children}</AIStateProvider>
       </MemoryRouter>
     );
   };
