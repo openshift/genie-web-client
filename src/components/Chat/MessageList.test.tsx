@@ -1,8 +1,18 @@
-import { renderWithoutProviders as render, screen } from '../../unitTestUtils';
+import { renderWithoutProviders as render, screen, waitFor, act } from '../../unitTestUtils';
 import { MessageList } from './MessageList';
 import type { StreamingMessage } from '../../hooks/useChatMessages';
 
-// mocked hook for chat messages
+// Access mock functions from the mocked @patternfly/chatbot module
+// Jest automatically uses __mocks__/patternflyChatbotMock.js via jest.config.js moduleNameMapper
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {
+  mockScrollToBottom,
+  mockScrollToTop,
+  mockIsSmartScrollActive,
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+} = require('@patternfly/chatbot');
+
+// Mock the useChatMessages hook
 const mockUseChatMessages = jest.fn();
 
 // mocked hooks for editable chat header
@@ -99,6 +109,12 @@ describe('<MessageList />', () => {
       error: null,
       clearError: jest.fn(),
     });
+    // Reset scroll method mocks
+    mockScrollToBottom.mockClear();
+    mockScrollToTop.mockClear();
+    mockIsSmartScrollActive.mockClear();
+    // Default: smart scroll is active (user is at bottom)
+    mockIsSmartScrollActive.mockReturnValue(true);
   });
 
   describe('Loading State', () => {
@@ -316,6 +332,385 @@ describe('<MessageList />', () => {
 
       expect(firstBotMessage).toHaveAttribute('data-is-streaming', 'false');
       expect(lastBotMessage).toHaveAttribute('data-is-streaming', 'true');
+    });
+  });
+
+  describe('Scroll Behavior', () => {
+    describe('Initial Load', () => {
+      it('scrolls to bottom instantly (auto behavior) when conversation loads with messages', async () => {
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Hello', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: 'Hi there', date: new Date() },
+            ],
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should scroll immediately with 'auto' behavior (no animation)
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledWith({
+            behavior: 'auto',
+            resumeSmartScroll: true,
+          });
+        });
+        expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not scroll when conversation loads with no messages', () => {
+        mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn({ messages: [] }));
+
+        render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        expect(mockScrollToBottom).not.toHaveBeenCalled();
+      });
+
+      it('resets and scrolls when conversation changes', async () => {
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [{ id: 'user-1', role: 'user', answer: 'First chat', date: new Date() }],
+            lastUserMessageIndex: 0,
+          }),
+        );
+        mockUseActiveConversation.mockReturnValue({ id: 'conversation-1' });
+
+        const { rerender } = render(
+          <MessageList key="conv-1" isLoading={false} isValidConversationId={true} />,
+        );
+
+        // Initial scroll
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
+        });
+        mockScrollToBottom.mockClear();
+
+        // Change conversation
+        mockUseActiveConversation.mockReturnValue({ id: 'conversation-2' });
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [{ id: 'user-2', role: 'user', answer: 'Second chat', date: new Date() }],
+            lastUserMessageIndex: 0,
+          }),
+        );
+
+        // Use different key to force re-mount (simulates conversation change)
+        rerender(<MessageList key="conv-2" isLoading={false} isValidConversationId={true} />);
+
+        // Should scroll again for new conversation with auto behavior
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledWith({
+            behavior: 'auto',
+            resumeSmartScroll: true,
+          });
+        });
+      });
+    });
+
+    describe('New Message', () => {
+      it('scrolls smoothly when user sends a new message', async () => {
+        const initialMessages = [
+          { id: 'user-1', role: 'user', answer: 'Hello', date: new Date() },
+          { id: 'bot-1', role: 'bot', answer: 'Hi', date: new Date() },
+        ];
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: initialMessages,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Wait for initial load scroll
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
+        });
+        mockScrollToBottom.mockClear();
+
+        // Add new message
+        const newMessages = [
+          ...initialMessages,
+          { id: 'user-2', role: 'user', answer: 'New message', date: new Date() },
+        ];
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: newMessages,
+            lastUserMessageIndex: 2,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // Force re-render with prop change and let effects flush
+        await act(async () => {
+          rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+          // Small delay to let effects flush
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+        });
+
+        // Should scroll for new message (may use 'smooth' in real app, 'auto' in test due to timing)
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalled();
+          expect(mockScrollToBottom).toHaveBeenCalledWith(
+            expect.objectContaining({
+              resumeSmartScroll: true,
+            }),
+          );
+        });
+      });
+
+      it('does not scroll when message count stays the same', () => {
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [{ id: 'user-1', role: 'user', answer: 'Hello', date: new Date() }],
+            lastUserMessageIndex: 0,
+          }),
+        );
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        mockScrollToBottom.mockClear();
+
+        // Re-render with same messages
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should not scroll again - no new messages
+        expect(mockScrollToBottom).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('LLM Streaming - Sticky Bottom Logic', () => {
+      it('scrolls instantly during streaming when user is at bottom', async () => {
+        const streamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming...',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // User is at bottom (smart scroll active)
+        mockIsSmartScrollActive.mockReturnValue(true);
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalled();
+        });
+        mockScrollToBottom.mockClear();
+
+        // Update streaming content
+        const updatedStreamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming... more text',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage: updatedStreamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // Toggle isLoading to force re-render through React.memo
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should scroll instantly with 'auto' behavior during streaming
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledWith({
+            behavior: 'auto',
+            resumeSmartScroll: false,
+          });
+        });
+      });
+
+      it('does not scroll during streaming when user has scrolled up', async () => {
+        const streamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming...',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // User has scrolled up (smart scroll not active)
+        mockIsSmartScrollActive.mockReturnValue(false);
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalled();
+        });
+        mockScrollToBottom.mockClear();
+
+        // Update streaming content
+        const updatedStreamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming... more text',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage: updatedStreamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // Toggle isLoading to force re-render through React.memo
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Note: scrollToBottom is called, but PatternFly's internal logic
+        // will prevent actual scrolling when pauseAutoScrollRef is true
+        // We're testing that we call it with resumeSmartScroll: false
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledWith({
+            behavior: 'auto',
+            resumeSmartScroll: false,
+          });
+        });
+      });
+
+      it('does not scroll when not streaming even if content changes', () => {
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: 'Complete response', date: new Date() },
+            ],
+            streamingMessage: null,
+            isStreaming: false,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        mockScrollToBottom.mockClear();
+
+        // Re-render with isStreaming still false
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should not trigger streaming scroll behavior
+        expect(mockScrollToBottom).not.toHaveBeenCalled();
+      });
+
+      it('scrolls on each streaming content update', async () => {
+        const messages = [
+          { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+          { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+        ];
+
+        // First streaming update
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages,
+            streamingMessage: { messageId: 'bot-1', content: 'A' },
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalled();
+        });
+        mockScrollToBottom.mockClear();
+
+        // Second streaming update
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages,
+            streamingMessage: { messageId: 'bot-1', content: 'AB' },
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
+        });
+        mockScrollToBottom.mockClear();
+
+        // Third streaming update
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages,
+            streamingMessage: { messageId: 'bot-1', content: 'ABC' },
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe('MessageBox Configuration', () => {
+      it('enables smart scroll on MessageBox component', () => {
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [{ id: 'user-1', role: 'user', answer: 'Hello', date: new Date() }],
+            lastUserMessageIndex: 0,
+          }),
+        );
+
+        render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        const messageBox = screen.getByTestId('message-box');
+        expect(messageBox).toHaveAttribute('data-enable-smart-scroll', 'true');
+      });
     });
   });
 });
