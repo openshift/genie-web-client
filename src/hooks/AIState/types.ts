@@ -1,5 +1,11 @@
 export type { Conversation, Message } from '@redhat-cloud-services/ai-client-state';
 
+/** Client shape used by hooks that call conversations API (e.g. useDeleteConversation, useUpdateConversationTitle) */
+export type ClientWithFetch = {
+  baseUrl?: string;
+  fetchFunction?: typeof fetch;
+};
+
 export type {
   ClientInitLimitation,
   HandleChunkCallback,

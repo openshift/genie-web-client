@@ -1,0 +1,6 @@
+.genie-chat-history .genie-chat-history-item__button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  cursor: pointer;
+}

@@ -8,6 +8,7 @@ import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 // Mock the hooks
 const mockUseConversations = jest.fn();
 const mockUseIsInitializing = jest.fn();
+const mockOpenDeleteModal = jest.fn();
 const mockCloseDrawer = jest.fn();
 const mockNavigate = jest.fn();
 
@@ -15,6 +16,18 @@ jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useConversations: () => mockUseConversations(),
   useIsInitializing: () => mockUseIsInitializing(),
+  useDeleteConversationModal: () => ({
+    conversationToDelete: null,
+    openDeleteModal: mockOpenDeleteModal,
+    closeDeleteModal: jest.fn(),
+    confirmDelete: jest.fn(),
+    isDeleting: false,
+    error: null,
+  }),
+}));
+
+jest.mock('../chat/DeleteConversationModal', () => ({
+  DeleteConversationModal: () => null,
 }));
 
 jest.mock('../drawer', () => ({
@@ -155,7 +168,7 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      expect(screen.getByRole('link', { name: 'Test Conversation' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Test Conversation/ })).toBeInTheDocument();
     });
 
     it('navigates to conversation when clicked', async () => {
@@ -173,8 +186,8 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      const conversationLink = screen.getByRole('link', { name: 'Test Conversation' });
-      await user.click(conversationLink);
+      const conversationButton = screen.getByRole('button', { name: /Test Conversation/ });
+      await user.click(conversationButton);
 
       expect(mockNavigate).toHaveBeenCalledWith(
         `${mainGenieRoute}/${SubRoutes.Chat}/test-conversation-id`,
@@ -222,10 +235,10 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      expect(screen.getByRole('link', { name: 'Today 1' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Yesterday 1' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Last Week 1' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Older 1' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Today 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Yesterday 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Last Week 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Older 1/ })).toBeInTheDocument();
 
       jest.useRealTimers();
     });
@@ -289,9 +302,9 @@ describe('ChatHistory', () => {
       render(<ChatHistory />);
 
       // All conversations should be visible initially
-      expect(screen.getByRole('link', { name: 'JavaScript Tutorial' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Python Basics' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Java Advanced' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Python Basics/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Java Advanced/ })).toBeInTheDocument();
 
       // Search for "java" (case-insensitive)
       const searchInput = screen.getByPlaceholderText('Find conversation') as HTMLInputElement;
@@ -301,14 +314,14 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.queryByRole('link', { name: 'Python Basics' })).not.toBeInTheDocument();
+          expect(screen.queryByRole('button', { name: /Python Basics/ })).not.toBeInTheDocument();
         },
         { timeout: 3000 },
       );
 
       // Should show both JavaScript and Java conversations
-      expect(screen.getByRole('link', { name: 'JavaScript Tutorial' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Java Advanced' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Java Advanced/ })).toBeInTheDocument();
     });
 
     it('filters conversations with partial match anywhere in title', async () => {
@@ -348,9 +361,11 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('link', { name: 'React Component Guide' })).toBeInTheDocument();
-          expect(screen.queryByRole('link', { name: 'Vue.js Tutorial' })).not.toBeInTheDocument();
-          expect(screen.queryByRole('link', { name: 'Angular Framework' })).not.toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /React Component Guide/ })).toBeInTheDocument();
+          expect(screen.queryByRole('button', { name: /Vue.js Tutorial/ })).not.toBeInTheDocument();
+          expect(
+            screen.queryByRole('button', { name: /Angular Framework/ }),
+          ).not.toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -387,7 +402,7 @@ describe('ChatHistory', () => {
       expect(
         screen.getByText(/No conversations match your search "nonexistent"/),
       ).toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'Test Conversation' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Test Conversation/ })).not.toBeInTheDocument();
     });
 
     it('clears search and shows all conversations when search is cleared', async () => {
@@ -420,9 +435,9 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('link', { name: 'First Conversation' })).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /First Conversation/ })).toBeInTheDocument();
           expect(
-            screen.queryByRole('link', { name: 'Second Conversation' }),
+            screen.queryByRole('button', { name: /Second Conversation/ }),
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 },
@@ -435,8 +450,8 @@ describe('ChatHistory', () => {
       // Wait for both conversations to be visible again
       await waitFor(
         () => {
-          expect(screen.getByRole('link', { name: 'First Conversation' })).toBeInTheDocument();
-          expect(screen.getByRole('link', { name: 'Second Conversation' })).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /First Conversation/ })).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /Second Conversation/ })).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -494,10 +509,10 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('link', { name: 'Today Python' })).toBeInTheDocument();
-          expect(screen.getByRole('link', { name: 'Yesterday Python' })).toBeInTheDocument();
-          expect(screen.getByRole('link', { name: 'Older Python' })).toBeInTheDocument();
-          expect(screen.queryByRole('link', { name: 'Last Week Java' })).not.toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /Today Python/ })).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /Yesterday Python/ })).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: /Older Python/ })).toBeInTheDocument();
+          expect(screen.queryByRole('button', { name: /Last Week Java/ })).not.toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -520,7 +535,7 @@ describe('ChatHistory', () => {
 
       // Should not show "no results found" when search is empty
       expect(screen.queryByText('No results found')).not.toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Test Conversation' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Test Conversation/ })).toBeInTheDocument();
     });
   });
 

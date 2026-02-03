@@ -2,7 +2,6 @@ import {
   Alert,
   AlertVariant,
   Button,
-  ButtonVariant,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
@@ -18,11 +17,19 @@ import { PlusSquareIcon } from '@patternfly/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { Conversation, useConversations, useIsInitializing } from '../../hooks/AIState';
+import {
+  Conversation,
+  useConversations,
+  useDeleteConversationModal,
+  useIsInitializing,
+} from '../../hooks/AIState';
 import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
+import EditableChatHeader from '../chat/EditableChatHeader';
+import { DeleteConversationModal } from '../chat/DeleteConversationModal';
+import './ChatHistory.css';
 
 /**
  * Filters conversations by search term (case-insensitive, matches anywhere in title)
@@ -37,11 +44,15 @@ const filterConversations = (conversations: Conversation[], searchTerm: string):
   );
 };
 
+const isEventFromInput = (e: React.MouseEvent | React.KeyboardEvent): boolean =>
+  e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+
 interface ChatHistoryGroupProps {
   titleKey: 'today' | 'yesterday' | 'lastWeek' | 'older';
   conversations: Conversation[];
   isLoading: boolean;
   onClick: (conversation: Conversation) => void;
+  onDeleteClick?: (conversation: Pick<Conversation, 'id' | 'title'>) => void;
 }
 
 const ChatHistoryGroup = ({
@@ -49,16 +60,10 @@ const ChatHistoryGroup = ({
   conversations,
   isLoading,
   onClick,
+  onDeleteClick,
 }: ChatHistoryGroupProps) => {
   const { t } = useTranslation('plugin__genie-web-client');
   const title = t(`chatHistory.group.${titleKey}`);
-
-  const handleClick = useCallback(
-    (conversation: Conversation) => {
-      onClick(conversation);
-    },
-    [onClick],
-  );
 
   if (!isLoading && conversations.length === 0) {
     return null;
@@ -72,15 +77,30 @@ const ChatHistoryGroup = ({
         <List isPlain>
           {conversations.map((conversation) => (
             <ListItem key={conversation.id}>
-              <Button
-                variant={ButtonVariant.link}
-                role="link"
-                onClick={() => handleClick(conversation)}
-                isBlock
-                style={{ justifyContent: 'flex-start' }} /* temp styling until we add actions */
+              <div
+                role="button"
+                tabIndex={0}
+                className="genie-chat-history-item__button"
+                aria-label={`${conversation.title} - ${t('chat.header.openChat')}`}
+                onClick={(e) => {
+                  if (isEventFromInput(e)) return;
+                  onClick(conversation);
+                }}
+                onKeyDown={(e) => {
+                  if (isEventFromInput(e)) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick(conversation);
+                  }
+                }}
               >
-                {conversation.title}
-              </Button>
+                <EditableChatHeader
+                  title={conversation.title}
+                  variant="inline"
+                  conversationId={conversation.id}
+                  onDeleteClick={onDeleteClick}
+                />
+              </div>
             </ListItem>
           ))}
         </List>
@@ -133,14 +153,22 @@ export const ChatHistory: React.FC = () => {
   const conversations = useConversations();
   const isInitializing = useIsInitializing();
   const { closeDrawer } = useDrawer();
+  const {
+    conversationToDelete,
+    openDeleteModal,
+    closeDeleteModal,
+    confirmDelete,
+    isDeleting,
+    error: deleteError,
+  } = useDeleteConversationModal({ onDeleted: closeDrawer });
   const { t } = useTranslation('plugin__genie-web-client');
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const handleNewChatClick = useCallback(() => {
     closeDrawer();
     navigate(`${mainGenieRoute}/${ChatNew}`);
   }, [closeDrawer, navigate]);
-
-  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(
@@ -184,7 +212,16 @@ export const ChatHistory: React.FC = () => {
   );
 
   return (
-    <>
+    <div className="genie-chat-history">
+      {conversationToDelete && (
+        <DeleteConversationModal
+          conversation={conversationToDelete}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
+          isDeleting={isDeleting}
+          error={deleteError}
+        />
+      )}
       {!isInitializing && (
         <Split hasGutter>
           <SplitItem isFilled>
@@ -218,27 +255,31 @@ export const ChatHistory: React.FC = () => {
             conversations={groupedConversations.today}
             isLoading={isInitializing}
             onClick={handleConversationClick}
+            onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="yesterday"
             conversations={groupedConversations.yesterday}
             isLoading={isInitializing}
             onClick={handleConversationClick}
+            onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="lastWeek"
             conversations={groupedConversations.lastWeek}
             isLoading={isInitializing}
             onClick={handleConversationClick}
+            onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="older"
             conversations={groupedConversations.other}
             isLoading={isInitializing}
             onClick={handleConversationClick}
+            onDeleteClick={openDeleteModal}
           />
         </>
       )}
-    </>
+    </div>
   );
 };
