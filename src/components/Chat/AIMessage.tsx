@@ -224,7 +224,13 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const hasSources = referencedDocuments.length > 0;
     const hasEndContent = hasToolCalls || hasSources;
     const extraContent = {
-      afterMainContent: hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null,
+      afterMainContent: (
+        <>
+          {!isStreaming && hasArtifacts ? (
+            <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} />
+          ) : null}
+        </>
+      ),
       endContent: hasEndContent ? (
         <Flex gap={{ default: 'gapSm' }}>
           {hasSources ? (

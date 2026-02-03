@@ -50,3 +50,9 @@ data_types:
       - component: log
   resources_list:
     data_transformer: fwctable
+  execute_range_query:
+    components:
+      - component: PersesTimeSeries
+  execute_instant_query:
+    components:
+      - component: PersesPieChart

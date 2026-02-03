@@ -48,6 +48,14 @@ export function parseGenerateUIResult(response: unknown): Artifact[] {
 
           const nguiConfig = JSON.parse(contentString);
 
+          // DEBUG: Log parsed NGUI config to trace hand-build-component handling
+          console.log('[toolResultParsers] Parsed NGUI config:', {
+            component: nguiConfig.component,
+            input_data_type: nguiConfig.input_data_type,
+            hasData: !!nguiConfig.data,
+            fullConfig: nguiConfig,
+          });
+
           const widget: NGUIWidget = {
             id: `ngui-widget-${Date.now()}-${index}`,
             type: 'ngui',
