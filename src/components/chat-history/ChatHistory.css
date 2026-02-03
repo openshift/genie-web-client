@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  padding: var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--sm, 0.5rem);
   border-radius: var(--pf-t--global--border--radius--pill, 9999px);
 }
 

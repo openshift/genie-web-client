@@ -165,8 +165,11 @@ export const ChatHistory: React.FC = () => {
   } = useDeleteConversationModal({
     onDeleted: (deletedId) => {
       closeDrawer();
-      if (activeConversation?.id === deletedId) {
-        navigate(`${mainGenieRoute}/${ChatNew}`);
+      const wasActiveConversation = activeConversation?.id === deletedId;
+      const wasLastConversation = (conversations?.length ?? 0) === 1;
+      if (wasActiveConversation || wasLastConversation) {
+        const newChatPath = `${mainGenieRoute}/${ChatNew}`;
+        window.location.replace(`${window.location.origin}${newChatPath}`);
       }
     },
   });
