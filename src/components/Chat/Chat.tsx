@@ -71,46 +71,44 @@ export const Chat: React.FunctionComponent = () => {
   );
 
   return (
-    <>
+    <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
       {/* Test button for canvas states - development only */}
       {process.env.NODE_ENV === 'development' ? (
         <Button
-          variant="tertiary"
+          variant="primary"
           size="sm"
           onClick={handleToggleCanvasState}
-          style={{ margin: '8px', alignSelf: 'flex-start' }}
+          style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 1000 }}
         >
           Toggle Canvas: {canvasState}
         </Button>
       ) : null}
-      <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
-        <BadResponseModalProvider>
-          <Chatbot
-            displayMode={ChatbotDisplayMode.embedded}
-            className="chat__chatbot pf-v6-c-compass__panel pf-m-full-height"
-          >
-            <ChatbotContent>
-              <MessageList
-                key={conversationId}
-                isLoading={isLoading}
-                isValidConversationId={isValidConversationId}
-              />
-            </ChatbotContent>
-            <ChatbotFooter>
-              <MessageBar onSendMessage={handleSendMessage} />
-            </ChatbotFooter>
-            <BadResponseModal />
-          </Chatbot>
-          {/* TODO: We may want to create Canvas component wrapper in the future */}
-          <div className="chat__canvas pf-v6-c-compass__panel pf-m-full-height">
-            <CanvasLayout>
-              <div className="chat__canvas-content">
-                <h1>Canvas Content</h1>
-              </div>
-            </CanvasLayout>
-          </div>
-        </BadResponseModalProvider>
-      </div>
-    </>
+      <BadResponseModalProvider>
+        <Chatbot
+          displayMode={ChatbotDisplayMode.embedded}
+          className="chat__chatbot pf-v6-c-compass__panel pf-m-full-height"
+        >
+          <ChatbotContent>
+            <MessageList
+              key={conversationId}
+              isLoading={isLoading}
+              isValidConversationId={isValidConversationId}
+            />
+          </ChatbotContent>
+          <ChatbotFooter>
+            <MessageBar onSendMessage={handleSendMessage} />
+          </ChatbotFooter>
+          <BadResponseModal />
+        </Chatbot>
+        {/* TODO: We may want to create Canvas component wrapper in the future */}
+        <div className="chat__canvas pf-v6-c-compass__panel pf-m-full-height">
+          <CanvasLayout>
+            <div className="chat__canvas-content">
+              <h1>Canvas Content</h1>
+            </div>
+          </CanvasLayout>
+        </div>
+      </BadResponseModalProvider>
+    </div>
   );
 };

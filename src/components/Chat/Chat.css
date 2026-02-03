@@ -1,4 +1,5 @@
 .chat {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: var(--pf-t--global--spacer--md);
