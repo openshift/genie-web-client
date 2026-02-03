@@ -1,7 +1,28 @@
 const React = require('react');
 
 const MessageBar = React.forwardRef((props, ref) => {
-  return React.createElement('div', { 'data-test': 'mock-message-bar', ref });
+  const { onSendMessage, ...restProps } = props;
+  const [message, setMessage] = React.useState('');
+
+  const handleSend = () => {
+    if (message.trim() && onSendMessage) {
+      onSendMessage(message);
+      setMessage('');
+    }
+  };
+
+  return React.createElement('div', { 'data-test': 'mock-message-bar', ...restProps },
+    React.createElement('textarea', {
+      ref: ref,
+      'aria-label': 'Send a message...',
+      value: message,
+      onChange: (e) => setMessage(e.target.value),
+    }),
+    React.createElement('button', {
+      'aria-label': 'Send',
+      onClick: handleSend,
+    }, 'Send')
+  );
 });
 
 const Chatbot = ({ children, displayMode, ...props }) => {

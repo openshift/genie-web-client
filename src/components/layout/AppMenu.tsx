@@ -13,12 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { apps } from '../../externalLinks';
 import '../user-account/menuDropDown.css';
 
-const AppMenuIcon = ({ tooltipText }: { tooltipText: string }) => {
-  return (
-    <Tooltip content={tooltipText}>
-      <RhUiThumbnailViewSmallIcon />
-    </Tooltip>
-  );
+const AppMenuIcon = () => {
+  return <RhUiThumbnailViewSmallIcon />;
 };
 
 export const AppMenu = () => {
@@ -36,14 +32,16 @@ export const AppMenu = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label="User Account Menu"
-          variant="plain"
-          onClick={onToggleClick}
-          isExpanded={isOpen}
-          icon={<AppMenuIcon tooltipText={t('appMenu.title')} />}
-        />
+        <Tooltip content={t('appMenu.title')} position="bottom" enableFlip={false}>
+          <MenuToggle
+            ref={toggleRef}
+            aria-label={t('appMenu.title')}
+            variant="plain"
+            onClick={onToggleClick}
+            isExpanded={isOpen}
+            icon={<AppMenuIcon />}
+          />
+        </Tooltip>
       )}
       shouldFocusToggleOnSelect
       className="user-account-menu-dropdown"
