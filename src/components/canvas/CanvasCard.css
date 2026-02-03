@@ -1,28 +1,21 @@
 .canvas-card {
-  appearance: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: block;
   max-width: 48rem;
-  padding: 0;
-  text-align: left;
   width: 100%;
 }
 
-.canvas-card:disabled {
-  cursor: default;
+/* override secondary card to have a visible border */
+.canvas-card.pf-m-clickable {
+  --pf-v6-c-card--BorderWidth: 1px;
+  --pf-v6-c-card--BorderColor: var(--pf-t--global--border--color--default);
 }
 
-.canvas-card:not(:disabled):hover .pf-v6-c-card {
-  border-color: var(--pf-t--global--border--color--hover);
+/* mimic selectable card's selected state with thick blue border when viewing */
+.canvas-card.pf-m-current {
+  --pf-v6-c-card--BorderWidth: 2px;
+  --pf-v6-c-card--BorderColor: var(--pf-t--global--border--color--clicked);
 }
 
-.canvas-card:not(:disabled):focus-visible .pf-v6-c-card {
-  border-color: var(--pf-t--global--border--color--hover);
-  outline: 2px solid var(--pf-t--global--focus-ring--color--default);
-  outline-offset: 2px;
-}
+/* let PF handle default hover behavior, no custom background changes */
 
 .canvas-card__icon {
   color: var(--pf-t--global--icon--color--regular);
