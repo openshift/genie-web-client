@@ -5,7 +5,7 @@
     width: 100%;
 
     .chat__chatbot {
-        grid-column: 4 / 10;
+        grid-column: 3 / 11;
         min-width: 0;
         transform: translateX(0);
         transition: transform 0.3s ease-out;
