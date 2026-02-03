@@ -13,6 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { RhUiCatalogIcon, RhUiCodeIcon, RhUiCollectionIcon } from '@patternfly/react-icons';
 import type { Artifact } from '../../types/chat';
+import { STANDARD_TIMESTAMP_FORMAT } from '../../utils/dateTimeHelpers';
 import './CanvasCard.css';
 
 export interface CanvasCardProps {
@@ -83,12 +84,7 @@ export const CanvasCard: React.FC<CanvasCardProps> = ({
             <CardTitle>{title || t('canvasCard.untitled')}</CardTitle>
             <Content component={ContentVariants.small} className="canvas-card__metadata">
               {t(`canvasCard.type.${type}`)} •{' '}
-              <Timestamp
-                date={lastModified}
-                dateFormat="short"
-                timeFormat="short"
-                is12Hour={true}
-              />
+              <Timestamp date={lastModified} {...STANDARD_TIMESTAMP_FORMAT} />
             </Content>
           </FlexItem>
           {isViewing && (
