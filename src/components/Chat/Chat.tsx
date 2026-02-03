@@ -6,10 +6,12 @@ import {
   ChatbotFooter,
   MessageBar,
 } from '@patternfly/chatbot';
+import { Button } from '@patternfly/react-core';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
 import { useChatConversation } from '../../hooks/useChatConversation';
+import type { CanvasState } from '../../hooks/useChatConversation';
 import { CanvasLayout } from '../canvas';
 import {
   useSetActiveConversation,
@@ -26,14 +28,15 @@ export const Chat: React.FunctionComponent = () => {
   const sendStreamMessage = useSendStreamMessage();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
-  const {
-    isCanvasOpen,
-    canvasState,
-    // callbacks for canvas state
-    // openCanvas,
-    // closeCanvas,
-    // maximizeCanvas,
-  } = useChatConversation();
+  const { isCanvasOpen, canvasState, setCanvasState } = useChatConversation();
+
+  // Test toggle for canvas states (development only)
+  const handleToggleCanvasState = useCallback(() => {
+    const stateOrder: CanvasState[] = ['closed', 'open', 'maximized'];
+    const currentIndex = stateOrder.indexOf(canvasState);
+    const nextIndex = (currentIndex + 1) % stateOrder.length;
+    setCanvasState(stateOrder[nextIndex]);
+  }, [canvasState, setCanvasState]);
 
   useEffect(() => {
     if (conversationId && activeConversation?.id !== conversationId) {
@@ -69,6 +72,17 @@ export const Chat: React.FunctionComponent = () => {
 
   return (
     <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
+      {/* Test button for canvas states - development only */}
+      {process.env.NODE_ENV === 'development' ? (
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleToggleCanvasState}
+          style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 1000 }}
+        >
+          Toggle Canvas: {canvasState}
+        </Button>
+      ) : null}
       <BadResponseModalProvider>
         <Chatbot
           displayMode={ChatbotDisplayMode.embedded}

@@ -1,5 +1,5 @@
-import React, { useRef, useMemo } from 'react';
-import { MessageBox } from '@patternfly/chatbot';
+import React, { useMemo, useRef, useEffect } from 'react';
+import { MessageBox, type MessageBoxHandle } from '@patternfly/chatbot';
 import type { Message } from '../../hooks/AIState';
 import { useChatMessages } from '../../hooks/useChatMessages';
 import { useActiveConversation } from '../../hooks/AIState';
@@ -8,8 +8,8 @@ import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
-import { EditableChatHeader } from './EditableChatHeader';
 import { getUserQuestionForBotMessage } from './feedback/utils';
+import { EditableChatHeader } from './EditableChatHeader';
 
 // TODO: Remove this stub data after testing
 const STUB_REFERENCED_DOCUMENTS = [
@@ -55,7 +55,9 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     } = useChatMessages();
     const activeConversation = useActiveConversation();
     const conversationId = activeConversation?.id || '';
-    const bottomRef = useRef<HTMLDivElement>(null);
+    const messageBoxRef = useRef<MessageBoxHandle>(null);
+    const isInitialLoadRef = useRef(true);
+    const previousMessagesLengthRef = useRef(0);
 
     const renderedMessages = useMemo(() => {
       const streamingContent = streamingMessage?.content ?? '';
@@ -112,13 +114,50 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       lastBotMessageIndex,
     ]);
 
+    // Handle initial load: Jump immediately to bottom with no animation
+    useEffect(() => {
+      if (isInitialLoadRef.current && messages.length > 0 && messageBoxRef.current) {
+        // Instant jump to bottom for historical data
+        messageBoxRef.current.scrollToBottom({ behavior: 'auto', resumeSmartScroll: true });
+        isInitialLoadRef.current = false;
+        previousMessagesLengthRef.current = messages.length;
+      }
+    }, [messages.length]);
+
+    // Reset initial load flag when conversation changes
+    useEffect(() => {
+      isInitialLoadRef.current = true;
+      previousMessagesLengthRef.current = 0;
+    }, [conversationId]);
+
+    // Handle new message: Smooth scroll when user sends a message
+    useEffect(() => {
+      const hasNewMessage = messages.length > previousMessagesLengthRef.current;
+
+      if (hasNewMessage && !isInitialLoadRef.current && messageBoxRef.current) {
+        // Smooth scroll for new messages
+        messageBoxRef.current.scrollToBottom({ behavior: 'smooth', resumeSmartScroll: true });
+        previousMessagesLengthRef.current = messages.length;
+      }
+    }, [messages.length]);
+
+    // Handle LLM streaming: Auto-scroll only if user is at bottom (sticky-bottom logic)
+    useEffect(() => {
+      if (isStreaming && streamingMessage?.content && messageBoxRef.current) {
+        // PatternFly's scrollToBottom will automatically check if user has scrolled up
+        // If pauseAutoScrollRef is true (user scrolled up), it won't scroll
+        // This implements the "sticky-bottom" logic automatically
+        // Use 'auto' for instant scroll during streaming to avoid animation lag
+        messageBoxRef.current.scrollToBottom({ behavior: 'auto', resumeSmartScroll: false });
+      }
+    }, [streamingMessage?.content, isStreaming]);
+
     return (
-      <MessageBox>
+      <MessageBox ref={messageBoxRef} enableSmartScroll={true}>
         <EditableChatHeader />
         {isLoading && messages.length === 0 ? <ChatLoading /> : null}
         {!isValidConversationId ? <ConversationNotFound /> : null}
         {renderedMessages}
-        <div ref={bottomRef}></div>
       </MessageBox>
     );
   },
