@@ -1,0 +1,54 @@
+.canvas-card {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  max-width: 48rem;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.canvas-card:disabled {
+  cursor: default;
+}
+
+.canvas-card:not(:disabled):hover .pf-v6-c-card {
+  border-color: var(--pf-t--global--border--color--hover);
+}
+
+.canvas-card:not(:disabled):focus-visible .pf-v6-c-card {
+  border-color: var(--pf-t--global--border--color--hover);
+  outline: 2px solid var(--pf-t--global--focus-ring--color--default);
+  outline-offset: 2px;
+}
+
+.canvas-card__icon {
+  color: var(--pf-t--global--icon--color--regular);
+  display: inline-flex;
+}
+
+.canvas-card__details {
+  min-width: 0;
+}
+
+.canvas-card__title {
+  color: var(--pf-t--global--text--color--regular);
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-card__metadata {
+  color: var(--pf-t--global--text--color--subtle);
+  margin-top: var(--pf-t--global--spacer--xs);
+}
+
+.canvas-card-list {
+  display: grid;
+  gap: var(--pf-t--global--spacer--md);
+  max-width: 48rem;
+}
