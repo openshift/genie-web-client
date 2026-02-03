@@ -15,7 +15,7 @@ import {
   useSetActiveConversation,
   useActiveConversation,
   useSendStreamMessage,
-} from '@redhat-cloud-services/ai-react-state';
+} from '../../hooks/AIState';
 import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 
 export const Chat: React.FunctionComponent = () => {
