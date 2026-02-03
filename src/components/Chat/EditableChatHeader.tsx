@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ChatbotHeader,
@@ -19,39 +20,96 @@ import {
   Tooltip,
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
-import { useChatConversation } from '../../hooks/useChatConversation';
+import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
 
 export const EditableChatHeader: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
-  const {
-    title,
-    titleEditState,
-    startEditingTitle,
-    cancelEditingTitle,
-    updateTitleValue,
-    saveTitle,
-  } = useChatConversation();
+  const activeConversation = useActiveConversation();
+  const conversationId = activeConversation?.id;
+  const { updateTitle, isUpdating, error: apiError, clearError } = useUpdateConversationTitle();
 
-  const { isEditing, editValue, validationError, apiError, isUpdating } = titleEditState;
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState<string>('');
+  const [validationError, setValidationError] = useState<string | undefined>();
+  const [localError, setLocalError] = useState<string | null>(null);
+  const originalTitleRef = useRef<string>(title);
 
-  const displayTitle = title || t('chat.defaultTitle');
+  // sync title with active conversation
+  useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+    if (activeConversation?.title) {
+      setTitle(activeConversation.title);
+    } else {
+      // fallback when title is missing
+      setTitle(t('chat.defaultTitle'));
+    }
+  }, [activeConversation?.title, isEditing, t]);
+
+  const onEditClick = () => {
+    originalTitleRef.current = title;
+    setIsEditing(true);
+    clearError();
+    setLocalError(null);
+  };
 
   const handleInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
-    updateTitleValue(value);
+    setTitle(value);
+    if (validationError && value.trim()) {
+      setValidationError(undefined);
+    }
+    if (apiError) {
+      clearError();
+    }
+    if (localError) {
+      setLocalError(null);
+    }
+  };
+
+  const handleSave = async () => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setValidationError(t('chat.header.error.emptyTitle'));
+      return;
+    }
+
+    if (!conversationId) {
+      setLocalError(t('chat.header.error.missingConversationId'));
+      return;
+    }
+
+    try {
+      await updateTitle(conversationId, trimmedTitle);
+      setIsEditing(false);
+      setValidationError(undefined);
+      setLocalError(null);
+    } catch (error) {
+      // error already tracked by hook, stay in edit mode
+      console.error('Failed to update title:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setTitle(originalTitleRef.current);
+    setValidationError(undefined);
+    clearError();
+    setLocalError(null);
   };
 
   return (
     <>
-      {apiError ? (
+      {(apiError || localError) && (
         <Alert
           variant={AlertVariant.danger}
           title={t('chat.header.error.updateFailed')}
           isInline
           className="pf-v6-u-mb-md"
         >
-          {apiError}
+          {localError || apiError}
         </Alert>
-      ) : null}
+      )}
       <ChatbotHeader>
         <ChatbotHeaderMain>
           <span className="chat-header-icon">
@@ -67,7 +125,7 @@ export const EditableChatHeader: React.FC = () => {
               <>
                 <TextInputGroup>
                   <TextInputGroupMain
-                    value={editValue}
+                    value={title}
                     onChange={handleInputChange}
                     aria-label="Edit conversation title"
                     aria-invalid={!!validationError}
@@ -76,11 +134,11 @@ export const EditableChatHeader: React.FC = () => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         e.stopPropagation();
-                        saveTitle();
+                        handleSave();
                       } else if (e.key === 'Escape') {
                         e.preventDefault();
                         e.stopPropagation();
-                        cancelEditingTitle();
+                        handleCancel();
                       }
                     }}
                   />
@@ -91,7 +149,7 @@ export const EditableChatHeader: React.FC = () => {
                       variant="plain"
                       aria-label="Cancel title edit"
                       icon={<TimesIcon />}
-                      onClick={cancelEditingTitle}
+                      onClick={handleCancel}
                       isDisabled={isUpdating}
                     />
                   </ActionListItem>
@@ -100,7 +158,7 @@ export const EditableChatHeader: React.FC = () => {
                       variant="plain"
                       aria-label="Save title"
                       icon={isUpdating ? <Spinner size="md" /> : <CheckIcon />}
-                      onClick={saveTitle}
+                      onClick={handleSave}
                       isDisabled={isUpdating}
                     />
                   </ActionListItem>
@@ -111,27 +169,27 @@ export const EditableChatHeader: React.FC = () => {
             <Button
               variant="plain"
               isInline
-              onClick={startEditingTitle}
+              onClick={onEditClick}
               aria-label="Edit conversation title"
             >
-              {displayTitle}
+              {title}
             </Button>
           )}
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>
-          {!isEditing ? (
+          {!isEditing && (
             <ChatbotHeaderOptionsDropdown
               isCompact
               tooltipProps={{ content: t('chat.header.moreActions') }}
               toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
             >
               <DropdownList>
-                <DropdownItem value="rename" onClick={startEditingTitle}>
+                <DropdownItem value="rename" onClick={onEditClick}>
                   {t('chat.rename')}
                 </DropdownItem>
               </DropdownList>
             </ChatbotHeaderOptionsDropdown>
-          ) : null}
+          )}
         </ChatbotHeaderActions>
       </ChatbotHeader>
     </>

@@ -11,17 +11,18 @@ import {
   List,
   ListItem,
   Skeleton,
+  Split,
+  SplitItem,
 } from '@patternfly/react-core';
 import { PlusSquareIcon } from '@patternfly/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
-import { Conversation, useIsInitializing } from '../../hooks/AIState';
+import { Conversation, useConversations, useIsInitializing } from '../../hooks/AIState';
 import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
-import { useChatConversation } from '../../hooks/useChatConversation';
 
 /**
  * Filters conversations by search term (case-insensitive, matches anywhere in title)
@@ -129,14 +130,19 @@ const LoadingComponent: React.FC = () => {
 
 export const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
-  const { conversations } = useChatConversation();
+  const conversations = useConversations();
   const isInitializing = useIsInitializing();
   const { closeDrawer } = useDrawer();
   const { t } = useTranslation('plugin__genie-web-client');
 
+  const handleNewChatClick = useCallback(() => {
+    closeDrawer();
+    navigate(`${mainGenieRoute}/${ChatNew}`);
+  }, [closeDrawer, navigate]);
+
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const allConversations = conversations || [];
+  const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(
     () => filterConversations(allConversations, searchTerm),
     [allConversations, searchTerm],
@@ -180,7 +186,22 @@ export const ChatHistory: React.FC = () => {
   return (
     <>
       {!isInitializing && (
-        <ChatHistorySearch onSearch={setSearchTerm} resultsCount={filteredConversations.length} />
+        <Split hasGutter>
+          <SplitItem isFilled>
+            <ChatHistorySearch
+              onSearch={setSearchTerm}
+              resultsCount={filteredConversations.length}
+            />
+          </SplitItem>
+          <SplitItem>
+            <Button
+              variant="control"
+              icon={<PlusSquareIcon />}
+              onClick={handleNewChatClick}
+              aria-label="New Chat"
+            />
+          </SplitItem>
+        </Split>
       )}
       {searchTerm.trim() && !hasSearchResults && !isInitializing ? (
         <EmptyState

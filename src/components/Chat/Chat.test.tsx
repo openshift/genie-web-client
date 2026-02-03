@@ -1,5 +1,26 @@
 import { renderWithoutProviders, screen } from '../../unitTestUtils';
 import { Chat } from './Chat';
+import type { CanvasState } from '../../hooks/useChatConversation';
+
+// Mock react-router-dom-v5-compat hooks (keep other exports)
+const mockNavigate = jest.fn();
+const mockUseParams = jest.fn();
+
+jest.mock('react-router-dom-v5-compat', () => ({
+  ...jest.requireActual('react-router-dom-v5-compat'),
+  useParams: () => mockUseParams(),
+  useNavigate: () => mockNavigate,
+}));
+
+// Mock @redhat-cloud-services/ai-react-state
+const mockSetActiveConversation = jest.fn();
+const mockSendStreamMessage = jest.fn();
+
+jest.mock('@redhat-cloud-services/ai-react-state', () => ({
+  useSetActiveConversation: () => mockSetActiveConversation,
+  useActiveConversation: () => undefined,
+  useSendStreamMessage: () => mockSendStreamMessage,
+}));
 
 // Mock useChatConversation hook
 const mockUseChatConversation = jest.fn();
@@ -8,8 +29,34 @@ jest.mock('../../hooks/useChatConversation', () => ({
   useChatConversation: () => mockUseChatConversation(),
 }));
 
-jest.mock('./ChatMessageBar', () => ({
-  ChatMessageBar: () => <div data-testid="chat-message-bar">Message Bar</div>,
+// Mock @patternfly/chatbot components
+jest.mock('@patternfly/chatbot', () => ({
+  Chatbot: ({ children, className }: { children: React.ReactNode; className: string }) => (
+    <div className={className} data-testid="chatbot">
+      {children}
+    </div>
+  ),
+  ChatbotContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="chatbot-content">{children}</div>
+  ),
+  ChatbotDisplayMode: { embedded: 'embedded' },
+  ChatbotFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="chatbot-footer">{children}</div>
+  ),
+  MessageBar: ({ onSendMessage }: { onSendMessage: (value: string) => void }) => (
+    <input
+      data-testid="message-bar"
+      onChange={(e) => onSendMessage(e.target.value)}
+      placeholder="Send a message"
+    />
+  ),
+}));
+
+// Mock CanvasLayout
+jest.mock('../canvas', () => ({
+  CanvasLayout: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="canvas-layout">{children}</div>
+  ),
 }));
 
 // Mock MessageList to isolate Chat component testing
@@ -37,35 +84,16 @@ jest.mock('./MessageList', () => ({
   },
 }));
 
-// Mock BadResponseModal to avoid useActiveConversation bug
+// Mock BadResponseModal
 jest.mock('./feedback/BadResponseModal', () => ({
   BadResponseModalProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   BadResponseModal: () => null,
 }));
 
+// Default mock values matching the simplified useChatConversation hook
 const defaultMockValues = {
-  conversationId: undefined,
-  isLoading: false,
-  isValidConversationId: true,
+  canvasState: 'closed' as CanvasState,
   isCanvasOpen: false,
-  activeConversation: undefined,
-  conversations: [],
-  title: '',
-  titleEditState: {
-    isEditing: false,
-    editValue: '',
-    validationError: undefined,
-    apiError: null,
-    isUpdating: false,
-  },
-  startEditingTitle: jest.fn(),
-  cancelEditingTitle: jest.fn(),
-  updateTitleValue: jest.fn(),
-  saveTitle: jest.fn(),
-  setActiveConversation: jest.fn(),
-  createNewConversation: jest.fn(),
-  navigateToConversation: jest.fn(),
-  canvasState: 'open' as const,
   openCanvas: jest.fn(),
   closeCanvas: jest.fn(),
   maximizeCanvas: jest.fn(),
@@ -80,124 +108,56 @@ describe('Chat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseChatConversation.mockReturnValue(defaultMockValues);
+    mockUseParams.mockReturnValue({});
+    mockSetActiveConversation.mockResolvedValue(undefined);
   });
 
   const renderChat = () => {
     return renderWithoutProviders(<Chat />);
   };
 
-  describe('Loading State', () => {
-    it('shows loading component when isLoading is true', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'test-conversation-id',
-        isLoading: true,
-      });
+  describe('Initial Render', () => {
+    it('renders MessageList when no conversationId in URL', () => {
+      mockUseParams.mockReturnValue({});
 
       renderChat();
 
-      expect(screen.getByText('Loading conversation')).toBeInTheDocument();
+      expect(screen.getByTestId('message-list')).toBeInTheDocument();
     });
 
-    it('does not show loading when isLoading is false', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'test-conversation-id',
-        isLoading: false,
-      });
-
-      renderChat();
-
-      expect(screen.queryByText('Loading conversation')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Error State', () => {
-    it('shows ConversationNotFound when isValidConversationId is false', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'invalid-conversation-id',
-        isValidConversationId: false,
-      });
-
-      renderChat();
-
-      expect(screen.getByText('Conversation not found')).toBeInTheDocument();
-    });
-
-    it('shows error message and button in ConversationNotFound', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'invalid-conversation-id',
-        isValidConversationId: false,
-      });
-
-      renderChat();
-
-      expect(screen.getByText('Conversation not found')).toBeInTheDocument();
-      expect(
-        screen.getByText('The conversation you are looking for was not found or no longer exists.'),
-      ).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Start a new chat' })).toBeInTheDocument();
-    });
-  });
-
-  describe('MessageList Integration', () => {
-    it('passes isLoading to MessageList during loading', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'test-conversation-id',
-        isLoading: true,
-      });
+    it('shows loading state when conversationId is present in URL', () => {
+      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
 
       renderChat();
 
       expect(screen.getByTestId('message-list-loading')).toBeInTheDocument();
     });
 
-    it('passes isValidConversationId=false to MessageList when conversation not found', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'invalid-conversation-id',
-        isValidConversationId: false,
-      });
+    it('renders MessageList after conversation loads successfully', async () => {
+      mockUseParams.mockReturnValue({ conversationId: 'test-conversation-id' });
+      mockSetActiveConversation.mockResolvedValue(undefined);
 
       renderChat();
 
-      expect(screen.getByTestId('message-list-not-found')).toBeInTheDocument();
+      expect(await screen.findByTestId('message-list')).toBeInTheDocument();
     });
 
-    it('renders MessageList when conversation is valid', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: 'test-conversation-id',
-        isValidConversationId: true,
-      });
+    it('shows not found state when setActiveConversation fails', async () => {
+      mockUseParams.mockReturnValue({ conversationId: 'invalid-conversation-id' });
+      mockSetActiveConversation.mockRejectedValue(new Error('Conversation not found'));
 
       renderChat();
 
-      expect(screen.getByTestId('message-list')).toBeInTheDocument();
-    });
-  });
-
-  describe('No Conversation ID', () => {
-    it('renders MessageList without conversationId', () => {
-      mockUseChatConversation.mockReturnValue({
-        ...defaultMockValues,
-        conversationId: undefined,
-      });
-
-      renderChat();
-
-      expect(screen.getByTestId('message-list')).toBeInTheDocument();
+      expect(await screen.findByTestId('message-list-not-found')).toBeInTheDocument();
     });
   });
 
   describe('Canvas State', () => {
-    it('applies canvas-open class when isCanvasOpen is true', () => {
+    it('applies canvas-open class when isCanvasOpen is true and canvasState is open', () => {
       mockUseChatConversation.mockReturnValue({
         ...defaultMockValues,
         isCanvasOpen: true,
+        canvasState: 'open',
       });
 
       const { container } = renderChat();
@@ -205,15 +165,29 @@ describe('Chat', () => {
       expect(container.querySelector('.chat--canvas-open')).toBeInTheDocument();
     });
 
-    it('does not apply canvas-open class when isCanvasOpen is false', () => {
+    it('applies canvas-maximized class when canvasState is maximized', () => {
+      mockUseChatConversation.mockReturnValue({
+        ...defaultMockValues,
+        isCanvasOpen: true,
+        canvasState: 'maximized',
+      });
+
+      const { container } = renderChat();
+
+      expect(container.querySelector('.chat--canvas-maximized')).toBeInTheDocument();
+    });
+
+    it('does not apply canvas class when isCanvasOpen is false', () => {
       mockUseChatConversation.mockReturnValue({
         ...defaultMockValues,
         isCanvasOpen: false,
+        canvasState: 'closed',
       });
 
       const { container } = renderChat();
 
       expect(container.querySelector('.chat--canvas-open')).not.toBeInTheDocument();
+      expect(container.querySelector('.chat--canvas-maximized')).not.toBeInTheDocument();
     });
   });
 });

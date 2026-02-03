@@ -10,7 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { CommentDotsIcon, RhUiCollectionIcon, PlusSquareIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
-import { ChatHistory } from '../chat-history/ChatHistory';
+import { ChatHistory } from '../chat-history';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
 
 export const LayoutSidebarStart: FC = () => {

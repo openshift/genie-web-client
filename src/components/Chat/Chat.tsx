@@ -1,17 +1,32 @@
-import React from 'react';
-import { Chatbot, ChatbotContent, ChatbotDisplayMode, ChatbotFooter } from '@patternfly/chatbot';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Chatbot,
+  ChatbotContent,
+  ChatbotDisplayMode,
+  ChatbotFooter,
+  MessageBar,
+} from '@patternfly/chatbot';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
-import { ChatMessageBar } from './ChatMessageBar';
 import { useChatConversation } from '../../hooks/useChatConversation';
 import { CanvasLayout } from '../canvas';
+import {
+  useSetActiveConversation,
+  useActiveConversation,
+  useSendStreamMessage,
+} from '@redhat-cloud-services/ai-react-state';
+import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 
 export const Chat: React.FunctionComponent = () => {
+  const { conversationId } = useParams();
+  const navigate = useNavigate();
+  const setActiveConversation = useSetActiveConversation();
+  const activeConversation = useActiveConversation();
+  const sendStreamMessage = useSendStreamMessage();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isValidConversationId, setIsValidConversationId] = useState(true);
   const {
-    conversationId,
-    isLoading,
-    isValidConversationId,
     isCanvasOpen,
     canvasState,
     // callbacks for canvas state
@@ -19,6 +34,38 @@ export const Chat: React.FunctionComponent = () => {
     // closeCanvas,
     // maximizeCanvas,
   } = useChatConversation();
+
+  useEffect(() => {
+    if (conversationId && activeConversation?.id !== conversationId) {
+      const setConversation = async () => {
+        setIsLoading(true);
+        try {
+          await setActiveConversation(conversationId);
+          setIsValidConversationId(true);
+        } catch (error) {
+          setIsValidConversationId(false);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      setConversation();
+    }
+  }, [conversationId, setActiveConversation]);
+
+  useEffect(() => {
+    if (!conversationId && activeConversation?.id && !activeConversation?.id.includes('__temp')) {
+      // Replace the current history entry to sync URL with active conversation
+      navigate(`/genie/chat/${activeConversation.id}`, { replace: true });
+    }
+  }, [conversationId, activeConversation, navigate]);
+
+  const handleSendMessage = useCallback(
+    (value: string | number) => {
+      sendStreamMessage(String(value));
+    },
+    [sendStreamMessage],
+  );
 
   return (
     <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
@@ -35,7 +82,7 @@ export const Chat: React.FunctionComponent = () => {
             />
           </ChatbotContent>
           <ChatbotFooter>
-            <ChatMessageBar />
+            <MessageBar onSendMessage={handleSendMessage} />
           </ChatbotFooter>
           <BadResponseModal />
         </Chatbot>
