@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import {
   Conversation,
+  useActiveConversation,
   useConversations,
   useDeleteConversationModal,
   useIsInitializing,
@@ -152,6 +153,7 @@ export const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
   const conversations = useConversations();
   const isInitializing = useIsInitializing();
+  const activeConversation = useActiveConversation();
   const { closeDrawer } = useDrawer();
   const {
     conversationToDelete,
@@ -160,7 +162,14 @@ export const ChatHistory: React.FC = () => {
     confirmDelete,
     isDeleting,
     error: deleteError,
-  } = useDeleteConversationModal({ onDeleted: closeDrawer });
+  } = useDeleteConversationModal({
+    onDeleted: (deletedId) => {
+      closeDrawer();
+      if (activeConversation?.id === deletedId) {
+        navigate(`${mainGenieRoute}/${ChatNew}`);
+      }
+    },
+  });
   const { t } = useTranslation('plugin__genie-web-client');
 
   const [searchTerm, setSearchTerm] = useState<string>('');

@@ -2,5 +2,12 @@
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
   cursor: pointer;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  border-radius: var(--pf-t--global--border--radius--pill, 9999px);
+}
+
+.genie-chat-history .genie-chat-history-item__button:hover {
+  background-color: var(--pf-v6-global--BackgroundColor--200, #f0f0f0);
 }

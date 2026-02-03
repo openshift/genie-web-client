@@ -25,6 +25,8 @@ import {
 } from '@patternfly/react-core';
 import {
   RhStandardThoughtBubbleIcon,
+  RhStandardPencilIcon,
+  RhStandardTrashcanIcon,
   CheckIcon,
   TimesIcon,
   EllipsisHIcon,
@@ -217,13 +219,19 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
   ) => (
     <DropdownList>
       <DropdownItem value="rename" onClick={renameOnClick}>
-        {t('chat.rename')}
+        <span className="genie-editable-chat-header__dropdown-item">
+          <RhStandardPencilIcon />
+          {t('chat.rename')}
+        </span>
       </DropdownItem>
       {deleteOnClick && (
         <>
           <Divider component="li" key="separator" />
           <DropdownItem value="delete" onClick={deleteOnClick}>
-            {t('chat.header.delete')}
+            <span className="genie-editable-chat-header__dropdown-item">
+              <RhStandardTrashcanIcon />
+              {t('chat.header.delete')}
+            </span>
           </DropdownItem>
         </>
       )}
@@ -261,6 +269,7 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
                         ref={toggleRef}
                         aria-label={t('chat.header.moreActions')}
                         variant="plain"
+                        isCircle
                         onClick={(e) => {
                           e.stopPropagation();
                           setIsDropdownOpen((prev) => !prev);

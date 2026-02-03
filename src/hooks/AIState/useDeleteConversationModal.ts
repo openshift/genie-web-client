@@ -5,8 +5,8 @@ import { useDeleteConversation } from './useDeleteConversation';
 export type ConversationForDelete = Pick<Conversation, 'id' | 'title'>;
 
 export interface UseDeleteConversationModalOptions {
-  /** Called after a successful delete (e.g. close drawer, navigate away) */
-  onDeleted?: () => void;
+  /** Called after a successful delete with the deleted conversation id (e.g. close drawer, navigate if it was the active conversation) */
+  onDeleted?: (deletedConversationId: string) => void;
 }
 
 export interface UseDeleteConversationModalResult {
@@ -42,7 +42,7 @@ export function useDeleteConversationModal(
     try {
       await deleteConversation(id);
       setConversationToDelete(null);
-      onDeleted?.();
+      onDeleted?.(id);
     } catch (err) {
       // Error is tracked by useDeleteConversation; modal stays open
       console.error('Failed to delete conversation:', err);
