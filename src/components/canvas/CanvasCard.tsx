@@ -9,6 +9,7 @@ import {
   Content,
   ContentVariants,
   Label,
+  Timestamp,
 } from '@patternfly/react-core';
 import { RhUiCatalogIcon, RhUiCodeIcon, RhUiCollectionIcon } from '@patternfly/react-icons';
 import type { Artifact } from '../../types/chat';
@@ -22,14 +23,6 @@ export interface CanvasCardProps {
   isViewing?: boolean;
   onOpen: (artifactId: string) => void;
 }
-
-const TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
-  month: 'short',
-  day: 'numeric',
-  hour: 'numeric',
-  minute: '2-digit',
-  hour12: true,
-};
 
 const getArtifactIcon = (type: Artifact['type']): ReactNode => {
   switch (type) {
@@ -53,16 +46,6 @@ export const CanvasCard: React.FC<CanvasCardProps> = ({
 }) => {
   const { t } = useTranslation('plugin__genie-web-client');
 
-  const formattedTimestamp = useMemo(
-    () => new Intl.DateTimeFormat(undefined, TIME_FORMAT_OPTIONS).format(lastModified),
-    [lastModified],
-  );
-
-  const metadata = useMemo(
-    () => t('canvasCard.meta', { type: t(`canvasCard.type.${type}`), time: formattedTimestamp }),
-    [t, type, formattedTimestamp],
-  );
-
   // don't fire click when already viewing since card is disabled
   const handleOpen = useCallback(() => {
     if (!isViewing) {
@@ -80,34 +63,43 @@ export const CanvasCard: React.FC<CanvasCardProps> = ({
   );
 
   return (
-    // native button wrapper keeps accessibility simple - no nested buttons
-    <button
-      type="button"
-      onClick={handleOpen}
-      disabled={isViewing}
-      aria-label={cardAriaLabel}
+    <Card
+      isCompact
+      isClickable
+      isClicked={isViewing}
+      isDisabled={isViewing}
+      variant="secondary"
       className="canvas-card"
     >
-      <Card isCompact>
-        <CardHeader>
-          <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
-            <FlexItem className="canvas-card__icon">{getArtifactIcon(type)}</FlexItem>
-            <FlexItem className="canvas-card__details" grow={{ default: 'grow' }}>
-              <CardTitle>{title || t('canvasCard.untitled')}</CardTitle>
-              <Content component={ContentVariants.small} className="canvas-card__metadata">
-                {metadata}
-              </Content>
+      <CardHeader
+        selectableActions={{
+          onClickAction: handleOpen,
+          selectableActionAriaLabel: cardAriaLabel,
+        }}
+      >
+        <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
+          <FlexItem className="canvas-card__icon">{getArtifactIcon(type)}</FlexItem>
+          <FlexItem className="canvas-card__details" grow={{ default: 'grow' }}>
+            <CardTitle>{title || t('canvasCard.untitled')}</CardTitle>
+            <Content component={ContentVariants.small} className="canvas-card__metadata">
+              {t(`canvasCard.type.${type}`)} •{' '}
+              <Timestamp
+                date={lastModified}
+                dateFormat="short"
+                timeFormat="short"
+                is12Hour={true}
+              />
+            </Content>
+          </FlexItem>
+          {isViewing && (
+            <FlexItem>
+              <Label color="blue" isCompact>
+                {t('canvasCard.viewing')}
+              </Label>
             </FlexItem>
-            {isViewing && (
-              <FlexItem>
-                <Label color="blue" isCompact>
-                  {t('canvasCard.viewing')}
-                </Label>
-              </FlexItem>
-            )}
-          </Flex>
-        </CardHeader>
-      </Card>
-    </button>
+          )}
+        </Flex>
+      </CardHeader>
+    </Card>
   );
 };
