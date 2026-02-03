@@ -1,4 +1,10 @@
+/* eslint-disable */
 const React = require('react');
+
+// Export mock functions for MessageBox ref methods so tests can spy on them
+const mockScrollToBottom = jest.fn();
+const mockScrollToTop = jest.fn();
+const mockIsSmartScrollActive = jest.fn(() => true);
 
 const MessageBar = React.forwardRef((props, ref) => {
   const { onSendMessage, ...restProps } = props;
@@ -25,6 +31,8 @@ const MessageBar = React.forwardRef((props, ref) => {
   );
 });
 
+MessageBar.displayName = 'MessageBar';
+
 const Chatbot = ({ children, displayMode, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot', 'data-display-mode': displayMode, ...props }, children);
 };
@@ -33,9 +41,22 @@ const ChatbotContent = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot-content', ...props }, children);
 };
 
-const MessageBox = ({ children, ...props }) => {
-  return React.createElement('div', { 'data-testid': 'message-box', ...props }, children);
-};
+const MessageBox = React.forwardRef(({ children, enableSmartScroll, ...props }, ref) => {
+  // Mock implementation of MessageBox ref methods
+  React.useImperativeHandle(ref, () => ({
+    scrollToBottom: mockScrollToBottom,
+    scrollToTop: mockScrollToTop,
+    isSmartScrollActive: mockIsSmartScrollActive,
+  }), []);
+
+  return React.createElement('div', { 
+    'data-testid': 'message-box', 
+    'data-enable-smart-scroll': enableSmartScroll,
+    ...props 
+  }, children);
+});
+
+MessageBox.displayName = 'MessageBox';
 
 const Message = ({ children, name, role, content, isLoading, timestamp, actions, ...props }) => {
   // render action buttons if provided
@@ -77,6 +98,10 @@ const ChatbotHeaderOptionsDropdown = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot-header-options', ...props }, children);
 };
 
+const ChatbotFooter = ({ children, ...props }) => {
+  return React.createElement('div', { 'data-testid': 'chatbot-footer', ...props }, children);
+};
+
 const ChatbotDisplayMode = {
   embedded: 'embedded',
   overlay: 'overlay',
@@ -92,7 +117,12 @@ module.exports = {
   ChatbotHeaderActions,
   ChatbotHeaderOptionsDropdown,
   ChatbotContent,
+  ChatbotFooter,
   MessageBox,
   Message,
   ChatbotDisplayMode,
+  // Export mock functions for testing
+  mockScrollToBottom,
+  mockScrollToTop,
+  mockIsSmartScrollActive,
 };

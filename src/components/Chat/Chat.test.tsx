@@ -1,6 +1,5 @@
 import { renderWithoutProviders, screen, waitFor } from '../../unitTestUtils';
 import { Chat } from './Chat';
-import { ChatBarProvider, useChatBar } from '../ChatBarContext';
 
 // Mock the hooks
 const mockUseMessages = jest.fn();
@@ -76,11 +75,7 @@ describe('Chat', () => {
   const renderChat = () => {
     // NOTE:  This may cause a "Warning: React does not recognize the `isPrimary` prop on a DOM element" warning when running tests
     // This is due to a bug in PatternFly' Message component that incorrect passes the prop down to the HTML
-    return renderWithoutProviders(
-      <ChatBarProvider>
-        <Chat />
-      </ChatBarProvider>,
-    );
+    return renderWithoutProviders(<Chat />);
   };
 
   describe('Loading State', () => {
@@ -234,76 +229,6 @@ describe('Chat', () => {
     });
   });
 
-  describe('Chat Bar Visibility', () => {
-    it('sets chat bar visibility to true when conversation is valid', async () => {
-      const mockSetActiveConversation = jest.fn().mockResolvedValue(undefined);
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([]);
-      mockUseParams.mockReturnValue({ conversationId: 'valid-conversation-id' });
-
-      // Create a test component that uses the ChatBarContext to verify visibility
-      const TestComponent = () => {
-        const { showChatBar } = useChatBar();
-        return <div data-testid="chat-bar-visibility">{String(showChatBar)}</div>;
-      };
-
-      renderWithoutProviders(
-        <ChatBarProvider>
-          <TestComponent />
-          <Chat />
-        </ChatBarProvider>,
-      );
-
-      // Wait for the async operation to complete and the effect to update visibility
-      // The Chat component's isValidConversationId starts as true, so setShowChatBar(true)
-      // should be called initially, then again after the async operation succeeds
-      await waitFor(
-        () => {
-          expect(mockSetActiveConversation).toHaveBeenCalled();
-          // NOTE: getByTestId is used because the TestComponent renders visibility as text content
-          // in a data-testid element, and we need to verify the boolean value as a string
-          const visibilityElement = screen.getByTestId('chat-bar-visibility');
-          expect(visibilityElement.textContent).toBe('true');
-        },
-        { timeout: 3000 },
-      );
-    });
-
-    it('sets chat bar visibility to false when conversation is invalid', async () => {
-      const mockSetActiveConversation = jest.fn().mockRejectedValue(new Error('Not found'));
-      mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
-      mockUseMessages.mockReturnValue([]);
-      mockUseParams.mockReturnValue({ conversationId: 'invalid-conversation-id' });
-
-      // Create a test component that uses the ChatBarContext to verify visibility
-      const TestComponent = () => {
-        const { showChatBar } = useChatBar();
-        return <div data-testid="chat-bar-visibility">{String(showChatBar)}</div>;
-      };
-
-      renderWithoutProviders(
-        <ChatBarProvider>
-          <TestComponent />
-          <Chat />
-        </ChatBarProvider>,
-      );
-
-      // Wait for the async operation to reject, error to be caught, and visibility updated
-      // The Chat component's isValidConversationId starts as true, so initially setShowChatBar(true)
-      // is called, but after the error, isValidConversationId becomes false and setShowChatBar(false) is called
-      await waitFor(
-        () => {
-          expect(mockSetActiveConversation).toHaveBeenCalled();
-          // NOTE: getByTestId is used because the TestComponent renders visibility as text content
-          // in a data-testid element, and we need to verify the boolean value as a string
-          const visibilityElement = screen.getByTestId('chat-bar-visibility');
-          expect(visibilityElement.textContent).toBe('false');
-        },
-        { timeout: 3000 },
-      );
-    });
-  });
-
   describe('No Conversation ID', () => {
     it('does not call setActiveConversation when conversationId is undefined', () => {
       const mockSetActiveConversation = jest.fn();
@@ -414,11 +339,7 @@ describe('Chat', () => {
       });
 
       // Force re-render to trigger the effect with new conversation ID
-      rerender(
-        <ChatBarProvider>
-          <Chat />
-        </ChatBarProvider>,
-      );
+      rerender(<Chat />);
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/genie/chat/permanent-conversation-123', {

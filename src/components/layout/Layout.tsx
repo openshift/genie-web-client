@@ -1,11 +1,9 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Outlet } from 'react-router-dom-v5-compat';
 import {
   Compass,
   Brand,
   CompassHeader,
-  CompassPanel,
-  CompassMessageBar,
   Drawer,
   DrawerActions,
   DrawerCloseButton,
@@ -15,16 +13,13 @@ import {
   DrawerContent,
   DrawerContentBody,
   CompassContent,
-  CompassMainFooter,
   Icon,
 } from '@patternfly/react-core';
-import { useChatBar } from '../ChatBarContext';
 import { useTheme } from '../theme';
 import RedHatLogo from '../../assets/images/RHLogo.svg';
 import RedHatLogoWhite from '../../assets/images/RHLogo-white.svg';
 import CompassBgLight from '../../assets/images/compass-bg-light.svg';
 import CompassBgDark from '../../assets/images/compass-bg-dark.svg';
-import { LayoutMessageBar } from './LayoutMessageBar';
 import { LayoutNav } from './LayoutNav';
 import { LayoutSidebarStart } from './LayoutSidebarStart';
 import { LayoutSidebarEnd } from './LayoutSidebarEnd';
@@ -42,10 +37,8 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
-  const { showChatBar } = useChatBar();
   const { theme } = useTheme();
   const { drawerState, closeDrawer } = useDrawer();
-  const messageBarRef = useRef<HTMLTextAreaElement>(null);
 
   // add glass theme class to root
   useEffect(() => {
@@ -75,17 +68,6 @@ export const Layout = ({ children }: LayoutProps) => {
         </>
       }
     />
-  );
-
-  // Footer component
-  const footer = (
-    <CompassMainFooter>
-      <CompassMessageBar>
-        <CompassPanel isPill hasNoPadding>
-          <LayoutMessageBar messageBarRef={messageBarRef} />
-        </CompassPanel>
-      </CompassMessageBar>
-    </CompassMainFooter>
   );
 
   const panelContent = (
@@ -129,8 +111,6 @@ export const Layout = ({ children }: LayoutProps) => {
                 <Outlet />
               </CompassContent>
             }
-            footer={footer}
-            isFooterExpanded={showChatBar}
             backgroundSrcLight={CompassBgLight}
             backgroundSrcDark={CompassBgDark}
           >
