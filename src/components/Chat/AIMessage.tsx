@@ -16,7 +16,6 @@ import type { Message as MessageType } from '../../hooks/AIState';
 import { useSendFeedback } from '../../hooks/AIState';
 import { getToolCallsFromMessage } from '../../hooks/useChatMessages';
 import type { ToolCallState } from 'src/utils/toolCallHelpers';
-// import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
 import { CanvasCard } from '../canvas';
@@ -261,6 +260,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       }
 
       return realArtifacts;
+      // end demo
     }, [toolCalls, userQuestion, isStreaming]);
 
     const quickResponses = useMemo(
