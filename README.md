@@ -11,6 +11,16 @@ An AI-powered, extensible UI framework built on the OpenShift Console dynamic pl
 - **Podman 3.2.0+** or **Docker** - To run the console
 - **OpenAI API Key** - Or compatible LLM provider
 
+## Container Images
+
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| `Dockerfile` | Production build - compiles and serves via nginx | Production, CI/CD |
+| `Dockerfile.dev` | Fast cluster deploys - serves pre-built `dist/` via nginx | Quick iteration with `build-deploy.sh` |
+| `Dockerfile.local-dev` | Local dev server with hot-reload | Development without installing Node.js or yarn on host |
+
+**Note:** `Dockerfile.local-dev` allows you to develop locally using only Podman/Docker - no need to install Node.js, npm, or yarn on your machine. See [Option A: Using Podman](#option-a-using-podman-no-nodejs-or-yarn-required-on-host) for setup instructions.
+
 ## Getting Started
 
 Genie Web Client requires both a frontend (this repo) and a backend (AI service). Follow these steps:
@@ -56,7 +66,7 @@ uv run python -m src.lightspeed_stack
 
 In separate terminal windows, run:
 
-#### Option A: Using Podman (No Node.js required on host)
+#### Option A: Using Podman (No Node.js or yarn required on host)
 
 **Terminal 3: Plugin Dev Server (Container)**
 
@@ -67,7 +77,7 @@ cd ~/Documents/GHRepos/genie-web-client
 ##### Build the dev image (first time only)
 
 ```bash
-podman build -f Dockerfile.frontend-dev -t genie-frontend-dev .
+podman build -f Dockerfile.local-dev -t genie-frontend-dev .
 ```
 
 ##### Run the dev server
