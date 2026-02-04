@@ -6,11 +6,13 @@ import {
   ChatbotFooter,
   MessageBar,
 } from '@patternfly/chatbot';
+import { EmptyState, EmptyStateBody } from '@patternfly/react-core';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
-import { useChatConversation } from '../../hooks/useChatConversation';
 import { CanvasLayout } from '../canvas';
+import { DashboardViewer } from '../dashboard';
+import type { AladdinDashboard } from '../../types/dashboard';
 import {
   useSetActiveConversation,
   useActiveConversation,
@@ -19,8 +21,30 @@ import {
 } from '../../hooks/AIState';
 import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 import { isTempConversationId } from '../../utils/conversationUtils';
+import { ChatConversationProvider, useChatConversation, useChatConversationContext } from '../../hooks/useChatConversation';
+/**
+ * Renders the appropriate content in the canvas based on activeArtifact type.
+ */
+const CanvasContent: React.FunctionComponent = () => {
+  const { activeArtifact } = useChatConversationContext();
 
-export const Chat: React.FunctionComponent = () => {
+  // Render based on artifact kind
+  if (activeArtifact?.kind === 'AladdinDashboard') {
+    return <DashboardViewer dashboard={activeArtifact as AladdinDashboard} />;
+  }
+
+  // Default: empty state when no artifact is active
+  return (
+    <EmptyState titleText="No content" headingLevel="h4">
+      <EmptyStateBody>Add widgets to a dashboard to view them here.</EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+/**
+ * Inner Chat component that uses the context.
+ */
+const ChatInner: React.FunctionComponent = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const setActiveConversation = useSetActiveConversation();
@@ -30,14 +54,6 @@ export const Chat: React.FunctionComponent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
   const { isCanvasOpen, canvasState } = useChatConversation();
-
-  // // Test toggle for canvas states (development only)
-  // const handleToggleCanvasState = useCallback(() => {
-  //   const stateOrder: CanvasState[] = ['closed', 'open', 'maximized'];
-  //   const currentIndex = stateOrder.indexOf(canvasState);
-  //   const nextIndex = (currentIndex + 1) % stateOrder.length;
-  //   setCanvasState(stateOrder[nextIndex]);
-  // }, [canvasState, setCanvasState]);
 
   useEffect(() => {
     // Don't try to load the temp conversation ID as a real conversation
@@ -117,15 +133,24 @@ export const Chat: React.FunctionComponent = () => {
           </ChatbotFooter>
           <BadResponseModal />
         </Chatbot>
-        {/* TODO: We may want to create Canvas component wrapper in the future */}
         <div className="chat__canvas pf-v6-c-compass__panel pf-m-full-height">
           <CanvasLayout>
-            <div className="chat__canvas-content">
-              <h1>Canvas Content</h1>
-            </div>
+            <CanvasContent />
           </CanvasLayout>
         </div>
       </BadResponseModalProvider>
     </div>
   );
+};
+
+/**
+ * Chat component wrapped with ChatConversationProvider.
+ * Provides canvas and artifact state to all nested components.
+ */
+export const Chat: React.FunctionComponent = () => {
+  return (
+    <ChatConversationProvider>
+      <ChatInner />
+    </ChatConversationProvider>
+  );  
 };
