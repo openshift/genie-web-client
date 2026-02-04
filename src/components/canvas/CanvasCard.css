@@ -1,0 +1,47 @@
+.canvas-card {
+  max-width: 48rem;
+  width: 100%;
+}
+
+/* override secondary card to have a visible border */
+.canvas-card.pf-m-clickable {
+  --pf-v6-c-card--BorderWidth: 1px;
+  --pf-v6-c-card--BorderColor: var(--pf-t--global--border--color--default);
+}
+
+/* mimic selectable card's selected state with thick blue border when viewing */
+.canvas-card.pf-m-current {
+  --pf-v6-c-card--BorderWidth: 2px;
+  --pf-v6-c-card--BorderColor: var(--pf-t--global--border--color--clicked);
+}
+
+/* let PF handle default hover behavior, no custom background changes */
+
+.canvas-card__icon {
+  color: var(--pf-t--global--icon--color--regular);
+  display: inline-flex;
+}
+
+.canvas-card__details {
+  min-width: 0;
+}
+
+.canvas-card__title {
+  color: var(--pf-t--global--text--color--regular);
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-card__metadata {
+  color: var(--pf-t--global--text--color--subtle);
+  margin-top: var(--pf-t--global--spacer--xs);
+}
+
+.canvas-card-list {
+  display: grid;
+  gap: var(--pf-t--global--spacer--md);
+  max-width: 48rem;
+}
