@@ -7,7 +7,7 @@ import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
 import { ArtifactLibrary } from './artifact-library';
 import { CanvasPreview } from './canvas';
-import { Chat } from './chat/Chat';
+import { Chat } from './chat';
 
 const GenieRoutes = () => {
   return (
