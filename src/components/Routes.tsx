@@ -5,9 +5,9 @@ import { Home } from './home';
 import { GeniePage } from './GeniePage';
 import { NewChat } from './new-chat/NewChat';
 import { SubRoutes } from './routeList';
-import { Chat } from './chat/Chat';
 import { ArtifactLibrary } from './artifact-library';
 import { CanvasPreview } from './canvas';
+import { Chat } from './chat/Chat';
 
 const GenieRoutes = () => {
   return (
