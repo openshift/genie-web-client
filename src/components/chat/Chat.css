@@ -107,7 +107,7 @@
 
 /* Shared drawer content styles for Sources and Tools drawers */
 .chat-drawer-content {
-    --pf-v6-l-stack--m-gutter--Gap: 24px;
+    --pf-v6-l-stack--m-gutter--Gap: var(--pf-t--global--spacer--lg);
 
     .chat-drawer-content__header {
         color: var(--pf-t--global--text--color--subtle);
