@@ -1,14 +1,18 @@
 import React from 'react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip, TooltipProps } from '@patternfly/react-core';
 import { MoonIcon, SunIcon } from '@patternfly/react-icons';
 import { useTheme } from './ThemeContext';
 
-export const ThemeToggle: React.FC = () => {
+interface ThemeToggleProps {
+  tooltipProps?: Partial<TooltipProps>;
+}
+
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ tooltipProps }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
   return (
-    <Tooltip content={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+    <Tooltip content={isDark ? 'Switch to light mode' : 'Switch to dark mode'} {...tooltipProps}>
       <Button
         variant="plain"
         icon={isDark ? <SunIcon /> : <MoonIcon />}
