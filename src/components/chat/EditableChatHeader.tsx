@@ -244,7 +244,6 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
         <Dropdown
           isOpen={isDropdownOpen}
           onOpenChange={setIsDropdownOpen}
-          isPlain
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <Tooltip content={t('chat.header.moreActions')} position="bottom" enableFlip={false}>
               <MenuToggle
