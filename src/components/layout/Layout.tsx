@@ -92,32 +92,36 @@ export const Layout = ({ children }: LayoutProps) => {
   );
 
   return (
-    <Drawer
-      isExpanded={drawerState.isOpen}
-      position={drawerState.position}
-      className={'genie-drawer'}
-      isPill
-    >
-      <DrawerContent panelContent={panelContent}>
-        <DrawerContentBody>
-          <Compass
-            className="genie-layout"
-            header={header}
-            isHeaderExpanded={true}
-            sidebarStart={<LayoutSidebarStart />}
-            sidebarEnd={<LayoutSidebarEnd />}
-            main={
-              <CompassContent>
-                <Outlet />
-              </CompassContent>
-            }
-            backgroundSrcLight={CompassBgLight}
-            backgroundSrcDark={CompassBgDark}
-          >
-            {children}
-          </Compass>
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
+    <>
+      <Drawer
+        isExpanded={drawerState.isOpen}
+        position={drawerState.position}
+        className={'genie-drawer'}
+        isPill
+      >
+        <DrawerContent panelContent={panelContent}>
+          <DrawerContentBody>
+            <Compass
+              className="genie-layout"
+              header={header}
+              isHeaderExpanded={true}
+              sidebarStart={<LayoutSidebarStart />}
+              sidebarEnd={<LayoutSidebarEnd />}
+              main={
+                <CompassContent>
+                  <Outlet />
+                </CompassContent>
+              }
+              backgroundSrcLight={CompassBgLight}
+              backgroundSrcDark={CompassBgDark}
+            >
+              {children}
+            </Compass>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
+      {/* backdrop for drawer when it is open */}
+      {drawerState.isOpen && <div className="pf-v6-c-backdrop"></div>}
+    </>
   );
 };
