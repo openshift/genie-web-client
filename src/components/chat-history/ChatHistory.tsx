@@ -28,8 +28,8 @@ import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
-import EditableChatHeader from '../Chat/EditableChatHeader';
-import { DeleteConversationModal } from '../Chat/DeleteConversationModal';
+import EditableChatHeader from '../chat/EditableChatHeader';
+import { DeleteConversationModal } from '../chat/DeleteConversationModal';
 import './ChatHistory.css';
 
 /**
