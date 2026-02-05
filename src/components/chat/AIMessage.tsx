@@ -16,9 +16,9 @@ import type { Message as MessageType } from '../../hooks/AIState';
 import { useSendFeedback } from '../../hooks/AIState';
 import { getToolCallsFromMessage } from '../../hooks/useChatMessages';
 import type { ToolCallState } from 'src/utils/toolCallHelpers';
-import { ArtifactRenderer } from '../artifacts';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
+import { ArtifactRenderer } from '../artifacts';
 import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
@@ -65,7 +65,6 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       return () => clearTimeout(id);
     }, [feedbackAnnouncement]);
 
-    // extract quick responses, referenced documents, and tool calls from message additionalAttributes
     const additionalAttrs = message.additionalAttributes;
     const quickResponsesPayload = additionalAttrs?.quickResponses;
     const referencedDocuments = (additionalAttrs?.referencedDocuments ??
@@ -211,26 +210,73 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       ],
     );
 
-    const artifacts = useMemo(() => collectArtifactsFromToolCalls(toolCalls), [toolCalls]);
+    const artifacts = useMemo(() => {
+      const realArtifacts = collectArtifactsFromToolCalls(toolCalls);
 
-    // Convert quick responses payload to PatternFly Message format
+      // temporary demo mode lets reviewers see canvas cards working before backend integration
+      // TODO: remove this once real artifact detection from tool calls is wired up
+      const DEMO_MODE = true;
+      const DEMO_TRIGGER_PHRASES = [
+        'create a dashboard',
+        'create a new dashboard',
+        'help me create',
+        'generate a deployment',
+        'create deployment yaml',
+        'kubernetes deployment',
+        'build a dashboard',
+        'make a dashboard',
+      ];
+
+      // don't show cards while streaming to match real behavior where artifacts come after response
+      if (!DEMO_MODE || isStreaming) {
+        return realArtifacts;
+      }
+
+      // only show cards for "creation" requests to mimic real artifact generation, not for normal Q&A
+      const userQuestionLower = userQuestion.toLowerCase();
+      const shouldTrigger = DEMO_TRIGGER_PHRASES.some((phrase) =>
+        userQuestionLower.includes(phrase),
+      );
+
+      if (realArtifacts.length === 0 && shouldTrigger) {
+        const mockArtifacts: Artifact[] = [
+          {
+            id: 'demo-dashboard-1',
+            type: 'dashboard',
+            title: 'New Monitoring Dashboard',
+            createdAt: new Date(Date.now() - 1000 * 60 * 10),
+            lastModified: new Date(Date.now() - 1000 * 60 * 5),
+            widgets: [],
+          },
+          {
+            id: 'demo-code-1',
+            type: 'code',
+            title: 'Deployment Configuration',
+            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+            lastModified: new Date(Date.now() - 1000 * 60 * 60 * 2),
+          },
+        ];
+        return [...realArtifacts, ...mockArtifacts];
+      }
+
+      return realArtifacts;
+      // end demo
+    }, [toolCalls, userQuestion, isStreaming]);
+
     const quickResponses = useMemo(
       () => toMessageQuickResponses(quickResponsesPayload?.items, t, onQuickResponse),
       [quickResponsesPayload?.items, t, onQuickResponse],
     );
 
     const hasToolCalls = toolCalls.length > 0;
-    const hasArtifacts = artifacts.length > 0;
+    const hasArtifacts = artifacts.length > 0 && !isStreaming;
     const hasSources = referencedDocuments.length > 0;
     const hasEndContent = hasToolCalls || hasSources;
+
     const extraContent = {
-      afterMainContent: (
-        <>
-          {!isStreaming && hasArtifacts ? (
-            <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} />
-          ) : null}
-        </>
-      ),
+      afterMainContent: (hasArtifacts && !isStreaming) ? (
+        <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} />
+      ) : null,
       endContent: hasEndContent ? (
         <Flex gap={{ default: 'gapSm' }}>
           {hasSources ? (

@@ -58,6 +58,8 @@ export type Message = UserMessage | AIMessage;
 export interface BaseArtifact {
   id: string;
   createdAt: Date;
+  lastModified?: Date;
+  title?: string;
 }
 
 export interface DashboardArtifact extends BaseArtifact {
