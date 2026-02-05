@@ -7,11 +7,23 @@ import {
   ActionListGroup,
   Tooltip,
   Button,
+  TooltipPosition,
+  TooltipProps,
 } from '@patternfly/react-core';
 import { CommentDotsIcon, RhUiCollectionIcon, PlusSquareIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import { ChatHistory } from '../chat-history';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
+
+const tooltipProps: Partial<TooltipProps> = {
+  position: TooltipPosition.right,
+  flipBehavior: [
+    TooltipPosition.right,
+    TooltipPosition.top,
+    TooltipPosition.left,
+    TooltipPosition.bottom,
+  ],
+};
 
 export const LayoutSidebarStart: FC = () => {
   const navigate = useNavigate();
@@ -45,7 +57,7 @@ export const LayoutSidebarStart: FC = () => {
       <ActionList isIconList isVertical>
         <ActionListGroup>
           <ActionListItem>
-            <Tooltip content="New Chat">
+            <Tooltip content="New Chat" {...tooltipProps}>
               <Button
                 variant="plain"
                 icon={<PlusSquareIcon />}
@@ -55,7 +67,7 @@ export const LayoutSidebarStart: FC = () => {
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
-            <Tooltip content="Chat History">
+            <Tooltip content="Chat History" {...tooltipProps}>
               <Button
                 variant="plain"
                 icon={<CommentDotsIcon />}
@@ -66,7 +78,7 @@ export const LayoutSidebarStart: FC = () => {
           </ActionListItem>
         </ActionListGroup>
         <ActionListItem>
-          <Tooltip content="Library">
+          <Tooltip content="Library" {...tooltipProps}>
             <Button
               variant="plain"
               icon={<RhUiCollectionIcon />}
