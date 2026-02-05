@@ -8,6 +8,7 @@ import {
   MenuToggle,
   MenuToggleElement,
   Tooltip,
+  TooltipPosition,
 } from '@patternfly/react-core';
 import {
   OutlinedSmileIcon,
@@ -71,7 +72,16 @@ export const UserAccountMenu = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <Tooltip content={name} position="bottom-end" enableFlip={false}>
+        <Tooltip
+          content={name}
+          position={TooltipPosition.bottom}
+          flipBehavior={[
+            TooltipPosition.bottom,
+            TooltipPosition.bottomEnd,
+            TooltipPosition.left,
+            TooltipPosition.top,
+          ]}
+        >
           <MenuToggle
             ref={toggleRef}
             aria-label={t('userAccount.menu.title')}

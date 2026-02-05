@@ -18,6 +18,7 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   Tooltip,
+  TooltipPosition,
 } from '@patternfly/react-core';
 import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
@@ -119,8 +120,14 @@ export const EditableChatHeader: React.FC = () => {
             <Tooltip
               trigger="manual"
               isVisible={!!validationError}
-              position="top"
               content={validationError}
+              position={TooltipPosition.top}
+              flipBehavior={[
+                TooltipPosition.top,
+                TooltipPosition.bottom,
+                TooltipPosition.left,
+                TooltipPosition.right,
+              ]}
             >
               <>
                 <TextInputGroup>
