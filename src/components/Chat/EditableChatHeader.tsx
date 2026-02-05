@@ -239,66 +239,66 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
   );
 
   if (variant === 'inline') {
+    const actionsDropdown = (
+      <span className="genie-editable-chat-header__actions">
+        <Dropdown
+          isOpen={isDropdownOpen}
+          onOpenChange={setIsDropdownOpen}
+          isPlain
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <Tooltip content={t('chat.header.moreActions')} position="bottom" enableFlip={false}>
+              <MenuToggle
+                ref={toggleRef}
+                aria-label={t('chat.header.moreActions')}
+                variant="plain"
+                isCircle
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDropdownOpen((prev) => !prev);
+                }}
+                isExpanded={isDropdownOpen}
+                icon={<EllipsisHIcon />}
+              />
+            </Tooltip>
+          )}
+          shouldFocusToggleOnSelect
+        >
+          {dropdownContent(
+            (e) => {
+              e?.stopPropagation?.();
+              setIsDropdownOpen(false);
+              onEditClick();
+            },
+            conversationId && onDeleteClick
+              ? (e) => {
+                  e?.stopPropagation?.();
+                  setIsDropdownOpen(false);
+                  onDeleteClick({ id: conversationId, title });
+                }
+              : undefined,
+          )}
+        </Dropdown>
+      </span>
+    );
+
+    if (!isEditing) {
+      return (
+        <>
+          {errorAlert}
+          <span className="genie-editable-chat-header__title">{title}</span>
+          {actionsDropdown}
+        </>
+      );
+    }
+
     return (
       <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-column pf-v6-u-w-100">
         {errorAlert}
         <div
           className="pf-v6-u-display-flex pf-v6-u-align-items-center"
-          onClick={(e) => isEditing && e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
-          {isEditing ? (
-            editForm
-          ) : (
-            <>
-              <span className="genie-editable-chat-header__title">{title}</span>
-              <span
-                className="genie-editable-chat-header__actions"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Dropdown
-                  isOpen={isDropdownOpen}
-                  onOpenChange={setIsDropdownOpen}
-                  isPlain
-                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                    <Tooltip
-                      content={t('chat.header.moreActions')}
-                      position="bottom"
-                      enableFlip={false}
-                    >
-                      <MenuToggle
-                        ref={toggleRef}
-                        aria-label={t('chat.header.moreActions')}
-                        variant="plain"
-                        isCircle
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsDropdownOpen((prev) => !prev);
-                        }}
-                        isExpanded={isDropdownOpen}
-                        icon={<EllipsisHIcon />}
-                      />
-                    </Tooltip>
-                  )}
-                  shouldFocusToggleOnSelect
-                >
-                  {dropdownContent(
-                    (e) => {
-                      e?.stopPropagation?.();
-                      setIsDropdownOpen(false);
-                      onEditClick();
-                    },
-                    conversationId && onDeleteClick
-                      ? (e) => {
-                          e?.stopPropagation?.();
-                          setIsDropdownOpen(false);
-                          onDeleteClick({ id: conversationId, title });
-                        }
-                      : undefined,
-                  )}
-                </Dropdown>
-              </span>
-            </>
-          )}
+          {editForm}
         </div>
       </div>
     );

@@ -153,7 +153,7 @@ describe('ChatHistory', () => {
       expect(screen.queryByText('Older')).not.toBeInTheDocument();
     });
 
-    it('displays conversation titles as clickable links', () => {
+    it('displays conversation row with title', () => {
       const conversations: Conversation[] = [
         {
           id: 'test-id',
@@ -168,7 +168,7 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      expect(screen.getByRole('button', { name: /Test Conversation/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Test Conversation/ })).toBeInTheDocument();
     });
 
     it('navigates to conversation when clicked', async () => {
@@ -186,8 +186,8 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      const conversationButton = screen.getByRole('button', { name: /Test Conversation/ });
-      await user.click(conversationButton);
+      const conversationRow = screen.getByRole('group', { name: /Test Conversation/ });
+      await user.click(conversationRow);
 
       expect(mockNavigate).toHaveBeenCalledWith(
         `${mainGenieRoute}/${SubRoutes.Chat}/test-conversation-id`,
@@ -235,10 +235,10 @@ describe('ChatHistory', () => {
 
       render(<ChatHistory />);
 
-      expect(screen.getByRole('button', { name: /Today 1/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Yesterday 1/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Last Week 1/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Older 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Today 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Yesterday 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Last Week 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Older 1/ })).toBeInTheDocument();
 
       jest.useRealTimers();
     });
@@ -302,9 +302,9 @@ describe('ChatHistory', () => {
       render(<ChatHistory />);
 
       // All conversations should be visible initially
-      expect(screen.getByRole('button', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Python Basics/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Java Advanced/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Python Basics/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Java Advanced/ })).toBeInTheDocument();
 
       // Search for "java" (case-insensitive)
       const searchInput = screen.getByPlaceholderText('Find conversation') as HTMLInputElement;
@@ -320,8 +320,8 @@ describe('ChatHistory', () => {
       );
 
       // Should show both JavaScript and Java conversations
-      expect(screen.getByRole('button', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Java Advanced/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /JavaScript Tutorial/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Java Advanced/ })).toBeInTheDocument();
     });
 
     it('filters conversations with partial match anywhere in title', async () => {
@@ -361,7 +361,7 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('button', { name: /React Component Guide/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /React Component Guide/ })).toBeInTheDocument();
           expect(screen.queryByRole('button', { name: /Vue.js Tutorial/ })).not.toBeInTheDocument();
           expect(
             screen.queryByRole('button', { name: /Angular Framework/ }),
@@ -435,7 +435,7 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('button', { name: /First Conversation/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /First Conversation/ })).toBeInTheDocument();
           expect(
             screen.queryByRole('button', { name: /Second Conversation/ }),
           ).not.toBeInTheDocument();
@@ -450,8 +450,8 @@ describe('ChatHistory', () => {
       // Wait for both conversations to be visible again
       await waitFor(
         () => {
-          expect(screen.getByRole('button', { name: /First Conversation/ })).toBeInTheDocument();
-          expect(screen.getByRole('button', { name: /Second Conversation/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /First Conversation/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /Second Conversation/ })).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -509,9 +509,9 @@ describe('ChatHistory', () => {
       // Wait for search to filter results
       await waitFor(
         () => {
-          expect(screen.getByRole('button', { name: /Today Python/ })).toBeInTheDocument();
-          expect(screen.getByRole('button', { name: /Yesterday Python/ })).toBeInTheDocument();
-          expect(screen.getByRole('button', { name: /Older Python/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /Today Python/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /Yesterday Python/ })).toBeInTheDocument();
+          expect(screen.getByRole('group', { name: /Older Python/ })).toBeInTheDocument();
           expect(screen.queryByRole('button', { name: /Last Week Java/ })).not.toBeInTheDocument();
         },
         { timeout: 3000 },
@@ -535,7 +535,7 @@ describe('ChatHistory', () => {
 
       // Should not show "no results found" when search is empty
       expect(screen.queryByText('No results found')).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Test Conversation/ })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Test Conversation/ })).toBeInTheDocument();
     });
   });
 

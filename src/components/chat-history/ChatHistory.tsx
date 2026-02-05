@@ -45,14 +45,11 @@ const filterConversations = (conversations: Conversation[], searchTerm: string):
   );
 };
 
-const isEventFromInput = (e: React.MouseEvent | React.KeyboardEvent): boolean =>
-  e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
-
 interface ChatHistoryGroupProps {
   titleKey: 'today' | 'yesterday' | 'lastWeek' | 'older';
   conversations: Conversation[];
   isLoading: boolean;
-  onClick: (conversation: Conversation) => void;
+  onRowActivate?: (conversation: Conversation) => void;
   onDeleteClick?: (conversation: Pick<Conversation, 'id' | 'title'>) => void;
 }
 
@@ -60,7 +57,7 @@ const ChatHistoryGroup = ({
   titleKey,
   conversations,
   isLoading,
-  onClick,
+  onRowActivate,
   onDeleteClick,
 }: ChatHistoryGroupProps) => {
   const { t } = useTranslation('plugin__genie-web-client');
@@ -77,31 +74,31 @@ const ChatHistoryGroup = ({
       ) : (
         <List isPlain>
           {conversations.map((conversation) => (
-            <ListItem key={conversation.id}>
-              <div
-                role="button"
-                tabIndex={0}
-                className="genie-chat-history-item__button"
-                aria-label={`${conversation.title} - ${t('chat.header.openChat')}`}
-                onClick={(e) => {
-                  if (isEventFromInput(e)) return;
-                  onClick(conversation);
-                }}
-                onKeyDown={(e) => {
-                  if (isEventFromInput(e)) return;
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onClick(conversation);
-                  }
-                }}
-              >
-                <EditableChatHeader
-                  title={conversation.title}
-                  variant="inline"
-                  conversationId={conversation.id}
-                  onDeleteClick={onDeleteClick}
-                />
-              </div>
+            <ListItem
+              key={conversation.id}
+              className="genie-chat-history-item__row"
+              role="group"
+              tabIndex={0}
+              aria-label={`${conversation.title} - ${t('chat.header.openChat')}`}
+              onClick={() => onRowActivate?.(conversation)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                if (
+                  e.target instanceof HTMLButtonElement ||
+                  document.activeElement instanceof HTMLButtonElement
+                ) {
+                  return;
+                }
+                e.preventDefault();
+                onRowActivate?.(conversation);
+              }}
+            >
+              <EditableChatHeader
+                title={conversation.title}
+                variant="inline"
+                conversationId={conversation.id}
+                onDeleteClick={onDeleteClick}
+              />
             </ListItem>
           ))}
         </List>
@@ -182,6 +179,11 @@ export const ChatHistory: React.FC = () => {
     navigate(`${mainGenieRoute}/${ChatNew}`);
   }, [closeDrawer, navigate]);
 
+  const handleRowActivate = (conversation: Conversation) => {
+    navigate(`${mainGenieRoute}/${SubRoutes.Chat}/${conversation.id}`);
+    closeDrawer();
+  };
+
   const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(
     () => filterConversations(allConversations, searchTerm),
@@ -208,11 +210,6 @@ export const ChatHistory: React.FC = () => {
       </Alert>
     );
   }
-
-  const handleConversationClick = (conversation: Conversation) => {
-    navigate(`${mainGenieRoute}/${SubRoutes.Chat}/${conversation.id}`);
-    closeDrawer();
-  };
 
   const hasSearchResults = useMemo(
     () =>
@@ -266,28 +263,28 @@ export const ChatHistory: React.FC = () => {
             titleKey="today"
             conversations={groupedConversations.today}
             isLoading={isInitializing}
-            onClick={handleConversationClick}
+            onRowActivate={handleRowActivate}
             onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="yesterday"
             conversations={groupedConversations.yesterday}
             isLoading={isInitializing}
-            onClick={handleConversationClick}
+            onRowActivate={handleRowActivate}
             onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="lastWeek"
             conversations={groupedConversations.lastWeek}
             isLoading={isInitializing}
-            onClick={handleConversationClick}
+            onRowActivate={handleRowActivate}
             onDeleteClick={openDeleteModal}
           />
           <ChatHistoryGroup
             titleKey="older"
             conversations={groupedConversations.other}
             isLoading={isInitializing}
-            onClick={handleConversationClick}
+            onRowActivate={handleRowActivate}
             onDeleteClick={openDeleteModal}
           />
         </>
