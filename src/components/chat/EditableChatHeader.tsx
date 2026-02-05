@@ -22,7 +22,6 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   Tooltip,
-  TooltipPosition,
 } from '@patternfly/react-core';
 import {
   RhStandardThoughtBubbleIcon,
@@ -314,61 +313,6 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
           </span>
           {isEditing ? (
             editForm
-            <Tooltip
-              trigger="manual"
-              isVisible={!!validationError}
-              content={validationError}
-              position={TooltipPosition.top}
-              flipBehavior={[
-                TooltipPosition.top,
-                TooltipPosition.bottom,
-                TooltipPosition.left,
-                TooltipPosition.right,
-              ]}
-            >
-              <>
-                <TextInputGroup>
-                  <TextInputGroupMain
-                    value={title}
-                    onChange={handleInputChange}
-                    aria-label="Edit conversation title"
-                    aria-invalid={!!validationError}
-                    disabled={isUpdating}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSave();
-                      } else if (e.key === 'Escape') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleCancel();
-                      }
-                    }}
-                  />
-                </TextInputGroup>
-                <ActionList isIconList>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Cancel title edit"
-                      icon={<TimesIcon />}
-                      onClick={handleCancel}
-                      isDisabled={isUpdating}
-                    />
-                  </ActionListItem>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Save title"
-                      icon={isUpdating ? <Spinner size="md" /> : <CheckIcon />}
-                      onClick={handleSave}
-                      isDisabled={isUpdating}
-                    />
-                  </ActionListItem>
-                </ActionList>
-              </>
-            </Tooltip>
           ) : (
             <Button
               variant="plain"
