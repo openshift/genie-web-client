@@ -91,9 +91,9 @@ export const UserMessage: FunctionComponent<UserMessageProps> = memo(
     if (isEditing) {
       return (
         <Flex
+          className="genie-user-message__edit"
           direction={{ default: 'column' }}
           spaceItems={{ default: 'spaceItemsSm' }}
-          style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
         >
           <FlexItem>
             <TextArea

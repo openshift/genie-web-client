@@ -1,5 +1,8 @@
 import { useCallback, useContext } from 'react';
+import { AlertVariant } from '@patternfly/react-core';
 import { AIStateContext } from '@redhat-cloud-services/ai-react-state';
+import { useTranslation } from 'react-i18next';
+import { useToastAlerts } from '../../components/toast-alerts/ToastAlertProvider';
 import { useSendStreamMessage } from './messageHooks';
 
 /**
@@ -10,6 +13,22 @@ import { useSendStreamMessage } from './messageHooks';
 export function useEditMessage(): (editedContent: string) => void {
   const { getState } = useContext(AIStateContext);
   const sendStreamMessage = useSendStreamMessage();
+  const { addAlert } = useToastAlerts();
+  const { t } = useTranslation('plugin__genie-web-client');
+
+  const reportEditError = useCallback(
+    (message: string) => {
+      // guard to avoid silent failure when state isn't ready yet
+      console.error(message);
+      addAlert({
+        id: `edit-message-error-${Date.now()}`,
+        title: t('message.edit.error.title'),
+        variant: AlertVariant.danger,
+        children: t('message.edit.error.description'),
+      });
+    },
+    [addAlert, t],
+  );
 
   return useCallback(
     (editedContent: string) => {
@@ -18,13 +37,13 @@ export function useEditMessage(): (editedContent: string) => void {
       const conversationId = state.activeConversationId;
 
       if (!conversationId) {
-        console.error('No active conversation found');
+        reportEditError('No active conversation found');
         return;
       }
 
       const conversation = state.conversations[conversationId];
       if (!conversation) {
-        console.error('Active conversation not found in state');
+        reportEditError('Active conversation not found in state');
         return;
       }
 
@@ -39,7 +58,7 @@ export function useEditMessage(): (editedContent: string) => void {
       }
 
       if (lastUserMessageIndex === -1) {
-        console.error('No user message found to edit');
+        reportEditError('No user message found to edit');
         return;
       }
 
@@ -56,6 +75,6 @@ export function useEditMessage(): (editedContent: string) => void {
       stateManager.notifyAll();
       sendStreamMessage(editedContent);
     },
-    [getState, sendStreamMessage],
+    [getState, sendStreamMessage, reportEditError],
   );
 }
