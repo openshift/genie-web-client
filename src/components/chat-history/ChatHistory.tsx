@@ -16,7 +16,7 @@ import {
 import { PlusSquareIcon } from '@patternfly/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom-v5-compat';
+import { useLocation, useNavigate } from 'react-router-dom-v5-compat';
 import {
   Conversation,
   useActiveConversation,
@@ -83,10 +83,13 @@ const ChatHistoryGroup = ({
               onClick={() => onRowActivate?.(conversation)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter' && e.key !== ' ') return;
-                if (
-                  e.target instanceof HTMLButtonElement ||
-                  document.activeElement instanceof HTMLButtonElement
-                ) {
+                const target = e.target as HTMLElement;
+                const isEditableOrButton =
+                  target instanceof HTMLButtonElement ||
+                  target instanceof HTMLInputElement ||
+                  target instanceof HTMLTextAreaElement ||
+                  target.isContentEditable;
+                if (isEditableOrButton) {
                   return;
                 }
                 e.preventDefault();
@@ -148,6 +151,7 @@ const LoadingComponent: React.FC = () => {
 
 export const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const conversations = useConversations();
   const isInitializing = useIsInitializing();
   const activeConversation = useActiveConversation();
@@ -164,9 +168,10 @@ export const ChatHistory: React.FC = () => {
       closeDrawer();
       const wasActiveConversation = activeConversation?.id === deletedId;
       const wasLastConversation = (conversations?.length ?? 0) === 1;
-      if (wasActiveConversation || wasLastConversation) {
-        const newChatPath = `${mainGenieRoute}/${ChatNew}`;
-        window.location.replace(`${window.location.origin}${newChatPath}`);
+      const newChatPath = `${mainGenieRoute}/${ChatNew}`;
+      const alreadyOnNewChat = pathname.endsWith(newChatPath);
+      if (!alreadyOnNewChat && (wasActiveConversation || wasLastConversation)) {
+        navigate(newChatPath, { replace: true });
       }
     },
   });
@@ -195,11 +200,6 @@ export const ChatHistory: React.FC = () => {
     [filteredConversations],
   );
 
-  // No conversations available
-  if (!isInitializing && conversations !== undefined && conversations.length === 0) {
-    return <EmptyStateComponent />;
-  }
-
   // There has been a type of error getting conversations
   if (!isInitializing && conversations === undefined) {
     // TODO: Determine if there is a better way to determining if there is an error
@@ -220,6 +220,8 @@ export const ChatHistory: React.FC = () => {
     [groupedConversations],
   );
 
+  const isEmpty = !isInitializing && conversations !== undefined && conversations.length === 0;
+
   return (
     <div className="genie-chat-history">
       {conversationToDelete && (
@@ -231,62 +233,70 @@ export const ChatHistory: React.FC = () => {
           error={deleteError}
         />
       )}
-      {!isInitializing && (
-        <Split hasGutter>
-          <SplitItem isFilled>
-            <ChatHistorySearch
-              onSearch={setSearchTerm}
-              resultsCount={filteredConversations.length}
-            />
-          </SplitItem>
-          <SplitItem>
-            <Button
-              variant="control"
-              icon={<PlusSquareIcon />}
-              onClick={handleNewChatClick}
-              aria-label="New Chat"
-            />
-          </SplitItem>
-        </Split>
-      )}
-      {searchTerm.trim() && !hasSearchResults && !isInitializing ? (
-        <EmptyState
-          variant={EmptyStateVariant.sm}
-          titleText={t('chatHistory.noResults.heading')}
-          headingLevel="h4"
-        >
-          <EmptyStateBody>{t('chatHistory.noResults.description', { searchTerm })}</EmptyStateBody>
-        </EmptyState>
+      {isEmpty ? (
+        <EmptyStateComponent />
       ) : (
         <>
-          <ChatHistoryGroup
-            titleKey="today"
-            conversations={groupedConversations.today}
-            isLoading={isInitializing}
-            onRowActivate={handleRowActivate}
-            onDeleteClick={openDeleteModal}
-          />
-          <ChatHistoryGroup
-            titleKey="yesterday"
-            conversations={groupedConversations.yesterday}
-            isLoading={isInitializing}
-            onRowActivate={handleRowActivate}
-            onDeleteClick={openDeleteModal}
-          />
-          <ChatHistoryGroup
-            titleKey="lastWeek"
-            conversations={groupedConversations.lastWeek}
-            isLoading={isInitializing}
-            onRowActivate={handleRowActivate}
-            onDeleteClick={openDeleteModal}
-          />
-          <ChatHistoryGroup
-            titleKey="older"
-            conversations={groupedConversations.other}
-            isLoading={isInitializing}
-            onRowActivate={handleRowActivate}
-            onDeleteClick={openDeleteModal}
-          />
+          {!isInitializing && (
+            <Split hasGutter>
+              <SplitItem isFilled>
+                <ChatHistorySearch
+                  onSearch={setSearchTerm}
+                  resultsCount={filteredConversations.length}
+                />
+              </SplitItem>
+              <SplitItem>
+                <Button
+                  variant="control"
+                  icon={<PlusSquareIcon />}
+                  onClick={handleNewChatClick}
+                  aria-label="New Chat"
+                />
+              </SplitItem>
+            </Split>
+          )}
+          {searchTerm.trim() && !hasSearchResults && !isInitializing ? (
+            <EmptyState
+              variant={EmptyStateVariant.sm}
+              titleText={t('chatHistory.noResults.heading')}
+              headingLevel="h4"
+            >
+              <EmptyStateBody>
+                {t('chatHistory.noResults.description', { searchTerm })}
+              </EmptyStateBody>
+            </EmptyState>
+          ) : (
+            <>
+              <ChatHistoryGroup
+                titleKey="today"
+                conversations={groupedConversations.today}
+                isLoading={isInitializing}
+                onRowActivate={handleRowActivate}
+                onDeleteClick={openDeleteModal}
+              />
+              <ChatHistoryGroup
+                titleKey="yesterday"
+                conversations={groupedConversations.yesterday}
+                isLoading={isInitializing}
+                onRowActivate={handleRowActivate}
+                onDeleteClick={openDeleteModal}
+              />
+              <ChatHistoryGroup
+                titleKey="lastWeek"
+                conversations={groupedConversations.lastWeek}
+                isLoading={isInitializing}
+                onRowActivate={handleRowActivate}
+                onDeleteClick={openDeleteModal}
+              />
+              <ChatHistoryGroup
+                titleKey="older"
+                conversations={groupedConversations.other}
+                isLoading={isInitializing}
+                onRowActivate={handleRowActivate}
+                onDeleteClick={openDeleteModal}
+              />
+            </>
+          )}
         </>
       )}
     </div>
