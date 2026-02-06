@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aladdin-cleanup-sa
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}-aladdin-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["delete"]
+  - apiGroups: ["ols.openshift.io"]
+    resources: ["olsconfigs"]
+    verbs: ["delete"]
+  - apiGroups: ["operator.openshift.io"]
+    resources: ["consoles"]
+    verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}-aladdin-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+subjects:
+  - kind: ServiceAccount
+    name: aladdin-cleanup-sa
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}-aladdin-cleanup
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: aladdin-cleanup
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      serviceAccountName: aladdin-cleanup-sa
+      restartPolicy: OnFailure
+      containers:
+        - name: cleanup
+          image: {{ .Values.plugin.jobs.patchConsoles.image }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Aladdin Cleanup ==="
+              
+              # Always remove console plugin
+              echo "Removing console plugin from enabled plugins..."
+              pluginName="{{ template "aladdin.plugin.name" . }}"
+              existingPlugins=$(oc get consoles.operator.openshift.io cluster -o json | jq -c '.spec.plugins // []')
+              updatedPlugins=$(echo "$existingPlugins" | jq --arg plugin "$pluginName" 'map(select(. != $plugin))')
+              patchedPlugins=$(jq --argjson updatedPlugins "$updatedPlugins" -n -c '{ "spec": { "plugins": $updatedPlugins } }')
+              oc patch consoles.operator.openshift.io cluster --patch "$patchedPlugins" --type=merge
+              echo "Console plugin removed."
+              
+              {{- if .Values.olsConfig.enabled }}
+              # OLS cleanup
+              echo "Deleting OLSConfig cluster..."
+              oc delete olsconfig cluster -n {{ .Values.olsSubscription.namespace }} --ignore-not-found=true
+              echo "Deleting namespace {{ .Values.olsSubscription.namespace }}..."
+              oc delete namespace {{ .Values.olsSubscription.namespace }} --ignore-not-found=true
+              {{- end }}
+              
+              echo "=== Cleanup complete ==="

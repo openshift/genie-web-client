@@ -1,0 +1,58 @@
+{{- if .Values.lightspeedCore.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lightspeed-core
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.lightspeedCore.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.lightspeedCore.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aladdin.lightspeedCore.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aladdin.lightspeedCore.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: lightspeed-core
+      containers:
+        - name: lightspeed-core
+          image: "{{ .Values.lightspeedCore.image.repository }}:{{ .Values.lightspeedCore.image.tag }}"
+          imagePullPolicy: {{ .Values.lightspeedCore.image.pullPolicy }}
+          args:
+            - "-c"
+            - "/opt/app-root/lightspeed-stack.yaml"
+          env:
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.lightspeedCore.llm.apiKeySecretName }}
+                  key: apitoken
+          ports:
+            - containerPort: {{ .Values.lightspeedCore.containerPort }}
+          volumeMounts:
+            - name: llamastack-run
+              mountPath: /opt/app-root/run.yaml
+              subPath: run.yaml
+            - name: lightspeed-stack
+              mountPath: /opt/app-root/lightspeed-stack.yaml
+              subPath: lightspeed-stack.yaml
+            - name: dot-llama
+              mountPath: /opt/app-root/.llama
+            - name: lightspeed-core-tls
+              mountPath: /opt/app-root/certs
+      volumes:
+        - name: llamastack-run
+          configMap:
+            name: {{ .Values.lightspeedCore.runConfigMapName }}
+        - name: lightspeed-stack
+          configMap:
+            name: {{ .Values.lightspeedCore.stackConfigMapName }}
+        - name: dot-llama
+          emptyDir: {}
+        - name: lightspeed-core-tls
+          secret:
+            secretName: {{ .Values.lightspeedCore.tlsSecretName }}
+{{- end }}

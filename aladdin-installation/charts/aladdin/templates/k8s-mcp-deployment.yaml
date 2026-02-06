@@ -1,0 +1,30 @@
+{{- if .Values.lightspeedCore.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-kubernetes
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.k8sMcp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.k8sMcp.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aladdin.k8sMcp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aladdin.k8sMcp.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: mcp-kubernetes
+      containers:
+        - name: mcp-kubernetes
+          image: "{{ .Values.k8sMcp.image.repository }}:{{ .Values.k8sMcp.image.tag }}"
+          imagePullPolicy: {{ .Values.k8sMcp.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.k8sMcp.containerPort }}
+          {{- if .Values.k8sMcp.args }}
+          args:
+            {{- toYaml .Values.k8sMcp.args | nindent 12 }}
+          {{- end }}
+{{- end }}

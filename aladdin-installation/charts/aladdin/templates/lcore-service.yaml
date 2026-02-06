@@ -1,0 +1,21 @@
+{{- if .Values.lightspeedCore.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: lightspeed-core
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.lightspeedCore.labels" . | nindent 4 }}
+  annotations:
+    # OpenShift service serving certificates - auto-generates TLS secret
+    service.beta.openshift.io/serving-cert-secret-name: {{ .Values.lightspeedCore.tlsSecretName }}
+spec:
+  selector:
+    {{- include "aladdin.lightspeedCore.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: https
+      port: {{ .Values.lightspeedCore.service.port }}
+      targetPort: {{ .Values.lightspeedCore.containerPort }}
+      protocol: TCP
+  type: ClusterIP
+{{- end }}

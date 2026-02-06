@@ -1,0 +1,14 @@
+{{- if .Values.plugin.jobs.patchConsoles.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "aladdin.plugin.patcherName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.plugin.labels" . | nindent 4 }}
+rules:
+  # Permission to patch consoles.operator.openshift.io to enable the plugin
+  - apiGroups: ["operator.openshift.io"]
+    resources: ["consoles"]
+    verbs: ["get", "list", "patch", "update"]
+{{- end }}

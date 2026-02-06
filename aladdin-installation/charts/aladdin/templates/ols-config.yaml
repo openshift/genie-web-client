@@ -1,0 +1,58 @@
+{{- if .Values.olsConfig.enabled }}
+apiVersion: ols.openshift.io/v1alpha1
+kind: OLSConfig
+metadata:
+  name: cluster
+  namespace: {{ .Values.olsSubscription.namespace }}
+  annotations:
+    # Run after the wait-for-crd job completes
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "0"
+  labels:
+    app.kubernetes.io/created-by: lightspeed-operator
+    app.kubernetes.io/instance: {{ .Values.olsConfig.name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: olsconfig
+    app.kubernetes.io/part-of: lightspeed-operator
+spec:
+  featureGates:
+    - MCPServer
+  llm:
+    providers:
+      {{- range .Values.olsConfig.llm.providers }}
+      - credentialsSecretRef:
+          name: {{ .credentialsSecretName }}
+        models:
+          {{- range .models }}
+          - name: {{ . }}
+          {{- end }}
+        name: {{ .name }}
+        type: {{ .type }}
+        url: {{ .url | quote }}
+      {{- end }}
+  ols:
+    logLevel: DEBUG
+    defaultModel: {{ .Values.olsConfig.ols.defaultModel }}
+    defaultProvider: {{ .Values.olsConfig.ols.defaultProvider }}
+    introspectionEnabled: true
+    querySystemPrompt: |
+{{ .Files.Get "files/prompts/system-prompt.txt" | indent 6 }}
+  mcpServers:
+    - name: obs
+      streamableHTTP:
+        enableSSE: false
+        headers:
+          Authorization: "kubernetes"
+        sseReadTimeout: 30
+        timeout: 30
+        url: {{ .Values.olsConfig.mcpServers.obs.url | quote }}
+    - name: ngui
+      streamableHTTP:
+        enableSSE: false
+        headers:
+          Authorization: "kubernetes"
+        sseReadTimeout: 30
+        timeout: 30
+        url: {{ .Values.olsConfig.mcpServers.ngui.url | quote }}
+
+{{- end }}
