@@ -25,8 +25,8 @@ const TestComponent = ({ openDrawerConfig }: { openDrawerConfig: DrawerConfig })
             {typeof value === 'function'
               ? 'function'
               : typeof value === 'boolean'
-                ? String(value)
-                : value}
+              ? String(value)
+              : value}
           </div>
         );
       })}
@@ -212,8 +212,8 @@ describe('DrawerProvider and Context', () => {
                 {typeof value === 'function'
                   ? 'function'
                   : typeof value === 'boolean'
-                    ? String(value)
-                    : value}
+                  ? String(value)
+                  : value}
               </div>
             );
           })}

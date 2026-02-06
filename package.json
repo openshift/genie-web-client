@@ -80,7 +80,7 @@
     "patch-package": "^8.0.1",
     "pluralize": "^8.0.0",
     "postinstall-postinstall": "^2.1.0",
-    "prettier": "^3.0.0",
+    "prettier": "3.0.0",
     "prettier-stylelint": "^0.4.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

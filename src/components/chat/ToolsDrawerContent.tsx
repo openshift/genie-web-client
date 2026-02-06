@@ -22,7 +22,7 @@ import {
   InProgressIcon,
 } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-import { ToolCallState } from 'src/utils/toolCallHelpers';
+import { ToolCallState } from '../../utils/toolCallHelpers';
 import './ToolsDrawerContent.css';
 
 export interface ToolsDrawerContentProps {
@@ -291,8 +291,8 @@ export const ToolsDrawerContent: FunctionComponent<ToolsDrawerContentProps> = ({
               toolCall.status === 'success'
                 ? t('chat.tools.statusSuccess')
                 : toolCall.status === 'failure'
-                  ? t('chat.tools.statusFail')
-                  : t('chat.tools.running');
+                ? t('chat.tools.statusFail')
+                : t('chat.tools.running');
 
             return (
               <ProgressStep
