@@ -29,7 +29,7 @@ export const createMockDrawerContext = (): DrawerContextValue =>
     },
     openDrawer: jest.fn(),
     closeDrawer: jest.fn(),
-  } as unknown as DrawerContextValue);
+  }) as unknown as DrawerContextValue;
 
 /**
  * Renders a component wrapped with DrawerProvider for integration testing.
