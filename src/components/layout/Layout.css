@@ -75,6 +75,8 @@
 
   .pf-v6-c-drawer__panel {
     --pf-v6-c-drawer__panel--MaxHeight: 100%;
+
+    z-index: var(--pf-t--global--z-index--xl);
   }
 
   .pf-v6-c-drawer__head {
