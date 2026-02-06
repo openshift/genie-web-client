@@ -19,6 +19,7 @@ import {
   useSendStreamMessage,
   useCreateNewConversation,
   useInjectBotMessage,
+  useInProgress,
 } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
@@ -32,6 +33,7 @@ export const NewChat: React.FC = () => {
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
   const createNewConversation = useCreateNewConversation();
+  const isInProgress = useInProgress();
 
   useEffect(() => {
     try {
@@ -50,11 +52,12 @@ export const NewChat: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (message: string | number) => {
+      if (isInProgress) return;
       await createNewConversation();
       sendStreamMessage(message);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [createNewConversation, sendStreamMessage, navigate],
+    [createNewConversation, sendStreamMessage, navigate, isInProgress],
   );
 
   const handleSuggestionClick = useCallback(
@@ -94,6 +97,7 @@ export const NewChat: React.FC = () => {
         aria-label={t('newChat.promptPlaceholder') as string}
         placeholder={t('newChat.promptPlaceholder') as string}
         onSendMessage={handleSendMessage}
+        isSendButtonDisabled={isInProgress}
       />
       <EmptyStateFooter>
         <EmptyStateActions>
