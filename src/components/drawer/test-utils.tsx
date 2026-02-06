@@ -5,6 +5,7 @@ import { DrawerContextValue } from './DrawerContext';
 
 /**
  * Creates a mock drawer context for unit testing components that use useDrawer.
+ *
  * This is useful when you want to test a component in isolation without rendering
  * the full DrawerProvider.
  *
