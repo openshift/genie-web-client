@@ -26,7 +26,7 @@ jest.mock('../../hooks/AIState', () => ({
   }),
 }));
 
-jest.mock('../Chat/DeleteConversationModal', () => ({
+jest.mock('../chat/DeleteConversationModal', () => ({
   DeleteConversationModal: () => null,
 }));
 

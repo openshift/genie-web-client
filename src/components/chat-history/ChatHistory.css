@@ -13,5 +13,5 @@
 }
 
 .genie-chat-history .genie-chat-history-item__row:hover {
-  background-color: var(--pf-v6-global--BackgroundColor--200, #f0f0f0);
+  background-color: var(--pf-t--global--background--color--primary--hover);
 }
