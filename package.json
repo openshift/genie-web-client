@@ -112,7 +112,7 @@
   "peerDependencies": {
     "@babel/core": "^7.0.1",
     "@babel/preset-env": "^7.0.0",
-    "babel-loader": "^9.2.1",
+    "babel-loader": "^9.2.1 || ^10.0.0",
     "i18next": "^23.11.5",
     "mocha": "^10.5.1"
   },
