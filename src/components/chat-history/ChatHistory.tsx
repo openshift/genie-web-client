@@ -23,16 +23,19 @@ import { useDrawer } from '../drawer';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
+import { isTempConversationId } from '../../utils/conversationUtils';
 
-/**
- * Filters conversations by search term (case-insensitive, matches anywhere in title)
- */
 const filterConversations = (conversations: Conversation[], searchTerm: string): Conversation[] => {
+  // First filter out temporary conversations
+  const nonTempConversations = conversations.filter(
+    (conversation) => !isTempConversationId(conversation.id),
+  );
+
   if (!searchTerm.trim()) {
-    return conversations;
+    return nonTempConversations;
   }
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return conversations.filter((conversation) =>
+  return nonTempConversations.filter((conversation) =>
     conversation.title.toLowerCase().includes(lowerSearchTerm),
   );
 };
@@ -142,6 +145,17 @@ export const ChatHistory: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // There has been a type of error getting conversations
+  if (!isInitializing && conversations === undefined) {
+    // TODO: Determine if there is a better way to determining if there is an error
+    // TODO: Verify error state design and behavior
+    return (
+      <Alert variant={AlertVariant.danger} title={t('chatHistory.error.heading')} role="alert">
+        <p>{t('chatHistory.error.description')}</p>
+      </Alert>
+    );
+  }
+
   const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(
     () => filterConversations(allConversations, searchTerm),
@@ -153,20 +167,9 @@ export const ChatHistory: React.FC = () => {
     [filteredConversations],
   );
 
-  // No conversations available
-  if (!isInitializing && conversations !== undefined && conversations.length === 0) {
+  // No conversations available (includes when all are temporary and filtered out)
+  if (!isInitializing && filteredConversations.length === 0 && !searchTerm.trim()) {
     return <EmptyStateComponent />;
-  }
-
-  // There has been a type of error getting conversations
-  if (!isInitializing && conversations === undefined) {
-    // TODO: Determine if there is a better way to determining if there is an error
-    // TODO: Verify error state design and behavior
-    return (
-      <Alert variant={AlertVariant.danger} title={t('chatHistory.error.heading')} role="alert">
-        <p>{t('chatHistory.error.description')}</p>
-      </Alert>
-    );
   }
 
   const handleConversationClick = (conversation: Conversation) => {
