@@ -121,7 +121,9 @@ export const Layout = ({ children }: LayoutProps) => {
         </DrawerContent>
       </Drawer>
       {/* backdrop for drawer when it is open */}
-      {drawerState.isOpen && <div className="pf-v6-c-backdrop"></div>}
+      {drawerState.isOpen && (
+        <div className="pf-v6-c-backdrop" aria-hidden="true" onClick={closeDrawer}></div>
+      )}
     </>
   );
 };
