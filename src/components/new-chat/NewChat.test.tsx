@@ -6,12 +6,14 @@ const mockSendStreamMessage = jest.fn();
 const mockInjectBotMessage = jest.fn();
 const mockCreateNewConversation = jest.fn().mockResolvedValue(undefined);
 const mockUseNavigate = jest.fn();
+const mockUseInProgress = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useSendStreamMessage: () => mockSendStreamMessage,
   useInjectBotMessage: () => mockInjectBotMessage,
   useCreateNewConversation: () => mockCreateNewConversation,
+  useInProgress: () => mockUseInProgress(),
 }));
 
 jest.mock('react-router-dom-v5-compat', () => ({
@@ -22,6 +24,7 @@ jest.mock('react-router-dom-v5-compat', () => ({
 describe('NewChat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseInProgress.mockReturnValue(false);
   });
 
   const renderNewChat = () => render(<NewChat />);
@@ -71,5 +74,17 @@ describe('NewChat', () => {
 
     // Navigates to Chat
     expect(mockUseNavigate).toHaveBeenCalled();
+  });
+
+  it('does not send message while response is in progress', async () => {
+    mockUseInProgress.mockReturnValue(true);
+    renderNewChat();
+
+    const messageInput = screen.getByRole('textbox', { name: 'Send a message...' });
+    await user.type(messageInput, 'Should not send');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(mockSendStreamMessage).not.toHaveBeenCalled();
+    expect(mockUseNavigate).not.toHaveBeenCalled();
   });
 });
