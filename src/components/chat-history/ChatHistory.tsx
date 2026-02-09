@@ -192,17 +192,6 @@ export const ChatHistory: React.FC = () => {
     closeDrawer();
   };
 
-  // There has been a type of error getting conversations
-  if (!isInitializing && conversations === undefined) {
-    // TODO: Determine if there is a better way to determining if there is an error
-    // TODO: Verify error state design and behavior
-    return (
-      <Alert variant={AlertVariant.danger} title={t('chatHistory.error.heading')} role="alert">
-        <p>{t('chatHistory.error.description')}</p>
-      </Alert>
-    );
-  }
-
   const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(
     () => filterConversations(allConversations, searchTerm),
