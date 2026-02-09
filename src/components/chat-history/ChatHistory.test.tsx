@@ -1,4 +1,4 @@
-import { render, screen, user, within, waitFor } from '../../unitTestUtils';
+import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { ChatHistory } from './ChatHistory';
 
 import { Conversation } from '../../hooks/AIState';
@@ -539,18 +539,157 @@ describe('ChatHistory', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('handles undefined conversations gracefully (error loading conversations)', () => {
-      mockUseConversations.mockReturnValue(undefined);
+  describe('Temporary Conversation Filtering', () => {
+    it.each([
+      ['__temp_conversation__', 'Temporary Conversation'],
+      ['__temp_lightspeed_conversation__', 'Lightspeed Temp Conversation'],
+    ])('filters out conversation with id %s', (tempId, tempTitle) => {
+      const conversations: Conversation[] = [
+        {
+          id: tempId,
+          title: tempTitle,
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'real-conversation-1',
+          title: 'Real Conversation',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+      ] as unknown as Conversation[];
+      mockUseConversations.mockReturnValue(conversations);
       mockUseIsInitializing.mockReturnValue(false);
 
       render(<ChatHistory />);
 
-      expect(
-        within(screen.getByRole('alert')).getByText('Error loading conversations'),
-      ).toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: new RegExp(tempTitle) })).not.toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Real Conversation/ })).toBeInTheDocument();
     });
 
+    it('filters out conversations with ids containing __temp', () => {
+      const conversations: Conversation[] = [
+        {
+          id: 'conversation__temp123',
+          title: 'Temp with suffix',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: '__temp_custom_id',
+          title: 'Temp custom',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'prefix__temp',
+          title: 'Prefix temp',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'real-conversation-1',
+          title: 'Real Conversation',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+      ] as unknown as Conversation[];
+      mockUseConversations.mockReturnValue(conversations);
+      mockUseIsInitializing.mockReturnValue(false);
+
+      render(<ChatHistory />);
+
+      expect(screen.queryByRole('group', { name: /Temp with suffix/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: /Temp custom/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: /Prefix temp/ })).not.toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Real Conversation/ })).toBeInTheDocument();
+    });
+
+    it('filters temporary conversations when searching', async () => {
+      const conversations: Conversation[] = [
+        {
+          id: '__temp_conversation__',
+          title: 'Python Temp',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'real-1',
+          title: 'Python Real',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'real-2',
+          title: 'JavaScript Real',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+      ] as unknown as Conversation[];
+      mockUseConversations.mockReturnValue(conversations);
+      mockUseIsInitializing.mockReturnValue(false);
+
+      render(<ChatHistory />);
+
+      // Search for "python"
+      const searchInput = screen.getByPlaceholderText('Find conversation') as HTMLInputElement;
+      await user.click(searchInput);
+      await user.paste('python');
+
+      // Wait for search to filter results
+      await waitFor(
+        () => {
+          // Should only show the real Python conversation
+          expect(screen.getByRole('group', { name: /Python Real/ })).toBeInTheDocument();
+          // Should not show the temporary Python conversation
+          expect(screen.queryByRole('group', { name: /Python Temp/ })).not.toBeInTheDocument();
+          // Should not show JavaScript conversation
+          expect(screen.queryByRole('group', { name: /JavaScript Real/ })).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    it('does not filter conversations with "temp" in title but not in id', () => {
+      const conversations: Conversation[] = [
+        {
+          id: 'real-conversation-1',
+          title: 'Temporary Solution Discussion',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+        {
+          id: 'real-conversation-2',
+          title: 'Temperature Monitoring',
+          createdAt: new Date().toISOString(),
+          messages: [],
+          locked: false,
+        },
+      ] as unknown as Conversation[];
+      mockUseConversations.mockReturnValue(conversations);
+      mockUseIsInitializing.mockReturnValue(false);
+
+      render(<ChatHistory />);
+
+      // Both should be visible as they are real conversations (temp is in title, not id)
+      expect(
+        screen.getByRole('group', { name: /Temporary Solution Discussion/ }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: /Temperature Monitoring/ })).toBeInTheDocument();
+    });
+  });
+
+  describe('Edge Cases', () => {
     it('handles conversations with invalid dates', () => {
       const conversations: Conversation[] = [
         {

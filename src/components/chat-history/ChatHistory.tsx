@@ -30,17 +30,20 @@ import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
 import EditableChatHeader from '../chat/EditableChatHeader';
 import { DeleteConversationModal } from '../chat/DeleteConversationModal';
+import { isTempConversationId } from '../../utils/conversationUtils';
 import './ChatHistory.css';
 
-/**
- * Filters conversations by search term (case-insensitive, matches anywhere in title)
- */
 const filterConversations = (conversations: Conversation[], searchTerm: string): Conversation[] => {
+  // First filter out temporary conversations
+  const nonTempConversations = conversations.filter(
+    (conversation) => !isTempConversationId(conversation.id),
+  );
+
   if (!searchTerm.trim()) {
-    return conversations;
+    return nonTempConversations;
   }
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return conversations.filter((conversation) =>
+  return nonTempConversations.filter((conversation) =>
     conversation.title.toLowerCase().includes(lowerSearchTerm),
   );
 };
@@ -188,6 +191,17 @@ export const ChatHistory: React.FC = () => {
     navigate(`${mainGenieRoute}/${SubRoutes.Chat}/${conversation.id}`);
     closeDrawer();
   };
+
+  // There has been a type of error getting conversations
+  if (!isInitializing && conversations === undefined) {
+    // TODO: Determine if there is a better way to determining if there is an error
+    // TODO: Verify error state design and behavior
+    return (
+      <Alert variant={AlertVariant.danger} title={t('chatHistory.error.heading')} role="alert">
+        <p>{t('chatHistory.error.description')}</p>
+      </Alert>
+    );
+  }
 
   const allConversations = (conversations as unknown as Conversation[]) || [];
   const filteredConversations = useMemo(

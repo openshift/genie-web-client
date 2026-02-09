@@ -139,6 +139,25 @@ describe('Chat', () => {
       // Loading should not be shown when messages exist
       expect(screen.queryByText('Loading conversation')).not.toBeInTheDocument();
     });
+
+    it.each(['__temp_conversation__', '__temp_lightspeed_conversation__', 'conversation__temp123'])(
+      'does not call setActiveConversation when URL has %s',
+      async (conversationId) => {
+        const mockSetActiveConversation = jest.fn();
+        mockUseSetActiveConversation.mockReturnValue(mockSetActiveConversation);
+        mockUseMessages.mockReturnValue([]);
+        mockUseParams.mockReturnValue({ conversationId });
+        mockUseActiveConversation.mockReturnValue(null);
+
+        renderChat();
+
+        // Wait a bit to ensure the effect doesn't trigger
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Should not try to load temporary conversation ID
+        expect(mockSetActiveConversation).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe('Error State', () => {
@@ -363,6 +382,44 @@ describe('Chat', () => {
           expect.objectContaining({ replace: true }),
         );
       });
+    });
+
+    it.each([
+      ['__temp_conversation__', 'real-conversation-123'],
+      ['__temp_lightspeed_conversation__', 'real-conversation-456'],
+      ['conversation__temp789', 'real-conversation-789'],
+    ])(
+      'replaces URL when it has %s and real conversation becomes active',
+      async (tempId, realId) => {
+        mockUseParams.mockReturnValue({ conversationId: tempId });
+        mockUseActiveConversation.mockReturnValue({
+          id: realId,
+          messages: [],
+        });
+
+        renderChat();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(`/genie/chat/${realId}`, {
+            replace: true,
+          });
+        });
+      },
+    );
+
+    it('does not replace URL when both URL and active conversation have temp IDs', async () => {
+      mockUseParams.mockReturnValue({ conversationId: '__temp_conversation__' });
+      mockUseActiveConversation.mockReturnValue({
+        id: '__temp_lightspeed_conversation__',
+        messages: [],
+      });
+
+      renderChat();
+
+      // Wait a bit to ensure navigate doesn't get called
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 });

@@ -22,7 +22,7 @@ import {
   InProgressIcon,
 } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-import { ToolCallState } from 'src/utils/toolCallHelpers';
+import { ToolCallState } from '../../utils/toolCallHelpers';
 import './ToolsDrawerContent.css';
 
 export interface ToolsDrawerContentProps {
