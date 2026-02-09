@@ -6,3 +6,4 @@ export * from './types';
 export * from './useInjectBotMessage';
 export * from './feedbackHooks';
 export * from './useUpdateConversationTitle';
+export * from './useDeleteConversationModal';

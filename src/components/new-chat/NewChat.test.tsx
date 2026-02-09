@@ -26,6 +26,11 @@ describe('NewChat', () => {
 
   const renderNewChat = () => render(<NewChat />);
 
+  it('does not create a conversation on mount', () => {
+    renderNewChat();
+    expect(mockCreateNewConversation).not.toHaveBeenCalled();
+  });
+
   it('renders heading, description and suggestion buttons', async () => {
     renderNewChat();
 
@@ -50,6 +55,7 @@ describe('NewChat', () => {
     const buildButton = screen.getByRole('button', { name: 'Build / Configure' });
     await user.click(buildButton);
 
+    expect(mockCreateNewConversation).toHaveBeenCalled();
     expect(mockInjectBotMessage).toHaveBeenCalled();
     const [options] = mockInjectBotMessage.mock.calls[0];
 

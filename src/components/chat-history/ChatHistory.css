@@ -1,0 +1,17 @@
+.genie-chat-history .genie-chat-history-item__row {
+  padding: var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--xs, 0.25rem)
+    var(--pf-t--global--spacer--xs, 0.25rem) var(--pf-t--global--spacer--sm, 0.5rem);
+  border-radius: var(--pf-t--global--border--radius--pill, 9999px);
+}
+
+.genie-chat-history .genie-chat-history-item__row > span {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.genie-chat-history .genie-chat-history-item__row:hover {
+  background-color: var(--pf-t--global--background--color--primary--hover);
+}

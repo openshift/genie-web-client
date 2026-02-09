@@ -44,27 +44,22 @@ export const NewChat: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const initializeConversation = async () => {
-      await createNewConversation();
-    };
-    initializeConversation();
-  }, [createNewConversation]);
-
   const titleText = userName
     ? t('newChat.heading', { name: userName })
     : t('newChat.headingNoName');
 
   const handleSendMessage = useCallback(
-    (message: string | number) => {
+    async (message: string | number) => {
+      await createNewConversation();
       sendStreamMessage(message);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [sendStreamMessage, navigate],
+    [createNewConversation, sendStreamMessage, navigate],
   );
 
   const handleSuggestionClick = useCallback(
-    (key: SuggestionKey) => {
+    async (key: SuggestionKey) => {
+      await createNewConversation();
       const introMessage = t(getIntroPromptKey(key));
       const quickResponsesPayload = buildQuickResponsesPayload(key);
 
@@ -78,7 +73,7 @@ export const NewChat: React.FC = () => {
 
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [t, injectBotMessage, navigate],
+    [t, createNewConversation, injectBotMessage, navigate],
   );
 
   const suggestions: Array<{
