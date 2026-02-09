@@ -48,14 +48,7 @@ export function useEditMessage(): (editedContent: string) => void {
       }
 
       const messages = conversation.messages;
-      let lastUserMessageIndex = -1;
-
-      for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].role === 'user') {
-          lastUserMessageIndex = i;
-          break;
-        }
-      }
+      const lastUserMessageIndex = findLastUserMessageIndex(messages);
 
       if (lastUserMessageIndex === -1) {
         reportEditError('No user message found to edit');
@@ -78,3 +71,13 @@ export function useEditMessage(): (editedContent: string) => void {
     [getState, sendStreamMessage, reportEditError],
   );
 }
+
+const findLastUserMessageIndex = (messages: Array<{ role?: string }>): number => {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') {
+      return i;
+    }
+  }
+
+  return -1;
+};
