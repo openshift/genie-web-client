@@ -12,6 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
+import './DeleteConversationModal.css';
 
 export type DeleteConversationModalProps = {
   conversation: { id: string; title: string };
@@ -35,6 +36,7 @@ export function DeleteConversationModal({
       onClose={onClose}
       variant={ModalVariant.small}
       aria-labelledby="delete-conversation-modal"
+      backdropClassName="genie-delete-conversation-modal-backdrop"
     >
       <ModalHeader
         title={t('chat.deleteModal.title', { title: conversation.title })}

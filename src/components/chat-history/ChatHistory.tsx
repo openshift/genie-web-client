@@ -234,7 +234,11 @@ export const ChatHistory: React.FC = () => {
     [groupedConversations],
   );
 
-  const isEmpty = !isInitializing && conversations !== undefined && conversations.length === 0;
+  const isEmpty =
+    !isInitializing &&
+    conversations !== undefined &&
+    filteredConversations.length === 0 &&
+    !searchTerm.trim();
 
   return (
     <div className="genie-chat-history">
