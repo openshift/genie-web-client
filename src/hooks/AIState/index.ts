@@ -7,3 +7,4 @@ export * from './useInjectBotMessage';
 export * from './feedbackHooks';
 export * from './useUpdateConversationTitle';
 export * from './useDeleteConversationModal';
+export * from './useEditMessage';
