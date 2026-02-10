@@ -189,7 +189,127 @@ describe('<BadResponseModal />', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('calls sendFeedback when form is submitted', async () => {
+  it('displays validation error when submitting without selecting feedback type', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: false,
+      error: null,
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Try to submit without selecting a feedback type
+    await user.click(screen.getByRole('button', { name: 'Send feedback' }));
+
+    // Validation error should appear
+    expect(await screen.findByText('Select a feedback type')).toBeInTheDocument();
+    expect(mockSendFeedback).not.toHaveBeenCalled();
+  });
+
+  it('clears validation error when feedback type is selected', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: false,
+      error: null,
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Try to submit without selecting a feedback type
+    await user.click(screen.getByRole('button', { name: 'Send feedback' }));
+
+    // Validation error should appear
+    expect(await screen.findByText('Select a feedback type')).toBeInTheDocument();
+
+    // Select a feedback type
+    await user.click(screen.getByRole('radio', { name: /Incorrect/i }));
+
+    // Validation error should be cleared
+    await waitFor(() => {
+      expect(screen.queryByText('Select a feedback type')).not.toBeInTheDocument();
+    });
+  });
+
+  it('focuses on validation alert when displayed', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: false,
+      error: null,
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Try to submit without selecting a feedback type
+    await user.click(screen.getByRole('button', { name: 'Send feedback' }));
+
+    // Validation error should appear and receive focus
+    const validationAlert = await screen.findByText('Select a feedback type');
+    await waitFor(() => {
+      // The wrapper div (parent of the alert) should have focus
+      const wrapper = validationAlert.closest('[role="alert"]')?.parentElement;
+      expect(wrapper).toHaveFocus();
+    });
+  });
+
+  it('focuses on error alert when API error occurs', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: false,
+      error: 'Network error occurred',
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Error alert should appear and receive focus
+    const errorAlert = await screen.findByText('Network error occurred');
+    await waitFor(() => {
+      // The wrapper div (parent of the alert) should have focus
+      const wrapper = errorAlert.closest('[role="alert"]')?.parentElement;
+      expect(wrapper).toHaveFocus();
+    });
+  });
+
+  it('calls sendFeedback when form is submitted with feedback type', async () => {
     mockUseSendFeedback.mockReturnValue({
       sendFeedback: mockSendFeedback,
       isLoading: false,
@@ -208,20 +328,51 @@ describe('<BadResponseModal />', () => {
     await user.click(screen.getByRole('button', { name: 'Open Modal' }));
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
     expect(mockSendFeedback).not.toHaveBeenCalled();
+
     // Submit form
     await user.click(screen.getByRole('radio', { name: /Incorrect/i }));
     await user.type(screen.getByRole('textbox'), 'User entered feedback');
     await user.click(screen.getByRole('button', { name: 'Send feedback' }));
 
-    // KKD this fails but we need to mock the  const activeConversation = useActiveConversation();
-    // So we can test if the correct data is passed to sendFeedback
-    // Also need to set an free text area for the user feedback
     expect(mockSendFeedback).toHaveBeenCalledWith({
       conversation_id: 'conversation-1',
       user_question: 'User question to the bot',
       llm_response: 'This is a bot response',
       categories: ['incorrect'],
       user_feedback: 'User entered feedback',
+      sentiment: -1,
+    } as FeedbackRequest);
+  });
+
+  it('calls sendFeedback without optional user feedback', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: false,
+      error: null,
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Submit form without entering user feedback
+    await user.click(screen.getByRole('radio', { name: /Unhelpful/i }));
+    await user.click(screen.getByRole('button', { name: 'Send feedback' }));
+
+    expect(mockSendFeedback).toHaveBeenCalledWith({
+      conversation_id: 'conversation-1',
+      user_question: 'User question to the bot',
+      llm_response: 'This is a bot response',
+      categories: ['not_relevant'],
+      user_feedback: '',
       sentiment: -1,
     } as FeedbackRequest);
   });
@@ -243,7 +394,70 @@ describe('<BadResponseModal />', () => {
 
     // Open modal
     await user.click(screen.getByRole('button', { name: 'Open Modal' }));
-    expect(screen.getByText('Feedback submitted')).toBeInTheDocument();
+    expect(screen.getByText('Feedback received')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('disables form fields when loading', async () => {
+    mockUseSendFeedback.mockReturnValue({
+      sendFeedback: mockSendFeedback,
+      isLoading: true,
+      error: null,
+      success: false,
+    });
+
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Radio buttons should be disabled
+    expect(screen.getByRole('radio', { name: /Incorrect/i })).toBeDisabled();
+    expect(screen.getByRole('radio', { name: /Unhelpful/i })).toBeDisabled();
+
+    // Textarea should be disabled and read-only
+    expect(screen.getByRole('textbox')).toBeDisabled();
+  });
+
+  it('renders all feedback type options', async () => {
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // All feedback types should be present
+    expect(screen.getByRole('radio', { name: /Incorrect/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Unhelpful/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Incomplete/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Harmful/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Other/i })).toBeInTheDocument();
+  });
+
+  it('displays disclaimer text', async () => {
+    renderWithAllProviders(
+      <>
+        <TestTrigger />
+        <BadResponseModal />
+      </>,
+    );
+
+    // Open modal
+    await user.click(screen.getByRole('button', { name: 'Open Modal' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // Disclaimer should be visible
+    expect(screen.getByText(/A human team will review your report/i)).toBeInTheDocument();
   });
 });
