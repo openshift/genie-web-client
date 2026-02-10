@@ -82,6 +82,11 @@ export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
   // Check if this is a registered Perses component
   if (componentName && isPersesComponent(componentName)) {
     const inputDataType = widget.spec.input_data_type as string | undefined;
+    /***
+     * This is a temporary solution to get the tool call args for the perses component.
+     * In the future, we will use the tool call args directly from NGUI:
+     * https://issues.redhat.com/browse/NGUI-448
+     */
     const toolCallArgs = findToolCallArgs(toolCalls, inputDataType);
     const persesProps = extractPersesProps(widget.spec, toolCallArgs);
 
