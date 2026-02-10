@@ -11,6 +11,16 @@ An AI-powered, extensible UI framework built on the OpenShift Console dynamic pl
 - **Podman 3.2.0+** or **Docker** - To run the console
 - **OpenAI API Key** - Or compatible LLM provider
 
+## Container Images
+
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| `Dockerfile` | Production build - compiles and serves via nginx | Production, CI/CD |
+| `Dockerfile.dev` | Fast cluster deploys - serves pre-built `dist/` via nginx | Quick iteration with `build-deploy.sh` |
+| `Dockerfile.local-dev` | Local dev server with hot-reload | Development without installing Node.js or yarn on host |
+
+**Note:** `Dockerfile.local-dev` allows you to develop locally using only Podman/Docker - no need to install Node.js, npm, or yarn on your machine. See [Option A: Using Podman](#option-a-using-podman-no-nodejs-or-yarn-required-on-host) for setup instructions.
+
 ## Getting Started
 
 Genie Web Client requires both a frontend (this repo) and a backend (AI service). Follow these steps:
@@ -20,6 +30,7 @@ Genie Web Client requires both a frontend (this repo) and a backend (AI service)
 The backend provides AI capabilities. See detailed instructions in [`backend/README.md`](./backend/README.md).
 
 **Quick Start:**
+
 ```bash
 # First, clone and start obs-mcp server (terminal 1)
 # Make sure you're logged into your OpenShift cluster
@@ -30,7 +41,7 @@ cd ~/Documents/GHRepos  # or wherever you keep repos
 git clone https://github.com/rhobs/obs-mcp.git
 cd obs-mcp
 
-# Start obs-mcp (auto-discovers Prometheus in the cluster)
+# Start obs-mcp (auto-discovers thanos-querier in the cluster falls back to prometheus if not found)
 go run cmd/obs-mcp/main.go --listen 127.0.0.1:9100 --auth-mode kubeconfig --insecure --guardrails none
 # Runs on port 9100 - keep running
 
@@ -55,7 +66,35 @@ uv run python -m src.lightspeed_stack
 
 In separate terminal windows, run:
 
+#### Option A: Using Podman (No Node.js or yarn required on host)
+
+**Terminal 3: Plugin Dev Server (Container)**
+
+```bash
+cd ~/Documents/GHRepos/genie-web-client
+```
+
+##### Build the dev image (first time only)
+
+```bash
+podman build -f Dockerfile.local-dev -t genie-frontend-dev .
+```
+
+##### Run the dev server
+
+```bash
+podman run --rm -it \
+  -p 9001:9001 \
+  -v $(pwd)/src:/usr/src/app/src:z \
+  -v $(pwd)/locales:/usr/src/app/locales:z \
+  genie-frontend-dev
+# Runs on port 9001 - keep running
+```
+
+#### Option B: Using Node.js directly
+
 **Terminal 3: Plugin Dev Server**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 yarn install
@@ -63,15 +102,22 @@ yarn run start
 # Runs on port 9001 - keep running
 ```
 
-**Terminal 4: OpenShift Console**
+#### OpenShift Console
+
+**Terminal 4:**
+
 ```bash
 cd ~/Documents/GHRepos/genie-web-client
 oc login  # Connect to your cluster
+# If you have yarn installed:
 yarn run start-console
+
+# OR without yarn (set plugin name manually):
+npm_package_consolePlugin_name=genie-web-client ./start-console.sh
 # Runs on port 9000 - keep running
 ```
 
-**Access the app:** http://localhost:9000/genie
+**Access the app:** <http://localhost:9000/genie>
 
 ### Testing MCP Tool Calls
 
@@ -100,7 +146,7 @@ you've logged into. The plugin HTTP server runs on port 9001 with CORS enabled.
 
 **Note:** Make sure the backend is running (see "Getting Started" section above) for full AI functionality.
 
-Navigate to http://localhost:9000/genie to see the running plugin.
+Navigate to <http://localhost:9000/genie> to see the running plugin.
 
 #### Running start-console with Apple silicon and podman
 
@@ -134,9 +180,9 @@ OC_USER=kubeadmin
 OC_PASS=<password>
 ```
 
-2. `(Ctrl+Shift+P) => Remote Containers: Open Folder in Container...`
-3. `yarn run start`
-4. Navigate to <http://localhost:9000/genie>
+1. `(Ctrl+Shift+P) => Remote Containers: Open Folder in Container...`
+2. `yarn run start`
+3. Navigate to <http://localhost:9000/genie>
 
 ## Testing
 
@@ -162,6 +208,7 @@ yarn test:coverage
 Tests should be placed alongside the components they test with a `.test.tsx` extension. For components with multiple test files, use a `__tests__/` directory.
 
 **File Organization:**
+
 - Single test file: `src/components/MyComponent.test.tsx` (co-located)
 - Multiple test files: `src/components/my-component/__tests__/` (organized)
 

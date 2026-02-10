@@ -102,6 +102,20 @@
         align-items: center;
     }
 
+    .genie-user-message.pf-chatbot__message {
+        /* reduce vertical gap under user actions */
+        padding-bottom: var(--pf-t--global--spacer--md);
+    }
+
+    .genie-user-message .pf-chatbot__message-and-actions {
+        /* tighten spacing between bubble and actions */
+        gap: var(--pf-t--global--spacer--xs);
+    }
+
+    .genie-user-message__edit {
+        margin-bottom: var(--pf-t--global--spacer--md);
+    }
+
 
 }
 

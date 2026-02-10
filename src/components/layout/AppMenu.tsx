@@ -5,6 +5,7 @@ import {
   MenuToggle,
   MenuToggleElement,
   Tooltip,
+  TooltipPosition,
 } from '@patternfly/react-core';
 
 import { RhUiThumbnailViewSmallIcon, RedhatIcon, OpenshiftIcon } from '@patternfly/react-icons';
@@ -32,7 +33,16 @@ export const AppMenu = () => {
       isOpen={isOpen}
       onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <Tooltip content={t('appMenu.title')} position="bottom" enableFlip={false}>
+        <Tooltip
+          content={t('appMenu.title')}
+          position={TooltipPosition.bottom}
+          flipBehavior={[
+            TooltipPosition.bottom,
+            TooltipPosition.bottomEnd,
+            TooltipPosition.left,
+            TooltipPosition.top,
+          ]}
+        >
           <MenuToggle
             ref={toggleRef}
             aria-label={t('appMenu.title')}

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useMemo, FunctionComponent, memo, useCallback, useState, useEffect } from 'react';
 import { Message } from '@patternfly/chatbot';
-import { Flex, FlexItem } from '@patternfly/react-core';
+import { Flex, FlexItem, TooltipPosition, TooltipProps } from '@patternfly/react-core';
 import {
   CopyIcon,
   RedoIcon,
@@ -143,6 +143,16 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       console.log('Report');
     }, []);
 
+    const tooltipProps = {
+      position: TooltipPosition.bottom,
+      flipBehavior: [
+        TooltipPosition.bottom,
+        TooltipPosition.bottomStart,
+        TooltipPosition.bottomEnd,
+        TooltipPosition.top,
+      ],
+    } as Partial<TooltipProps> as TooltipProps;
+
     const actions = useMemo(
       () => ({
         copy: {
@@ -150,6 +160,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           onClick: handleCopy,
           tooltipContent: t('message.action.copy'),
           clickedTooltipContent: t('message.action.copied'),
+          tooltipProps,
         },
         regenerate: {
           icon: <RedoIcon />,
@@ -158,6 +169,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           tooltipContent: t('message.action.regenerate'),
           clickedAriaLabel: 'Regenerated',
           clickedTooltipContent: 'Regenerated',
+          tooltipProps,
         },
         positive: {
           icon: <ThumbsUpIcon />,
@@ -168,6 +180,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           clickedAriaLabel: t('message.action.goodResponseRated'),
           isClicked: feedbackRating === FEEDBACK_RATING.GOOD,
           isDisabled: isLoading,
+          tooltipProps,
         },
         negative: {
           icon: <ThumbsDownIcon />,
@@ -177,16 +190,19 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           ariaLabel: t('message.action.badResponse'),
           clickedAriaLabel: t('message.action.badResponseRated'),
           isClicked: feedbackRating === FEEDBACK_RATING.BAD,
+          tooltipProps,
         },
         share: {
           icon: <ShareIcon />,
           onClick: handleShare,
           tooltipContent: t('message.action.share'),
+          tooltipProps,
         },
         listen: {
           icon: <VolumeUpIcon />,
           onClick: handleReadAloud,
           tooltipContent: t('message.action.readAloud'),
+          tooltipProps,
         },
         report: {
           icon: <FlagIcon />,
@@ -195,6 +211,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
           tooltipContent: t('message.action.report'),
           clickedAriaLabel: 'Reported',
           clickedTooltipContent: 'Reported',
+          tooltipProps,
         },
       }),
       [

@@ -1,4 +1,4 @@
-import { render, screen, checkAccessibility } from '../../unitTestUtils';
+import { renderWithoutProviders, render, screen, checkAccessibility } from '../../unitTestUtils';
 import { CanvasLayout } from './CanvasLayout';
 
 describe('CanvasLayout', () => {
@@ -40,7 +40,7 @@ describe('CanvasLayout', () => {
   });
 
   it('has no accessibility violations', async () => {
-    const { container } = render(<CanvasLayout {...defaultProps} />);
+    const { container } = renderWithoutProviders(<CanvasLayout {...defaultProps} />);
 
     await checkAccessibility(container);
   });

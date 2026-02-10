@@ -17,8 +17,10 @@ import {
   useSetActiveConversation,
   useActiveConversation,
   useSendStreamMessage,
+  useInProgress,
 } from '../../hooks/AIState';
 import { useParams, useNavigate } from 'react-router-dom-v5-compat';
+import { isTempConversationId } from '../../utils/conversationUtils';
 
 export const Chat: React.FunctionComponent = () => {
   const { conversationId } = useParams();
@@ -26,6 +28,7 @@ export const Chat: React.FunctionComponent = () => {
   const setActiveConversation = useSetActiveConversation();
   const activeConversation = useActiveConversation();
   const sendStreamMessage = useSendStreamMessage();
+  const isInProgress = useInProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
   const { isCanvasOpen, canvasState, setCanvasState } = useChatConversation();
@@ -39,6 +42,11 @@ export const Chat: React.FunctionComponent = () => {
   }, [canvasState, setCanvasState]);
 
   useEffect(() => {
+    // Don't try to load the temp conversation ID as a real conversation
+    if (isTempConversationId(conversationId)) {
+      return;
+    }
+
     if (conversationId && activeConversation?.id !== conversationId) {
       const setConversation = async () => {
         setIsLoading(true);
@@ -57,17 +65,28 @@ export const Chat: React.FunctionComponent = () => {
   }, [conversationId, setActiveConversation]);
 
   useEffect(() => {
-    if (!conversationId && activeConversation?.id && !activeConversation?.id.includes('__temp')) {
-      // Replace the current history entry to sync URL with active conversation
+    // If URL has temp conversation ID and we have a real conversation ID, replace it
+    if (
+      isTempConversationId(conversationId) &&
+      activeConversation?.id &&
+      !isTempConversationId(activeConversation.id)
+    ) {
+      navigate(`/genie/chat/${activeConversation.id}`, { replace: true });
+      return;
+    }
+
+    // If no conversationId in URL but we have a real active conversation, sync the URL
+    if (!conversationId && activeConversation?.id && !isTempConversationId(activeConversation.id)) {
       navigate(`/genie/chat/${activeConversation.id}`, { replace: true });
     }
   }, [conversationId, activeConversation, navigate]);
 
   const handleSendMessage = useCallback(
     (value: string | number) => {
+      if (isInProgress) return;
       sendStreamMessage(String(value));
     },
-    [sendStreamMessage],
+    [sendStreamMessage, isInProgress],
   );
 
   return (
@@ -96,7 +115,7 @@ export const Chat: React.FunctionComponent = () => {
             />
           </ChatbotContent>
           <ChatbotFooter>
-            <MessageBar onSendMessage={handleSendMessage} />
+            <MessageBar onSendMessage={handleSendMessage} isSendButtonDisabled={isInProgress} />
           </ChatbotFooter>
           <BadResponseModal />
         </Chatbot>

@@ -6,11 +6,23 @@ import {
   ActionListGroup,
   Tooltip,
   Button,
+  TooltipPosition,
+  TooltipProps,
 } from '@patternfly/react-core';
 import { BellIcon, QuestionCircleIcon, WaveSquareIcon } from '@patternfly/react-icons';
 import { useDrawer } from '../drawer';
 import { ThemeToggle } from '../theme';
 import { Notifications } from '../notifications/Notifications';
+
+const tooltipProps: Partial<TooltipProps> = {
+  position: TooltipPosition.left,
+  flipBehavior: [
+    TooltipPosition.left,
+    TooltipPosition.top,
+    TooltipPosition.right,
+    TooltipPosition.bottom,
+  ],
+};
 
 export const LayoutSidebarEnd: FC = () => {
   const { openDrawer } = useDrawer();
@@ -60,10 +72,10 @@ export const LayoutSidebarEnd: FC = () => {
       <ActionList isIconList isVertical>
         <ActionListGroup>
           <ActionListItem>
-            <ThemeToggle />
+            <ThemeToggle tooltipProps={tooltipProps} />
           </ActionListItem>
           <ActionListItem>
-            <Tooltip content="Notifications">
+            <Tooltip content="Notifications" {...tooltipProps}>
               <Button
                 variant="plain"
                 icon={<BellIcon />}
@@ -73,7 +85,7 @@ export const LayoutSidebarEnd: FC = () => {
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
-            <Tooltip content="Activity">
+            <Tooltip content="Activity" {...tooltipProps}>
               <Button
                 variant="plain"
                 icon={<WaveSquareIcon />}
@@ -83,7 +95,7 @@ export const LayoutSidebarEnd: FC = () => {
             </Tooltip>
           </ActionListItem>
           <ActionListItem>
-            <Tooltip content="Help">
+            <Tooltip content="Help" {...tooltipProps}>
               <Button
                 variant="plain"
                 icon={<QuestionCircleIcon />}

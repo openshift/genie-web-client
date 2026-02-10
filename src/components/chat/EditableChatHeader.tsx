@@ -12,40 +12,123 @@ import {
   Alert,
   AlertVariant,
   Button,
+  Divider,
+  Dropdown,
   DropdownItem,
   DropdownList,
+  MenuToggle,
+  MenuToggleElement,
   Spinner,
   TextInputGroup,
   TextInputGroupMain,
   Tooltip,
 } from '@patternfly/react-core';
-import { RhStandardThoughtBubbleIcon, CheckIcon, TimesIcon } from '@patternfly/react-icons';
-import { useActiveConversation, useUpdateConversationTitle } from '../../hooks/AIState';
+import {
+  RhStandardThoughtBubbleIcon,
+  RhStandardPencilIcon,
+  RhStandardTrashcanIcon,
+  CheckIcon,
+  TimesIcon,
+  EllipsisHIcon,
+} from '@patternfly/react-icons';
+import {
+  useActiveConversation,
+  useUpdateConversationTitle,
+  type ConversationForDelete,
+} from '../../hooks/AIState';
+import './EditableChatHeader.css';
 
-export const EditableChatHeader: React.FC = () => {
+export interface EditableChatHeaderProps {
+  variant?: 'default' | 'inline';
+  title?: string;
+  conversationId?: string;
+  onDeleteClick?: (conversation: ConversationForDelete) => void;
+}
+
+const editFormInputAndButtons = (
+  title: string,
+  validationError: string | undefined,
+  isUpdating: boolean,
+  onInputChange: (event: React.FormEvent<HTMLInputElement>, value: string) => void,
+  onSave: () => void,
+  onCancel: () => void,
+  t: (key: string) => string,
+) => (
+  <>
+    <TextInputGroup>
+      <TextInputGroupMain
+        value={title}
+        onChange={onInputChange}
+        aria-label={t('chat.header.editTitle')}
+        aria-invalid={!!validationError}
+        disabled={isUpdating}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            onSave();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            onCancel();
+          }
+        }}
+      />
+    </TextInputGroup>
+    <ActionList isIconList>
+      <ActionListItem>
+        <Button
+          variant="plain"
+          aria-label={t('chat.header.cancelEdit')}
+          icon={<TimesIcon />}
+          onClick={onCancel}
+          isDisabled={isUpdating}
+        />
+      </ActionListItem>
+      <ActionListItem>
+        <Button
+          variant="plain"
+          aria-label={t('chat.header.saveTitle')}
+          icon={isUpdating ? <Spinner size="md" /> : <CheckIcon />}
+          onClick={onSave}
+          isDisabled={isUpdating}
+        />
+      </ActionListItem>
+    </ActionList>
+  </>
+);
+
+export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
+  variant = 'default',
+  title: titleProp,
+  conversationId: conversationIdProp,
+  onDeleteClick,
+}) => {
   const { t } = useTranslation('plugin__genie-web-client');
   const activeConversation = useActiveConversation();
-  const conversationId = activeConversation?.id;
+  const conversationId = conversationIdProp ?? activeConversation?.id;
   const { updateTitle, isUpdating, error: apiError, clearError } = useUpdateConversationTitle();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [title, setTitle] = useState<string>('');
   const [validationError, setValidationError] = useState<string | undefined>();
   const [localError, setLocalError] = useState<string | null>(null);
   const originalTitleRef = useRef<string>(title);
 
-  // sync title with active conversation
+  // sync title with prop, active conversation, or default
   useEffect(() => {
     if (isEditing) {
       return;
     }
-    if (activeConversation?.title) {
+    if (titleProp !== undefined && titleProp !== '') {
+      setTitle(titleProp);
+    } else if (activeConversation?.title) {
       setTitle(activeConversation.title);
     } else {
-      // fallback when title is missing
       setTitle(t('chat.defaultTitle'));
     }
-  }, [activeConversation?.title, isEditing, t]);
+  }, [titleProp, activeConversation?.title, isEditing, t]);
 
   const onEditClick = () => {
     originalTitleRef.current = title;
@@ -98,79 +181,144 @@ export const EditableChatHeader: React.FC = () => {
     setLocalError(null);
   };
 
+  const hasError = Boolean(apiError || localError);
+  const errorAlert = hasError ? (
+    <Alert
+      variant={AlertVariant.danger}
+      title={t('chat.header.error.updateFailed')}
+      isInline
+      className="pf-v6-u-mb-md"
+    >
+      {localError || apiError}
+    </Alert>
+  ) : null;
+
+  const editFormInner = editFormInputAndButtons(
+    title,
+    validationError,
+    isUpdating,
+    handleInputChange,
+    handleSave,
+    handleCancel,
+    t,
+  );
+  const editForm = (
+    <Tooltip
+      trigger="manual"
+      isVisible={!!validationError}
+      position="top"
+      content={validationError}
+    >
+      {editFormInner}
+    </Tooltip>
+  );
+
+  const dropdownContent = (
+    renameOnClick: (e?: React.MouseEvent) => void,
+    deleteOnClick?: (e?: React.MouseEvent) => void,
+  ) => (
+    <DropdownList>
+      <DropdownItem value="rename" onClick={renameOnClick}>
+        <span className="genie-editable-chat-header__dropdown-item">
+          <RhStandardPencilIcon />
+          {t('chat.rename')}
+        </span>
+      </DropdownItem>
+      {deleteOnClick && (
+        <>
+          <Divider component="li" key="separator" />
+          <DropdownItem value="delete" onClick={deleteOnClick}>
+            <span className="genie-editable-chat-header__dropdown-item">
+              <RhStandardTrashcanIcon />
+              {t('chat.header.delete')}
+            </span>
+          </DropdownItem>
+        </>
+      )}
+    </DropdownList>
+  );
+
+  if (variant === 'inline') {
+    const actionsDropdown = (
+      <span className="genie-editable-chat-header__actions">
+        <Dropdown
+          isOpen={isDropdownOpen}
+          onOpenChange={setIsDropdownOpen}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <Tooltip content={t('chat.header.moreActions')} position="bottom" enableFlip={false}>
+              <MenuToggle
+                ref={toggleRef}
+                aria-label={t('chat.header.moreActions')}
+                variant="plain"
+                isCircle
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDropdownOpen((prev) => !prev);
+                }}
+                isExpanded={isDropdownOpen}
+                icon={<EllipsisHIcon />}
+              />
+            </Tooltip>
+          )}
+          shouldFocusToggleOnSelect
+        >
+          {dropdownContent(
+            (e) => {
+              e?.stopPropagation?.();
+              setIsDropdownOpen(false);
+              onEditClick();
+            },
+            conversationId && onDeleteClick
+              ? (e) => {
+                  e?.stopPropagation?.();
+                  setIsDropdownOpen(false);
+                  onDeleteClick({ id: conversationId, title });
+                }
+              : undefined,
+          )}
+        </Dropdown>
+      </span>
+    );
+
+    if (!isEditing) {
+      return (
+        <>
+          {errorAlert}
+          <span className="genie-editable-chat-header__title">{title}</span>
+          {actionsDropdown}
+        </>
+      );
+    }
+
+    return (
+      <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-column pf-v6-u-w-100">
+        {errorAlert}
+        <div
+          className="pf-v6-u-display-flex pf-v6-u-align-items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {editForm}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {(apiError || localError) && (
-        <Alert
-          variant={AlertVariant.danger}
-          title={t('chat.header.error.updateFailed')}
-          isInline
-          className="pf-v6-u-mb-md"
-        >
-          {localError || apiError}
-        </Alert>
-      )}
+      {errorAlert}
       <ChatbotHeader>
         <ChatbotHeaderMain>
           <span className="chat-header-icon">
             <RhStandardThoughtBubbleIcon />
           </span>
           {isEditing ? (
-            <Tooltip
-              trigger="manual"
-              isVisible={!!validationError}
-              position="top"
-              content={validationError}
-            >
-              <>
-                <TextInputGroup>
-                  <TextInputGroupMain
-                    value={title}
-                    onChange={handleInputChange}
-                    aria-label="Edit conversation title"
-                    aria-invalid={!!validationError}
-                    disabled={isUpdating}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSave();
-                      } else if (e.key === 'Escape') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleCancel();
-                      }
-                    }}
-                  />
-                </TextInputGroup>
-                <ActionList isIconList>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Cancel title edit"
-                      icon={<TimesIcon />}
-                      onClick={handleCancel}
-                      isDisabled={isUpdating}
-                    />
-                  </ActionListItem>
-                  <ActionListItem>
-                    <Button
-                      variant="plain"
-                      aria-label="Save title"
-                      icon={isUpdating ? <Spinner size="md" /> : <CheckIcon />}
-                      onClick={handleSave}
-                      isDisabled={isUpdating}
-                    />
-                  </ActionListItem>
-                </ActionList>
-              </>
-            </Tooltip>
+            editForm
           ) : (
             <Button
               variant="plain"
               isInline
               onClick={onEditClick}
-              aria-label="Edit conversation title"
+              aria-label={t('chat.header.editTitle')}
             >
               {title}
             </Button>
@@ -181,13 +329,14 @@ export const EditableChatHeader: React.FC = () => {
             <ChatbotHeaderOptionsDropdown
               isCompact
               tooltipProps={{ content: t('chat.header.moreActions') }}
-              toggleProps={{ 'aria-label': 'kebab dropdown toggle', isDisabled: false }}
+              toggleProps={{ 'aria-label': t('chat.header.moreActions'), isDisabled: false }}
             >
-              <DropdownList>
-                <DropdownItem value="rename" onClick={onEditClick}>
-                  {t('chat.rename')}
-                </DropdownItem>
-              </DropdownList>
+              {dropdownContent(
+                onEditClick,
+                conversationId && onDeleteClick
+                  ? () => onDeleteClick({ id: conversationId, title })
+                  : undefined,
+              )}
             </ChatbotHeaderOptionsDropdown>
           )}
         </ChatbotHeaderActions>

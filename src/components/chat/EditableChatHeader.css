@@ -1,0 +1,25 @@
+.genie-editable-chat-header__title {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  margin-right: var(--pf-v6-global--spacer--sm, 0.5rem);
+}
+
+.genie-editable-chat-header__actions {
+  flex-shrink: 0;
+}
+
+.genie-editable-chat-header__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--pf-v6-global--spacer--sm, 0.5rem);
+}
+
+.genie-editable-chat-header__dropdown-item svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}

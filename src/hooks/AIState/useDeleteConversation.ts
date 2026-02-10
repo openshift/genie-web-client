@@ -2,20 +2,20 @@ import { useCallback, useState, useContext } from 'react';
 import { AIStateContext } from '@redhat-cloud-services/ai-react-state';
 import type { ClientWithFetch } from './types';
 
-interface UpdateConversationTitleResult {
-  updateTitle: (conversationId: string, newTitle: string) => Promise<void>;
-  isUpdating: boolean;
+interface DeleteConversationResult {
+  deleteConversation: (conversationId: string) => Promise<void>;
+  isDeleting: boolean;
   error: string | null;
   clearError: () => void;
 }
 
 /**
- * Custom hook for updating conversation titles through the API
+ * Custom hook for deleting conversations through the API
  *
- * @returns object containing updateTitle function, loading state, and error state
+ * @returns object containing deleteConversation function, loading state, and error state
  */
-export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
-  const [isUpdating, setIsUpdating] = useState(false);
+export const useDeleteConversation = (): DeleteConversationResult => {
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { getState } = useContext(AIStateContext);
 
@@ -23,9 +23,9 @@ export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
     setError(null);
   }, []);
 
-  const updateTitle = useCallback(
-    async (conversationId: string, newTitle: string) => {
-      setIsUpdating(true);
+  const deleteConversation = useCallback(
+    async (conversationId: string) => {
+      setIsDeleting(true);
       setError(null);
 
       try {
@@ -39,47 +39,37 @@ export const useUpdateConversationTitle = (): UpdateConversationTitleResult => {
         const url = `${normalizedBaseUrl}v1/conversations/${conversationId}`;
 
         const response = await fetchFn(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            topic_summary: newTitle,
-          }),
+          method: 'DELETE',
         });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(
-            errorData.message || `Failed to update conversation title: ${response.statusText}`,
+            errorData.message || `Failed to delete conversation: ${response.statusText}`,
           );
         }
 
-        // sync local state with the updated title
+        // sync local state: remove conversation and clear active if needed
         const state = stateManager.getState();
-        const conversation = state.conversations[conversationId];
-        if (conversation) {
-          state.conversations[conversationId] = {
-            ...conversation,
-            title: newTitle,
-          };
-          stateManager.notifyAll();
+        delete state.conversations[conversationId];
+        if (state.activeConversationId === conversationId) {
+          state.activeConversationId = null;
         }
+        stateManager.notifyAll();
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to update conversation title';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete conversation';
         setError(errorMessage);
         throw err;
       } finally {
-        setIsUpdating(false);
+        setIsDeleting(false);
       }
     },
     [getState],
   );
 
   return {
-    updateTitle,
-    isUpdating,
+    deleteConversation,
+    isDeleting,
     error,
     clearError,
   };

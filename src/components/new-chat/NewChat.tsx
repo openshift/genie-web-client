@@ -19,6 +19,7 @@ import {
   useSendStreamMessage,
   useCreateNewConversation,
   useInjectBotMessage,
+  useInProgress,
 } from '../../hooks/AIState';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { buildQuickResponsesPayload, getIntroPromptKey, type SuggestionKey } from './suggestions';
@@ -32,6 +33,7 @@ export const NewChat: React.FC = () => {
   const injectBotMessage = useInjectBotMessage();
   const navigate = useNavigate();
   const createNewConversation = useCreateNewConversation();
+  const isInProgress = useInProgress();
 
   useEffect(() => {
     try {
@@ -44,27 +46,23 @@ export const NewChat: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const initializeConversation = async () => {
-      await createNewConversation();
-    };
-    initializeConversation();
-  }, [createNewConversation]);
-
   const titleText = userName
     ? t('newChat.heading', { name: userName })
     : t('newChat.headingNoName');
 
   const handleSendMessage = useCallback(
-    (message: string | number) => {
+    async (message: string | number) => {
+      if (isInProgress) return;
+      await createNewConversation();
       sendStreamMessage(message);
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [sendStreamMessage, navigate],
+    [createNewConversation, sendStreamMessage, navigate, isInProgress],
   );
 
   const handleSuggestionClick = useCallback(
-    (key: SuggestionKey) => {
+    async (key: SuggestionKey) => {
+      await createNewConversation();
       const introMessage = t(getIntroPromptKey(key));
       const quickResponsesPayload = buildQuickResponsesPayload(key);
 
@@ -78,7 +76,7 @@ export const NewChat: React.FC = () => {
 
       navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
     },
-    [t, injectBotMessage, navigate],
+    [t, createNewConversation, injectBotMessage, navigate],
   );
 
   const suggestions: Array<{
@@ -99,6 +97,7 @@ export const NewChat: React.FC = () => {
         aria-label={t('newChat.promptPlaceholder') as string}
         placeholder={t('newChat.promptPlaceholder') as string}
         onSendMessage={handleSendMessage}
+        isSendButtonDisabled={isInProgress}
       />
       <EmptyStateFooter>
         <EmptyStateActions>
