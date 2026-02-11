@@ -84,7 +84,7 @@ export LLM_API_KEY=<your llm api key>
 helm upgrade -i aladdin ./charts/aladdin \
   -n openshift-aladdin \
   --create-namespace \
-  --set plugin.image=quay.io/bparees/genie-web-client:latest \  
+  --set plugin.image=quay.io/bparees/genie-web-client:latest \
   --set olsConfig.enabled=false \
   --set lightspeedCore.enabled=true \
   --set lightspeedCore.llm.apiKey=$LLM_API_KEY \
