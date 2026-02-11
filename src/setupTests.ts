@@ -107,6 +107,20 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock ai-react-state library to prevent cleanup errors when components using these hooks
+// are rendered without AIStateProvider (e.g., when using renderWithoutProviders)
+jest.mock('@redhat-cloud-services/ai-react-state', () => {
+  const actual = jest.requireActual('@redhat-cloud-services/ai-react-state');
+  return {
+    ...actual,
+    // Mock useActiveConversation to work without provider and return proper cleanup
+    useActiveConversation: jest.fn(() => undefined),
+    useMessages: jest.fn(() => []),
+    useStreamChunk: jest.fn(() => undefined),
+    useInProgress: jest.fn(() => false),
+  };
+});
+
 // Mock aiStateManager to prevent real API calls during tests
 // This prevents the "fetch is not defined" error when the state manager tries to initialize
 jest.mock('./components/utils/aiStateManager', () => {
@@ -119,7 +133,7 @@ jest.mock('./components/utils/aiStateManager', () => {
       isInitializing: false,
     }),
     notifyAll: jest.fn(),
-    subscribe: jest.fn(),
+    subscribe: jest.fn().mockReturnValue(jest.fn()), // Return a mock unsubscribe function
     unsubscribe: jest.fn(),
   };
 
