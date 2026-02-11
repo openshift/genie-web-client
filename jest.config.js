@@ -5,6 +5,13 @@ module.exports = {
   // Use jsdom environment to simulate a browser (provides window, document, etc.)
   testEnvironment: 'jsdom',
 
+  // Memory management: restart workers that accumulate too much memory
+  // This prevents memory leaks from causing OOM errors in CI (was using ~27GB before)
+  workerIdleMemoryLimit: '512MB',
+
+  // Clear mocks between tests to prevent state leakage
+  clearMocks: true,
+
   // Tell Jest where to look for test files (only search in src directory)
   roots: ['<rootDir>/src'],
 
