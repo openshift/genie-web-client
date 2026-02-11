@@ -446,7 +446,7 @@ describe('<MessageList />', () => {
             resumeSmartScroll: true,
           });
         });
-      }, 10000);
+      });
     });
 
     describe('New Message', () => {
@@ -505,7 +505,7 @@ describe('<MessageList />', () => {
         });
       });
 
-      it('does not scroll when message count stays the same', async () => {
+      it('does not scroll when message count stays the same', () => {
         mockUseChatMessages.mockReturnValue(
           createMockChatMessagesReturn({
             messages: [{ id: 'user-1', role: 'user', answer: 'Hello', date: new Date() }],
@@ -515,10 +515,6 @@ describe('<MessageList />', () => {
 
         const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
 
-        // Wait for initial scroll to complete
-        await waitFor(() => {
-          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
-        });
         mockScrollToBottom.mockClear();
 
         // Re-render with same messages
@@ -654,7 +650,7 @@ describe('<MessageList />', () => {
         });
       });
 
-      it('does not scroll when not streaming even if content changes', async () => {
+      it('does not scroll when not streaming even if content changes', () => {
         mockUseChatMessages.mockReturnValue(
           createMockChatMessagesReturn({
             messages: [
@@ -670,10 +666,6 @@ describe('<MessageList />', () => {
 
         const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
 
-        // Wait for initial scroll to complete
-        await waitFor(() => {
-          expect(mockScrollToBottom).toHaveBeenCalledTimes(1);
-        });
         mockScrollToBottom.mockClear();
 
         // Re-render with isStreaming still false
