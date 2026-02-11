@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { Artifact, WidgetArtifact } from '../../types/chat';
 import type { ToolCallState } from '../../utils/toolCallHelpers';
 import type { AladdinDashboard } from '../../types/dashboard';
@@ -6,7 +6,8 @@ import { WidgetRenderer } from './WidgetRenderer';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { useActiveDashboard } from '../../hooks/useActiveDashboard';
-import { DashboardSelectorModal } from '../dashboard';
+import { useDashboards } from '../../hooks/useDashboard';
+import { CanvasCard } from '../canvas/CanvasCard';
 
 export interface ArtifactRendererProps {
   artifacts: Artifact[];
@@ -16,63 +17,75 @@ export interface ArtifactRendererProps {
   namespace?: string;
 }
 
+/**
+ * Find the tool call ID that produced a given artifact.
+ * Matches by checking if the artifact's id exists in any tool call's artifacts array.
+ */
+function findToolCallIdForArtifact(
+  artifactId: string,
+  toolCalls: ToolCallState[] | undefined,
+): string | null {
+  if (!toolCalls) return null;
+
+  for (const tc of toolCalls) {
+    if (tc.artifacts?.some((a) => a.id === artifactId)) {
+      return tc.id;
+    }
+  }
+  return null;
+}
+
 export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = ({
   artifacts,
   toolCalls,
   namespace = 'default',
 }) => {
-  const [isSelectorModalOpen, setIsSelectorModalOpen] = useState(false);
-  const [pendingWidget, setPendingWidget] = useState<WidgetArtifact | null>(null);
-
-  const { addWidgetToDashboard, hasActiveDashboard } = useActiveDashboard(namespace);
+  const { addWidgetToDashboard, setActiveDashboard, activeDashboard, clearActiveDashboard } =
+    useActiveDashboard(namespace);
+  const { getDashboardForToolCall } = useDashboards({ namespace });
 
   const handleAddToDashboard = useCallback(
-    async (artifact: WidgetArtifact) => {
+    (artifact: WidgetArtifact) => {
       if (!toolCalls) {
-        console.warn('[ArtifactRenderer] No tool calls available for persistence');
         return;
       }
 
-      // If there's an active dashboard, add directly
-      if (hasActiveDashboard) {
-        try {
-          await addWidgetToDashboard(artifact, toolCalls);
-        } catch (error) {
-          console.error('[ArtifactRenderer] Failed to add widget to dashboard:', error);
-        }
-        return;
-      }
-
-      // Otherwise, open the selector modal
-      setPendingWidget(artifact);
-      setIsSelectorModalOpen(true);
+      // Add widget directly - will create a local dashboard if none exists
+      addWidgetToDashboard(artifact, toolCalls);
     },
-    [toolCalls, hasActiveDashboard, addWidgetToDashboard],
+    [toolCalls, addWidgetToDashboard],
   );
 
-  const handleSelectorClose = useCallback(() => {
-    setIsSelectorModalOpen(false);
-    setPendingWidget(null);
-  }, []);
+  // Handler to open a dashboard in the canvas when clicking on a CanvasCard
+  const handleOpenDashboard = useCallback(
+    (_artifactId: string, dashboard: AladdinDashboard) => {
+      setActiveDashboard(dashboard);
+    },
+    [setActiveDashboard],
+  );
 
-  const handleDashboardSelect = useCallback(
-    async (dashboard: AladdinDashboard) => {
-      setIsSelectorModalOpen(false);
+  // Build a lookup from artifact ID to its dashboard reference (if on a dashboard)
+  const artifactDashboardLookup = useMemo(() => {
+    const lookup = new Map<
+      string,
+      { dashboard: AladdinDashboard; panelTitle: string | undefined }
+    >();
 
-      // Add the pending widget to the selected dashboard directly
-      // (passing dashboard explicitly to avoid React state timing issues)
-      if (pendingWidget && toolCalls) {
-        try {
-          await addWidgetToDashboard(pendingWidget, toolCalls, dashboard);
-        } catch (error) {
-          console.error('[ArtifactRenderer] Failed to add widget to dashboard:', error);
+    for (const artifact of artifacts) {
+      const toolCallId = findToolCallIdForArtifact(artifact.id, toolCalls);
+      if (toolCallId) {
+        const ref = getDashboardForToolCall(toolCallId);
+        if (ref) {
+          lookup.set(artifact.id, {
+            dashboard: ref.dashboard,
+            panelTitle: ref.panel.title,
+          });
         }
       }
+    }
 
-      setPendingWidget(null);
-    },
-    [pendingWidget, toolCalls, addWidgetToDashboard],
-  );
+    return lookup;
+  }, [artifacts, toolCalls, getDashboardForToolCall]);
 
   if (artifacts.length === 0) {
     return null;
@@ -82,7 +95,37 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
     <>
       {artifacts.map((artifact) => {
         switch (artifact.type) {
-          case 'widget':
+          case 'widget': {
+            // Check if this widget is already on a dashboard
+            const dashboardRef = artifactDashboardLookup.get(artifact.id);
+
+            if (dashboardRef) {
+              // Widget is on a dashboard - show a CanvasCard instead
+              const { dashboard } = dashboardRef;
+              const dashboardUid = dashboard.metadata?.uid ?? dashboard.metadata?.name ?? '';
+              const isViewing =
+                activeDashboard?.metadata?.uid === dashboardUid ||
+                activeDashboard?.metadata?.name === dashboard.metadata?.name;
+
+              return (
+                <CanvasCard
+                  key={artifact.id}
+                  artifactId={dashboardUid}
+                  title={dashboard.spec.title}
+                  type="dashboard"
+                  lastModified={
+                    dashboard.metadata?.creationTimestamp
+                      ? new Date(dashboard.metadata.creationTimestamp)
+                      : new Date()
+                  }
+                  isViewing={isViewing}
+                  onOpen={() => handleOpenDashboard(dashboardUid, dashboard)}
+                  onClose={clearActiveDashboard}
+                />
+              );
+            }
+
+            // Widget not on a dashboard - render inline with "Add to Dashboard" button
             return (
               <Flex key={artifact.id} direction={{ default: 'column' }} gap={{ default: 'gapSm' }}>
                 <FlexItem alignSelf={{ default: 'alignSelfFlexEnd' }}>
@@ -100,6 +143,7 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
                 </FlexItem>
               </Flex>
             );
+          }
 
           case 'dashboard':
             // Render dashboard with multiple widgets
@@ -124,13 +168,6 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
             return null;
         }
       })}
-
-      <DashboardSelectorModal
-        isOpen={isSelectorModalOpen}
-        onClose={handleSelectorClose}
-        onSelect={handleDashboardSelect}
-        namespace={namespace}
-      />
     </>
   );
 };

@@ -23,6 +23,8 @@ export interface CanvasCardProps {
   lastModified: Date;
   isViewing?: boolean;
   onOpen: (artifactId: string) => void;
+  /** Called when clicking the card while it's already being viewed (to close/deactivate) */
+  onClose?: () => void;
 }
 
 const getArtifactIcon = (type: Artifact['type']): ReactNode => {
@@ -44,37 +46,33 @@ export const CanvasCard: React.FC<CanvasCardProps> = ({
   lastModified,
   isViewing = false,
   onOpen,
+  onClose,
 }) => {
   const { t } = useTranslation('plugin__genie-web-client');
 
-  // don't fire click when already viewing since card is disabled
-  const handleOpen = useCallback(() => {
-    if (!isViewing) {
+  // Toggle behavior: open if not viewing, close if already viewing
+  const handleClick = useCallback(() => {
+    if (isViewing && onClose) {
+      onClose();
+    } else if (!isViewing) {
       onOpen(artifactId);
     }
-  }, [onOpen, artifactId, isViewing]);
+  }, [onOpen, onClose, artifactId, isViewing]);
 
   // aria label changes based on viewing state to tell screen readers what'll happen on click
   const cardAriaLabel = useMemo(
     () =>
       isViewing
-        ? t('canvasCard.viewingAriaLabel', { title: title || t('canvasCard.untitled') })
+        ? t('canvasCard.closeAriaLabel', { title: title || t('canvasCard.untitled') })
         : t('canvasCard.openAriaLabel', { title: title || t('canvasCard.untitled') }),
     [t, title, isViewing],
   );
 
   return (
-    <Card
-      isCompact
-      isClickable
-      isClicked={isViewing}
-      isDisabled={isViewing}
-      variant="secondary"
-      className="canvas-card"
-    >
+    <Card isCompact isClickable isClicked={isViewing} variant="secondary" className="canvas-card">
       <CardHeader
         selectableActions={{
-          onClickAction: handleOpen,
+          onClickAction: handleClick,
           selectableActionAriaLabel: cardAriaLabel,
         }}
       >

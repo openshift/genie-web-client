@@ -24,6 +24,10 @@ export interface ChatConversationContextValue {
   setActiveArtifact: (artifact: ActiveArtifact) => void;
   clearActiveArtifact: () => void;
 
+  // Dashboard saved state - tracks if active dashboard has been persisted to K8s
+  isDashboardSaved: boolean;
+  setDashboardSaved: (saved: boolean) => void;
+
   // Create mode - auto-create dashboard when widgets are created
   isCreateModeEnabled: boolean;
   enableCreateMode: () => void;
@@ -60,6 +64,9 @@ export function useChatConversation(): ChatConversationContextValue {
   // Active artifact displayed in canvas
   const [activeArtifact, setActiveArtifactState] = useState<ActiveArtifact>(null);
 
+  // Dashboard saved state - tracks if active dashboard has been persisted to K8s
+  const [isDashboardSaved, setIsDashboardSaved] = useState(false);
+
   // Create mode - auto-create dashboard when widgets are created
   const [isCreateModeEnabled, setIsCreateModeEnabled] = useState(false);
 
@@ -85,6 +92,12 @@ export function useChatConversation(): ChatConversationContextValue {
 
   const clearActiveArtifact = useCallback(() => {
     setActiveArtifactState(null);
+    setIsDashboardSaved(false);
+  }, []);
+
+  // Dashboard saved state actions
+  const setDashboardSaved = useCallback((saved: boolean) => {
+    setIsDashboardSaved(saved);
   }, []);
 
   // Create mode actions
@@ -111,6 +124,8 @@ export function useChatConversation(): ChatConversationContextValue {
       activeArtifact,
       setActiveArtifact,
       clearActiveArtifact,
+      isDashboardSaved,
+      setDashboardSaved,
       isCreateModeEnabled,
       enableCreateMode,
       disableCreateMode,
@@ -125,6 +140,8 @@ export function useChatConversation(): ChatConversationContextValue {
       activeArtifact,
       setActiveArtifact,
       clearActiveArtifact,
+      isDashboardSaved,
+      setDashboardSaved,
       isCreateModeEnabled,
       enableCreateMode,
       disableCreateMode,

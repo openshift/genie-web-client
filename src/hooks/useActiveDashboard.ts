@@ -20,17 +20,21 @@ interface UseActiveDashboardResult {
   clearActiveDashboard: () => void;
   /**
    * Add a widget to a dashboard.
+   * If no dashboard exists, creates a local dashboard with default name/description.
+   * Does NOT persist to K8s - call saveDashboard to persist.
    * @param widget - The widget to add
    * @param toolCalls - Tool calls from the message for persistence
-   * @param targetDashboard - Optional dashboard to add to (overrides activeDashboard)
    */
-  addWidgetToDashboard: (
-    widget: WidgetArtifact,
-    toolCalls: ToolCallState[],
-    targetDashboard?: AladdinDashboard,
-  ) => Promise<{ dashboard: AladdinDashboard; needsSelection: boolean }>;
+  addWidgetToDashboard: (widget: WidgetArtifact, toolCalls: ToolCallState[]) => void;
+  /**
+   * Save the active dashboard to K8s.
+   * @returns The saved dashboard
+   */
+  saveDashboard: () => Promise<AladdinDashboard>;
   /** Whether there is an active dashboard */
   hasActiveDashboard: boolean;
+  /** Whether the active dashboard has been saved to K8s */
+  isDashboardSaved: boolean;
 }
 
 /**
@@ -70,13 +74,49 @@ function getNextPanelPosition(panels: DashboardPanel[]): { x: number; y: number 
 }
 
 /**
+ * Generate a K8s-safe dashboard name
+ */
+function generateDashboardName(): string {
+  return `dashboard-${Date.now()}`;
+}
+
+/**
+ * Create a new local dashboard with default values
+ */
+function createLocalDashboard(namespace: string): AladdinDashboard {
+  return {
+    apiVersion: 'aladdin.openshift.io/v1alpha1',
+    kind: 'AladdinDashboard',
+    metadata: {
+      name: generateDashboardName(),
+      namespace,
+    },
+    spec: {
+      title: 'Untitled Dashboard',
+      description: 'Dashboard created from conversation',
+      layout: {
+        columns: 12,
+        panels: [],
+      },
+    },
+  };
+}
+
+/**
  * Hook for dashboard-specific operations.
  * Consumes ChatConversationContext and provides methods to manage the active dashboard.
  */
 export function useActiveDashboard(namespace: string): UseActiveDashboardResult {
-  const { activeArtifact, setActiveArtifact, clearActiveArtifact, openCanvas } =
-    useChatConversationContext();
-  const { updateDashboard } = useDashboardActions(namespace);
+  const {
+    activeArtifact,
+    setActiveArtifact,
+    clearActiveArtifact,
+    openCanvas,
+    closeCanvas,
+    isDashboardSaved,
+    setDashboardSaved,
+  } = useChatConversationContext();
+  const { createDashboard } = useDashboardActions(namespace);
 
   // Derive activeDashboard from activeArtifact when it's an AladdinDashboard
   const activeDashboard = useMemo((): AladdinDashboard | null => {
@@ -98,24 +138,13 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
 
   const clearActiveDashboard = useCallback(() => {
     clearActiveArtifact();
-  }, [clearActiveArtifact]);
+    closeCanvas();
+  }, [clearActiveArtifact, closeCanvas]);
 
   const addWidgetToDashboard = useCallback(
-    async (
-      widget: WidgetArtifact,
-      toolCalls: ToolCallState[],
-      targetDashboard?: AladdinDashboard,
-    ): Promise<{ dashboard: AladdinDashboard; needsSelection: boolean }> => {
-      // Use targetDashboard if provided, otherwise fall back to activeDashboard
-      const dashboard = targetDashboard ?? activeDashboard;
-
-      // If no dashboard available, signal that selection is needed
-      if (!dashboard) {
-        return {
-          dashboard: null as unknown as AladdinDashboard,
-          needsSelection: true,
-        };
-      }
+    (widget: WidgetArtifact, toolCalls: ToolCallState[]): void => {
+      // Use existing dashboard or create a new local one
+      const dashboard = activeDashboard ?? createLocalDashboard(namespace);
 
       // Convert tool calls for persistence
       const persistedToolCalls = convertToolCallsForPersistence(toolCalls);
@@ -155,20 +184,31 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
         spec: updatedSpec,
       };
 
-      // Persist to K8s
-      const savedDashboard = await updateDashboard(updatedDashboard);
-
-      // Update active artifact with saved dashboard
-      setActiveArtifact(savedDashboard);
+      // Update local state only - do NOT persist to K8s
+      setActiveArtifact(updatedDashboard);
+      setDashboardSaved(false);
       openCanvas();
-
-      return {
-        dashboard: savedDashboard,
-        needsSelection: false,
-      };
     },
-    [activeDashboard, updateDashboard, setActiveArtifact, openCanvas],
+    [activeDashboard, namespace, setActiveArtifact, setDashboardSaved, openCanvas],
   );
+
+  const saveDashboard = useCallback(async (): Promise<AladdinDashboard> => {
+    if (!activeDashboard) {
+      throw new Error('No active dashboard to save');
+    }
+
+    // Persist to K8s
+    const savedDashboard = await createDashboard(
+      activeDashboard.metadata?.name ?? generateDashboardName(),
+      activeDashboard.spec,
+    );
+
+    // Update active artifact with saved dashboard (includes K8s metadata like resourceVersion)
+    setActiveArtifact(savedDashboard);
+    setDashboardSaved(true);
+
+    return savedDashboard;
+  }, [activeDashboard, createDashboard, setActiveArtifact, setDashboardSaved]);
 
   return useMemo(
     () => ({
@@ -176,14 +216,18 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
       setActiveDashboard,
       clearActiveDashboard,
       addWidgetToDashboard,
+      saveDashboard,
       hasActiveDashboard,
+      isDashboardSaved,
     }),
     [
       activeDashboard,
       setActiveDashboard,
       clearActiveDashboard,
       addWidgetToDashboard,
+      saveDashboard,
       hasActiveDashboard,
+      isDashboardSaved,
     ],
   );
 }
