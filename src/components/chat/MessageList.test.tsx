@@ -1,6 +1,18 @@
+import React from 'react';
 import { renderWithoutProviders as render, screen, waitFor, act } from '../../unitTestUtils';
 import { MessageList } from './MessageList';
 import type { StreamingMessage } from '../../hooks/useChatMessages';
+
+// Mock toast so we don't load ToastAlertProvider (saves memory)
+jest.mock('../toast-alerts/ToastAlertProvider', () => ({
+  useToastAlerts: () => ({ addAlert: jest.fn(), removeAlert: jest.fn(), alerts: [] }),
+  ToastAlertProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Mock heavy child to reduce memory
+jest.mock('./EditableChatHeader', () => ({
+  EditableChatHeader: () => null,
+}));
 
 // Access mock functions from the mocked @patternfly/chatbot module
 // Jest automatically uses __mocks__/patternflyChatbotMock.js via jest.config.js moduleNameMapper
@@ -18,6 +30,8 @@ const mockUseChatMessages = jest.fn();
 // mocked hooks for editable chat header
 const mockUseActiveConversation = jest.fn();
 const mockUseUpdateConversationTitle = jest.fn();
+const mockUseConversations = jest.fn();
+const mockUseDeleteConversationModal = jest.fn();
 
 jest.mock('../../hooks/useChatMessages', () => ({
   useChatMessages: () => mockUseChatMessages(),
@@ -27,6 +41,8 @@ jest.mock('../../hooks/AIState', () => ({
   ...jest.requireActual('../../hooks/AIState'),
   useActiveConversation: () => mockUseActiveConversation(),
   useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
+  useConversations: () => mockUseConversations(),
+  useDeleteConversationModal: (opts: unknown) => mockUseDeleteConversationModal(opts),
 }));
 
 // mock child components to isolate testing
@@ -108,6 +124,15 @@ describe('<MessageList />', () => {
       isUpdating: false,
       error: null,
       clearError: jest.fn(),
+    });
+    mockUseConversations.mockReturnValue([]);
+    mockUseDeleteConversationModal.mockReturnValue({
+      conversationToDelete: null,
+      openDeleteModal: jest.fn(),
+      closeDeleteModal: jest.fn(),
+      confirmDelete: jest.fn(),
+      isDeleting: false,
+      error: null,
     });
     // Reset scroll method mocks
     mockScrollToBottom.mockClear();

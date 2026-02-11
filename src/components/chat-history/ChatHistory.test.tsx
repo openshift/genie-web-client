@@ -1,6 +1,5 @@
 import { render, screen, user, waitFor } from '../../unitTestUtils';
 import { ChatHistory } from './ChatHistory';
-
 import { Conversation } from '../../hooks/AIState';
 import { getConversations } from './conversations.mock';
 import { mainGenieRoute, SubRoutes, ChatNew } from '../routeList';
@@ -39,6 +38,11 @@ jest.mock('../drawer', () => ({
 jest.mock('react-router-dom-v5-compat', () => ({
   ...jest.requireActual('react-router-dom-v5-compat'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../toast-alerts/ToastAlertProvider', () => ({
+  ...jest.requireActual('../toast-alerts/ToastAlertProvider'),
+  useToastAlerts: () => ({ addAlert: jest.fn(), removeAlert: jest.fn() }),
 }));
 
 describe('ChatHistory', () => {

@@ -1,11 +1,21 @@
 import React, { useMemo, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom-v5-compat';
+import { useTranslation } from 'react-i18next';
 import { MessageBox, type MessageBoxHandle } from '@patternfly/chatbot';
 import type { Message } from '../../hooks/AIState';
 import { useChatMessages } from '../../hooks/useChatMessages';
-import { useActiveConversation } from '../../hooks/AIState';
+import {
+  useActiveConversation,
+  useConversations,
+  useDeleteConversationModal,
+} from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from '../../types/chat';
+import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
+import { mainGenieRoute, ChatNew } from '../routeList';
 import { ChatLoading } from './ChatLoading';
 import { ConversationNotFound } from './ConversationNotFound';
+import { DeleteConversationModal } from './DeleteConversationModal';
+import { createOnDeletedHandler } from './deleteConversationToast';
 import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { getUserQuestionForBotMessage } from './feedback/utils';
@@ -45,6 +55,9 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = React.memo(
   // eslint-disable-next-line react/prop-types
   ({ isLoading, isValidConversationId }) => {
+    const navigate = useNavigate();
+    const { t } = useTranslation('plugin__genie-web-client');
+    const { addAlert, removeAlert } = useToastAlerts();
     const {
       messages,
       streamingMessage,
@@ -54,8 +67,27 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       sendMessage,
     } = useChatMessages();
     const activeConversation = useActiveConversation();
+    const conversations = useConversations();
     const conversationId = activeConversation?.id || '';
     const messageBoxRef = useRef<MessageBoxHandle>(null);
+    const {
+      conversationToDelete,
+      openDeleteModal,
+      closeDeleteModal,
+      confirmDelete,
+      isDeleting,
+      error: deleteError,
+    } = useDeleteConversationModal({
+      onDeleted: createOnDeletedHandler({
+        navigate,
+        newChatPath: `${mainGenieRoute}/${ChatNew}`,
+        activeConversationId: activeConversation?.id,
+        conversationsCount: conversations?.length ?? 0,
+        addAlert,
+        removeAlert,
+        t: t as (key: string) => string,
+      }),
+    });
     const isInitialLoadRef = useRef(true);
     const previousMessagesLengthRef = useRef(0);
 
@@ -154,7 +186,16 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
 
     return (
       <MessageBox ref={messageBoxRef} enableSmartScroll={true}>
-        <EditableChatHeader />
+        {conversationToDelete && (
+          <DeleteConversationModal
+            conversation={conversationToDelete}
+            onClose={closeDeleteModal}
+            onConfirm={confirmDelete}
+            isDeleting={isDeleting}
+            error={deleteError}
+          />
+        )}
+        <EditableChatHeader onDeleteClick={openDeleteModal} />
         {isLoading && messages.length === 0 ? <ChatLoading /> : null}
         {!isValidConversationId ? <ConversationNotFound /> : null}
         {renderedMessages}

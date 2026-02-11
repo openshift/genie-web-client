@@ -1,11 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ChatbotHeader,
-  ChatbotHeaderMain,
-  ChatbotHeaderActions,
-  ChatbotHeaderOptionsDropdown,
-} from '@patternfly/chatbot';
+import { ChatbotHeader, ChatbotHeaderMain, ChatbotHeaderActions } from '@patternfly/chatbot';
 import {
   ActionList,
   ActionListItem,
@@ -30,6 +25,7 @@ import {
   CheckIcon,
   TimesIcon,
   EllipsisHIcon,
+  EllipsisVIcon,
 } from '@patternfly/react-icons';
 import {
   useActiveConversation,
@@ -43,6 +39,8 @@ export interface EditableChatHeaderProps {
   title?: string;
   conversationId?: string;
   onDeleteClick?: (conversation: ConversationForDelete) => void;
+  isDropdownOpen?: boolean;
+  onDropdownOpenChange?: (open: boolean) => void;
 }
 
 const editFormInputAndButtons = (
@@ -103,6 +101,8 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
   title: titleProp,
   conversationId: conversationIdProp,
   onDeleteClick,
+  isDropdownOpen: isDropdownOpenControlled,
+  onDropdownOpenChange,
 }) => {
   const { t } = useTranslation('plugin__genie-web-client');
   const activeConversation = useActiveConversation();
@@ -110,13 +110,14 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
   const { updateTitle, isUpdating, error: apiError, clearError } = useUpdateConversationTitle();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpenLocal, setIsDropdownOpenLocal] = useState(false);
+  const isDropdownOpen = isDropdownOpenControlled ?? isDropdownOpenLocal;
+  const setIsDropdownOpen = onDropdownOpenChange ?? setIsDropdownOpenLocal;
   const [title, setTitle] = useState<string>('');
   const [validationError, setValidationError] = useState<string | undefined>();
   const [localError, setLocalError] = useState<string | null>(null);
   const originalTitleRef = useRef<string>(title);
 
-  // sync title with prop, active conversation, or default
   useEffect(() => {
     if (isEditing) {
       return;
@@ -168,7 +169,6 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
       setValidationError(undefined);
       setLocalError(null);
     } catch (error) {
-      // error already tracked by hook, stay in edit mode
       console.error('Failed to update title:', error);
     }
   };
@@ -238,66 +238,76 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
     </DropdownList>
   );
 
-  if (variant === 'inline') {
-    const actionsDropdown = (
-      <span className="genie-editable-chat-header__actions">
-        <Dropdown
-          isOpen={isDropdownOpen}
-          onOpenChange={setIsDropdownOpen}
-          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <Tooltip content={t('chat.header.moreActions')} position="bottom" enableFlip={false}>
-              <MenuToggle
-                ref={toggleRef}
-                aria-label={t('chat.header.moreActions')}
-                variant="plain"
-                isCircle
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsDropdownOpen((prev) => !prev);
-                }}
-                isExpanded={isDropdownOpen}
-                icon={<EllipsisHIcon />}
-              />
-            </Tooltip>
-          )}
-          shouldFocusToggleOnSelect
-        >
-          {dropdownContent(
-            (e) => {
-              e?.stopPropagation?.();
-              setIsDropdownOpen(false);
-              onEditClick();
-            },
-            conversationId && onDeleteClick
-              ? (e) => {
-                  e?.stopPropagation?.();
-                  setIsDropdownOpen(false);
-                  onDeleteClick({ id: conversationId, title });
-                }
-              : undefined,
-          )}
-        </Dropdown>
-      </span>
-    );
+  const handleRenameClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation?.();
+    setIsDropdownOpen(false);
+    onEditClick();
+  };
+  const handleDeleteClick =
+    conversationId && onDeleteClick
+      ? (e?: React.MouseEvent) => {
+          e?.stopPropagation?.();
+          setIsDropdownOpen(false);
+          onDeleteClick({ id: conversationId, title });
+        }
+      : undefined;
 
+  const isInline = variant === 'inline';
+  const actionsDropdown = (
+    <Dropdown
+      isOpen={isDropdownOpen}
+      onOpenChange={setIsDropdownOpen}
+      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+        <Tooltip content={t('chat.header.moreActions')} position="bottom" enableFlip={false}>
+          <MenuToggle
+            ref={toggleRef}
+            className={isInline ? undefined : 'pf-chatbot__button--toggle-options pf-m-compact'}
+            aria-label={t('chat.header.moreActions')}
+            variant="plain"
+            isCircle={isInline}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            isExpanded={isDropdownOpen}
+            icon={isInline ? <EllipsisHIcon /> : <EllipsisVIcon />}
+          />
+        </Tooltip>
+      )}
+      shouldFocusToggleOnSelect
+      shouldFocusFirstItemOnOpen={!isInline}
+      popperProps={
+        isInline
+          ? { appendTo: 'inline', position: 'end' as const }
+          : { position: 'right' as const, preventOverflow: true, appendTo: 'inline' }
+      }
+    >
+      {dropdownContent(handleRenameClick, handleDeleteClick)}
+    </Dropdown>
+  );
+
+  if (variant === 'inline') {
+    const wrappedActions = (
+      <span className="genie-editable-chat-header__actions">{actionsDropdown}</span>
+    );
     if (!isEditing) {
       return (
         <>
           {errorAlert}
           <span className="genie-editable-chat-header__title">{title}</span>
-          {actionsDropdown}
+          {wrappedActions}
         </>
       );
     }
-
     return (
       <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-column pf-v6-u-w-100">
         {errorAlert}
         <div
-          className="pf-v6-u-display-flex pf-v6-u-align-items-center"
+          className="pf-v6-u-display-flex pf-v6-u-align-items-center pf-v6-u-flex-wrap-nowrap"
           onClick={(e) => e.stopPropagation()}
         >
           {editForm}
+          {wrappedActions}
         </div>
       </div>
     );
@@ -324,22 +334,7 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
             </Button>
           )}
         </ChatbotHeaderMain>
-        <ChatbotHeaderActions>
-          {!isEditing && (
-            <ChatbotHeaderOptionsDropdown
-              isCompact
-              tooltipProps={{ content: t('chat.header.moreActions') }}
-              toggleProps={{ 'aria-label': t('chat.header.moreActions'), isDisabled: false }}
-            >
-              {dropdownContent(
-                onEditClick,
-                conversationId && onDeleteClick
-                  ? () => onDeleteClick({ id: conversationId, title })
-                  : undefined,
-              )}
-            </ChatbotHeaderOptionsDropdown>
-          )}
-        </ChatbotHeaderActions>
+        <ChatbotHeaderActions>{actionsDropdown}</ChatbotHeaderActions>
       </ChatbotHeader>
     </>
   );

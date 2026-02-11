@@ -62,7 +62,14 @@ export const ToastAlertProvider = ({ children }: ToastAlertProviderProps) => {
         {alerts.map((alert: ToastAlert) => (
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - this seems to be a bug in PF
-          <Alert key={alert.id} {...alert} onTimeout={() => removeAlert(alert)} />
+          <Alert
+            key={alert.id}
+            {...alert}
+            onTimeout={() => {
+              alert.onTimeout?.();
+              removeAlert(alert);
+            }}
+          />
         ))}
       </AlertGroup>
     </ToastAlertContext.Provider>
