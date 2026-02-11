@@ -209,7 +209,13 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
       position="top"
       content={validationError}
     >
-      {editFormInner}
+      {variant === 'inline' ? (
+        <>{editFormInner}</>
+      ) : (
+        <div className="pf-v6-u-display-flex pf-v6-u-align-items-center pf-v6-u-flex-wrap-nowrap pf-v6-u-w-100 pf-v6-u-min-width">
+          {editFormInner}
+        </div>
+      )}
     </Tooltip>
   );
 
@@ -317,22 +323,24 @@ export const EditableChatHeader: React.FC<EditableChatHeaderProps> = ({
     <>
       {errorAlert}
       <ChatbotHeader>
-        <ChatbotHeaderMain>
+        <ChatbotHeaderMain className="pf-v6-u-min-width">
           <span className="chat-header-icon">
             <RhStandardThoughtBubbleIcon />
           </span>
-          {isEditing ? (
-            editForm
-          ) : (
-            <Button
-              variant="plain"
-              isInline
-              onClick={onEditClick}
-              aria-label={t('chat.header.editTitle')}
-            >
-              {title}
-            </Button>
-          )}
+          <span className="genie-editable-chat-header__title">
+            {isEditing ? (
+              editForm
+            ) : (
+              <Button
+                variant="plain"
+                isInline
+                onClick={onEditClick}
+                aria-label={t('chat.header.editTitle')}
+              >
+                <span className="genie-editable-chat-header__title">{title}</span>
+              </Button>
+            )}
+          </span>
         </ChatbotHeaderMain>
         <ChatbotHeaderActions>{actionsDropdown}</ChatbotHeaderActions>
       </ChatbotHeader>
