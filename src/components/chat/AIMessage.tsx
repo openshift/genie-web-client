@@ -18,7 +18,7 @@ import { getToolCallsFromMessage } from '../../hooks/useChatMessages';
 import type { ToolCallState } from 'src/utils/toolCallHelpers';
 import type { Artifact, GenieAdditionalProperties } from '../../types/chat';
 import { toMessageQuickResponses } from '../new-chat/suggestions';
-import { CanvasCard } from '../canvas';
+import { ArtifactRenderer } from '../artifacts';
 import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
@@ -286,47 +286,15 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     );
 
     const hasToolCalls = toolCalls.length > 0;
-    const hasArtifacts = artifacts.length > 0;
+    const hasArtifacts = artifacts.length > 0 && !isStreaming;
     const hasSources = referencedDocuments.length > 0;
     const hasEndContent = hasToolCalls || hasSources;
 
-    // temporary local state to demo the viewing badge functionality
-    // TODO: in production this comes from canvas/split-view context
-    const [viewingArtifactId, setViewingArtifactId] = useState<string | null>(null);
-
-    // mock click handler toggles viewing state locally for demo
-    // TODO: wire this up to actual canvas open logic - canvas will manage viewing state
-    const handleCanvasCardOpen = useCallback((artifactId: string) => {
-      console.log('[DEMO] Canvas Card clicked:', artifactId);
-      setViewingArtifactId((prev) => (prev === artifactId ? null : artifactId));
-    }, []);
-
     const extraContent = {
-      afterMainContent: (
-        <>
-          {/* artifact renderer commented out for demo to avoid showing stub messages */}
-          {/* {hasArtifacts ? <ArtifactRenderer artifacts={artifacts} /> : null} */}
-          {hasArtifacts && (
-            <Flex
-              direction={{ default: 'column' }}
-              gap={{ default: 'gapMd' }}
-              style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}
-            >
-              {artifacts.map((artifact) => (
-                <CanvasCard
-                  key={artifact.id}
-                  artifactId={artifact.id}
-                  title={artifact.title || t('canvasCard.untitled')}
-                  type={artifact.type}
-                  lastModified={artifact.lastModified || new Date()}
-                  onOpen={handleCanvasCardOpen}
-                  isViewing={viewingArtifactId === artifact.id}
-                />
-              ))}
-            </Flex>
-          )}
-        </>
-      ),
+      afterMainContent:
+        hasArtifacts && !isStreaming ? (
+          <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} />
+        ) : null,
       endContent: hasEndContent ? (
         <Flex gap={{ default: 'gapSm' }}>
           {hasSources ? (

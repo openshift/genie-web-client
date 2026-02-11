@@ -3,11 +3,77 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import * as fs from 'fs';
 import * as path from 'path';
 
 expect.extend(toHaveNoViolations);
+
+/* *************** PERSES LIBRARY MOCKS *************** */
+// Mock all @perses-dev/* packages to prevent loading heavy chart libraries (echarts, etc.)
+// These packages cause massive memory consumption (~27GB) when loaded in Jest tests.
+// The actual Perses component tests mock the componentRegistry to use lightweight test doubles.
+
+// Mock the plugin system
+jest.mock('@perses-dev/plugin-system', () => ({
+  dynamicImportPluginLoader: jest.fn(() => ({})),
+  PluginRegistry: ({ children }: { children: React.ReactNode }) => children,
+  TimeRangeProviderBasic: ({ children }: { children: React.ReactNode }) => children,
+  DataQueriesProvider: ({ children }: { children: React.ReactNode }) => children,
+  useSuggestedStepMs: jest.fn(() => 15000),
+}));
+
+// Mock the dashboards package
+jest.mock('@perses-dev/dashboards', () => ({
+  DatasourceStoreProvider: ({ children }: { children: React.ReactNode }) => children,
+  VariableProvider: ({ children }: { children: React.ReactNode }) => children,
+  Panel: () => null,
+}));
+
+// Mock the components package
+jest.mock('@perses-dev/components', () => ({
+  ChartsProvider: ({ children }: { children: React.ReactNode }) => children,
+  SnackbarProvider: ({ children }: { children: React.ReactNode }) => children,
+  generateChartsTheme: jest.fn(() => ({})),
+  getTheme: jest.fn(() => ({})),
+}));
+
+// Mock the prometheus plugin
+jest.mock('@perses-dev/prometheus-plugin', () => ({
+  DEFAULT_PROM: { kind: 'PrometheusDatasource', name: 'prometheus' },
+  getPluginModule: jest.fn(() => ({ kind: 'prometheus' })),
+}));
+
+// Mock all chart plugins - these are the heaviest dependencies
+const mockPluginModule = { getPluginModule: jest.fn(() => ({ kind: 'mock' })) };
+jest.mock('@perses-dev/timeseries-chart-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/timeseries-table-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/pie-chart-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/scatter-chart-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/status-history-chart-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/markdown-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/table-plugin', () => mockPluginModule);
+jest.mock('@perses-dev/static-list-variable-plugin', () => mockPluginModule);
+
+// Mock the core package (lightweight, but mock for consistency)
+jest.mock('@perses-dev/core', () => ({
+  // Add any core exports used in tests as needed
+}));
+
+/* *************** END PERSES LIBRARY MOCKS *************** */
+
+/* *************** TEST CLEANUP *************** */
+// Clean up after each test to prevent memory leaks
+afterEach(() => {
+  // Clean up React Testing Library DOM
+  cleanup();
+
+  // Clear all mock call history
+  jest.clearAllMocks();
+});
+
+/* *************** END TEST CLEANUP *************** */
 
 /* *************** SUPPRESSING CONSOLE WARNINGS *************** */
 // Suppress specific console warnings/errors that we can't control

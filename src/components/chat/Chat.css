@@ -117,6 +117,9 @@
     }
 
 
+    .pf-chatbot__header {
+        padding-inline: 0;
+    }
 }
 
 /* Shared drawer content styles for Sources and Tools drawers */

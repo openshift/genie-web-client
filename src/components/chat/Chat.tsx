@@ -6,12 +6,10 @@ import {
   ChatbotFooter,
   MessageBar,
 } from '@patternfly/chatbot';
-import { Button } from '@patternfly/react-core';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
 import { useChatConversation } from '../../hooks/useChatConversation';
-import type { CanvasState } from '../../hooks/useChatConversation';
 import { CanvasLayout } from '../canvas';
 import {
   useSetActiveConversation,
@@ -31,15 +29,15 @@ export const Chat: React.FunctionComponent = () => {
   const isInProgress = useInProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
-  const { isCanvasOpen, canvasState, setCanvasState } = useChatConversation();
+  const { isCanvasOpen, canvasState } = useChatConversation();
 
-  // Test toggle for canvas states (development only)
-  const handleToggleCanvasState = useCallback(() => {
-    const stateOrder: CanvasState[] = ['closed', 'open', 'maximized'];
-    const currentIndex = stateOrder.indexOf(canvasState);
-    const nextIndex = (currentIndex + 1) % stateOrder.length;
-    setCanvasState(stateOrder[nextIndex]);
-  }, [canvasState, setCanvasState]);
+  // // Test toggle for canvas states (development only)
+  // const handleToggleCanvasState = useCallback(() => {
+  //   const stateOrder: CanvasState[] = ['closed', 'open', 'maximized'];
+  //   const currentIndex = stateOrder.indexOf(canvasState);
+  //   const nextIndex = (currentIndex + 1) % stateOrder.length;
+  //   setCanvasState(stateOrder[nextIndex]);
+  // }, [canvasState, setCanvasState]);
 
   useEffect(() => {
     // Don't try to load the temp conversation ID as a real conversation
@@ -92,7 +90,7 @@ export const Chat: React.FunctionComponent = () => {
   return (
     <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
       {/* Test button for canvas states - development only */}
-      {process.env.NODE_ENV === 'development' ? (
+      {/* {process.env.NODE_ENV === 'development' ? (
         <Button
           variant="primary"
           size="sm"
@@ -101,7 +99,7 @@ export const Chat: React.FunctionComponent = () => {
         >
           Toggle Canvas: {canvasState}
         </Button>
-      ) : null}
+      ) : null} */}
       <BadResponseModalProvider>
         <Chatbot
           displayMode={ChatbotDisplayMode.embedded}
