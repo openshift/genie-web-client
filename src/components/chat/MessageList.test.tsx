@@ -32,6 +32,7 @@ const mockUseActiveConversation = jest.fn();
 const mockUseUpdateConversationTitle = jest.fn();
 const mockUseConversations = jest.fn();
 const mockUseDeleteConversationModal = jest.fn();
+const mockUseEditMessage = jest.fn();
 
 jest.mock('../../hooks/useChatMessages', () => ({
   useChatMessages: () => mockUseChatMessages(),
@@ -43,6 +44,7 @@ jest.mock('../../hooks/AIState', () => ({
   useUpdateConversationTitle: () => mockUseUpdateConversationTitle(),
   useConversations: () => mockUseConversations(),
   useDeleteConversationModal: (opts: unknown) => mockUseDeleteConversationModal(opts),
+  useEditMessage: () => mockUseEditMessage,
 }));
 
 // mock child components to isolate testing
@@ -94,7 +96,13 @@ jest.mock('./AIMessage', () => ({
 // Helper to create default mock return value
 const createMockChatMessagesReturn = (
   overrides: {
-    messages?: Array<{ id: string; role: string; answer: string; date: Date }>;
+    messages?: Array<{
+      id: string;
+      role: string;
+      answer: string;
+      date: Date;
+      additionalAttributes?: Record<string, unknown>;
+    }>;
     streamingMessage?: StreamingMessage | null;
     isStreaming?: boolean;
     lastUserMessageIndex?: number;
@@ -119,6 +127,7 @@ describe('<MessageList />', () => {
     jest.clearAllMocks();
     mockUseChatMessages.mockReturnValue(createMockChatMessagesReturn());
     mockUseActiveConversation.mockReturnValue({ id: 'test-conversation-id' });
+    mockUseEditMessage.mockReturnValue(jest.fn());
     mockUseUpdateConversationTitle.mockReturnValue({
       updateTitle: jest.fn(),
       isUpdating: false,
@@ -234,6 +243,36 @@ describe('<MessageList />', () => {
       expect(screen.getByTestId('user-message-user-1')).toBeInTheDocument();
       expect(screen.getByTestId('ai-message-bot-1')).toBeInTheDocument();
       expect(screen.getByTestId('user-message-user-2')).toBeInTheDocument();
+    });
+
+    it('does not display hidden messages when additionalAttributes.hidden is true', () => {
+      mockUseChatMessages.mockReturnValue(
+        createMockChatMessagesReturn({
+          messages: [
+            {
+              id: 'user-1',
+              role: 'user',
+              answer: 'Visible message',
+              date: new Date(),
+              additionalAttributes: {},
+            },
+            {
+              id: 'bot-1',
+              role: 'bot',
+              answer: 'Hidden message',
+              date: new Date(),
+              additionalAttributes: { hidden: true },
+            },
+          ],
+          lastUserMessageIndex: 0,
+          lastBotMessageIndex: 1,
+        }),
+      );
+
+      render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+      expect(screen.getByText('Visible message')).toBeInTheDocument();
+      expect(screen.queryByText('Hidden message')).not.toBeInTheDocument();
     });
 
     it('renders empty message list without errors', () => {

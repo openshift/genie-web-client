@@ -7,6 +7,7 @@ import { useChatMessages } from '../../hooks/useChatMessages';
 import {
   useActiveConversation,
   useConversations,
+  useEditMessage,
   useDeleteConversationModal,
 } from '../../hooks/AIState';
 import type { GenieAdditionalProperties } from '../../types/chat';
@@ -21,7 +22,7 @@ import { AIMessage } from './AIMessage';
 import { getUserQuestionForBotMessage } from './feedback/utils';
 import { EditableChatHeader } from './EditableChatHeader';
 
-// TODO: Remove this stub data after testing
+// TODO: remove this stub data after testing
 const STUB_REFERENCED_DOCUMENTS = [
   {
     doc_url: 'https://docs.redhat.com/en/documentation/openshift_container_platform',
@@ -58,17 +59,11 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const navigate = useNavigate();
     const { t } = useTranslation('plugin__genie-web-client');
     const { addAlert, removeAlert } = useToastAlerts();
-    const {
-      messages,
-      streamingMessage,
-      isStreaming,
-      lastUserMessageIndex,
-      lastBotMessageIndex,
-      sendMessage,
-    } = useChatMessages();
+    const { messages, streamingMessage, isStreaming, sendMessage } = useChatMessages();
     const activeConversation = useActiveConversation();
     const conversations = useConversations();
     const conversationId = activeConversation?.id || '';
+    const editMessage = useEditMessage();
     const messageBoxRef = useRef<MessageBoxHandle>(null);
     const {
       conversationToDelete,
@@ -91,22 +86,32 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     const isInitialLoadRef = useRef(true);
     const previousMessagesLengthRef = useRef(0);
 
+    const visibleMessages = useMemo(
+      () => messages.filter((msg) => !msg.additionalAttributes?.hidden),
+      [messages],
+    );
+
+    const lastVisibleUserMessageIndex = useMemo(() => {
+      for (let i = visibleMessages.length - 1; i >= 0; i--) {
+        if (visibleMessages[i].role === 'user') return i;
+      }
+      return -1;
+    }, [visibleMessages]);
+
     const renderedMessages = useMemo(() => {
       const streamingContent = streamingMessage?.content ?? '';
 
-      return messages.map((message: Message<GenieAdditionalProperties>, index) => {
+      return visibleMessages.map((message: Message<GenieAdditionalProperties>, index) => {
         const isBot = message.role !== 'user';
 
         if (isBot) {
-          const isCurrentlyStreaming = isStreaming && index === lastBotMessageIndex;
+          const isCurrentlyStreaming = isStreaming && message.id === streamingMessage?.messageId;
 
-          // If the message is currently streaming, use the throttled streaming content
           const messageToRender: Message<GenieAdditionalProperties> = isCurrentlyStreaming
             ? { ...message, answer: streamingContent }
             : message;
 
-          // get the user question that precedes this bot message
-          const userQuestionMessage = getUserQuestionForBotMessage(messages, message.id);
+          const userQuestionMessage = getUserQuestionForBotMessage(visibleMessages, message.id);
           const userQuestion = userQuestionMessage?.answer || '';
 
           return (
@@ -132,18 +137,19 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
           <UserMessage
             key={`user-${message.id}-${index}`}
             message={message}
-            isLastUserMessage={index === lastUserMessageIndex}
+            isLastUserMessage={index === lastVisibleUserMessageIndex}
+            onEditMessage={editMessage}
           />
         );
       });
     }, [
-      messages,
       conversationId,
       isStreaming,
       sendMessage,
       streamingMessage,
-      lastUserMessageIndex,
-      lastBotMessageIndex,
+      editMessage,
+      visibleMessages,
+      lastVisibleUserMessageIndex,
     ]);
 
     // Handle initial load: Jump immediately to bottom with no animation

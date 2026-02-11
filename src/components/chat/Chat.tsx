@@ -17,6 +17,7 @@ import {
   useSetActiveConversation,
   useActiveConversation,
   useSendStreamMessage,
+  useInProgress,
 } from '../../hooks/AIState';
 import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 import { isTempConversationId } from '../../utils/conversationUtils';
@@ -27,6 +28,7 @@ export const Chat: React.FunctionComponent = () => {
   const setActiveConversation = useSetActiveConversation();
   const activeConversation = useActiveConversation();
   const sendStreamMessage = useSendStreamMessage();
+  const isInProgress = useInProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
   const { isCanvasOpen, canvasState, setCanvasState } = useChatConversation();
@@ -81,9 +83,10 @@ export const Chat: React.FunctionComponent = () => {
 
   const handleSendMessage = useCallback(
     (value: string | number) => {
+      if (isInProgress) return;
       sendStreamMessage(String(value));
     },
-    [sendStreamMessage],
+    [sendStreamMessage, isInProgress],
   );
 
   return (
@@ -112,7 +115,7 @@ export const Chat: React.FunctionComponent = () => {
             />
           </ChatbotContent>
           <ChatbotFooter>
-            <MessageBar onSendMessage={handleSendMessage} />
+            <MessageBar onSendMessage={handleSendMessage} isSendButtonDisabled={isInProgress} />
           </ChatbotFooter>
           <BadResponseModal />
         </Chatbot>
