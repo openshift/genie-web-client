@@ -1,0 +1,102 @@
+{{- if .Values.lightspeedCore.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.lightspeedCore.runConfigMapName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.lightspeedCore.labels" . | nindent 4 }}
+data:
+  run.yaml: |
+    version: "2"
+    image_name: minimal-viable-llama-stack-configuration
+
+    apis:
+      - agents
+      - files
+      - safety
+      - vector_io
+      - tool_runtime
+      - inference
+    benchmarks: []
+    container_image: null
+    datasets: []
+    external_providers_dir: null
+    inference_store:
+      db_path: /opt/app-root/.llama/distributions/ollama/inference_store.db
+      type: sqlite
+    logging: null
+    metadata_store:
+      db_path: /opt/app-root/.llama/distributions/ollama/registry.db
+      namespace: null
+      type: sqlite
+    providers:
+      inference:
+        - provider_id: {{ .Values.lightspeedCore.models.providerId }}
+          provider_type: {{ .Values.lightspeedCore.models.providerType }}
+          config:
+            api_key: ${env.LLM_API_KEY}
+      files:
+          - config:
+              metadata_store:
+                table_name: files_metadata
+                backend: sql_default
+              storage_dir: /opt/app-root/.llama/storage/files
+            provider_id: meta-reference-files
+            provider_type: inline::localfs
+      agents:
+        - config:
+            persistence:
+              agent_state:
+                namespace: agents
+                backend: kv_default
+              responses:
+                table_name: responses
+                backend: sql_default
+                max_write_queue_size: 10000
+                num_writers: 4
+          provider_id: meta-reference
+          provider_type: inline::meta-reference
+      tool_runtime:
+        - provider_id: model-context-protocol
+          provider_type: remote::model-context-protocol
+          config: {}
+    server:
+      auth: null
+      host: null
+      port: 8321
+      quota: null
+      tls_cafile: null
+      tls_certfile: null
+      tls_keyfile: null
+    storage:
+      backends:
+        kv_default:
+          type: kv_sqlite
+          db_path: /opt/app-root/.llama/distributions/ollama/kv_store.db
+        sql_default:
+          type: sql_sqlite
+          db_path: /opt/app-root/.llama/distributions/ollama/sql_store.db
+      stores:
+        metadata:
+          namespace: registry
+          backend: kv_default
+        inference:
+          table_name: inference_store
+          backend: sql_default
+          max_write_queue_size: 10000
+          num_writers: 4
+        conversations:
+          table_name: openai_conversations
+          backend: sql_default
+        prompts:
+          namespace: prompts
+          backend: kv_default
+    shields: []
+    vector_dbs: []
+    models:
+      - provider_id: {{ .Values.lightspeedCore.models.providerId }}
+        model_id: {{ .Values.lightspeedCore.models.modelId }}
+        model_type: {{ .Values.lightspeedCore.models.modelType }}
+        provider_model_id: {{ .Values.lightspeedCore.models.providerModelId }}
+{{- end }}

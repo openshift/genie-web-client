@@ -1,0 +1,50 @@
+{{- if .Values.nguiMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngui-mcp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.nguiMcp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.nguiMcp.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aladdin.nguiMcp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aladdin.nguiMcp.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: ngui-mcp
+      containers:
+        - name: ngui-mcp
+          image: "{{ .Values.nguiMcp.image.repository }}:{{ .Values.nguiMcp.image.tag }}"
+          imagePullPolicy: {{ .Values.nguiMcp.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.nguiMcp.containerPort }}
+          env:
+            - name: MCP_PORT
+              value: "{{ .Values.nguiMcp.containerPort }}"
+            - name: NGUI_MODEL
+              value: {{ .Values.nguiMcp.env.model | quote }}
+            - name: NGUI_CONFIG_PATH
+              value: "/opt/app-root/config/ngui_openshift_mcp_config.yaml"
+            - name: MCP_TOOLS
+              value: {{ .Values.nguiMcp.env.tools | quote }}
+            - name: MCP_STRUCTURED_OUTPUT_ENABLED
+              value: {{ .Values.nguiMcp.env.structuredOutputEnabled | quote }}
+            - name: NGUI_PROVIDER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nguiMcp.secretName }}
+                  key: NGUI_PROVIDER_API_KEY
+          volumeMounts:
+            - name: config
+              mountPath: /opt/app-root/config/ngui_openshift_mcp_config.yaml
+              subPath: ngui_openshift_mcp_config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.nguiMcp.configMapName }}
+{{- end }}

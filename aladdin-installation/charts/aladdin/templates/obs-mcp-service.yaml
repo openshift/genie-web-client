@@ -1,0 +1,17 @@
+{{- if .Values.obsMcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: genie-obs-mcp-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.obsMcp.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "aladdin.obsMcp.selectorLabels" . | nindent 4 }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.obsMcp.service.port }}
+      targetPort: {{ .Values.obsMcp.service.port }}
+  type: ClusterIP
+{{- end }}

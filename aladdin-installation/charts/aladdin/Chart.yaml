@@ -1,0 +1,14 @@
+apiVersion: v2
+name: aladdin
+description: Aladdin - OpenShift AI Assistant with console plugin and backend services
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - aladdin
+  - openshift
+  - lightspeed
+  - mcp
+  - console-plugin
+maintainers:
+  - name: Ben Parees

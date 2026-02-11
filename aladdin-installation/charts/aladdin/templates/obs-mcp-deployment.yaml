@@ -1,0 +1,38 @@
+{{- if .Values.obsMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genie-obs-mcp-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aladdin.obsMcp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.obsMcp.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aladdin.obsMcp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aladdin.obsMcp.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: genie-obs-mcp-server
+      containers:
+        - name: obs-mcp
+          image: "{{ .Values.obsMcp.image.repository }}:{{ .Values.obsMcp.image.tag }}"
+          imagePullPolicy: {{ .Values.obsMcp.image.pullPolicy }}
+          {{- if .Values.obsMcp.args }}
+          args:
+            {{- toYaml .Values.obsMcp.args | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.obsMcp.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "{{ .Values.obsMcp.service.port }}"
+            {{- if .Values.obsMcp.prometheusUrl }}
+            - name: PROMETHEUS_URL
+              value: {{ .Values.obsMcp.prometheusUrl | quote }}
+            {{- end }}
+{{- end }}

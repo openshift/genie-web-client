@@ -1,0 +1,18 @@
+{{- if .Values.olsConfig.enabled }}
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/{{ .Values.olsSubscription.name }}.{{ .Values.olsSubscription.namespace }}: ""
+  name: {{ .Values.olsSubscription.name }}
+  namespace: {{ .Values.olsSubscription.namespace }}
+spec:
+  channel: {{ .Values.olsSubscription.channel }}
+  installPlanApproval: {{ .Values.olsSubscription.installPlanApproval }}
+  name: {{ .Values.olsSubscription.name }}
+  source: {{ .Values.olsSubscription.source }}
+  sourceNamespace: {{ .Values.olsSubscription.sourceNamespace }}
+{{- if .Values.olsSubscription.startingCSV }}
+  startingCSV: {{ .Values.olsSubscription.startingCSV }}
+{{- end }}
+{{- end }}

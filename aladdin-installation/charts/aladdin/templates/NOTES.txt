@@ -1,0 +1,48 @@
+Aladdin has been installed!
+
+=== Components Installed ===
+
+Console Plugin:
+  - Plugin Name: {{ template "aladdin.plugin.name" . }}
+  - Namespace: {{ .Release.Namespace }}
+
+{{- if .Values.obsMcp.enabled }}
+Observability MCP Server:
+  - Service: genie-obs-mcp-server.{{ .Release.Namespace }}:{{ .Values.obsMcp.service.port }}
+{{- end }}
+
+{{- if .Values.nguiMcp.enabled }}
+NGUI MCP Server:
+  - Service: ngui-mcp.{{ .Release.Namespace }}:{{ .Values.nguiMcp.service.port }}
+{{- end }}
+
+{{- if .Values.lightspeedCore.enabled }}
+Lightspeed Core:
+  - Service: lightspeed-core.{{ .Release.Namespace }}:{{ .Values.lightspeedCore.service.port }}
+  - Backend Mode: Lightspeed Core
+
+K8s MCP Server:
+  - Service: mcp-kubernetes-svc.{{ .Release.Namespace }}:{{ .Values.k8sMcp.service.port }}
+{{- else if .Values.olsConfig.enabled }}
+OpenShift Lightspeed (OLS):
+  - Namespace: {{ .Values.olsSubscription.namespace }}
+  - Backend Mode: OLS Operator
+{{- end }}
+
+=== Next Steps ===
+
+1. Verify all pods are running:
+   oc get pods -n {{ .Release.Namespace }}
+{{- if .Values.olsConfig.enabled }}
+   oc get pods -n {{ .Values.olsSubscription.namespace }}
+{{- end }}
+
+2. Check that the console plugin is enabled:
+   oc get consoles.operator.openshift.io cluster -o jsonpath='{.spec.plugins}'
+
+{{- $ingress := (lookup "config.openshift.io/v1" "Ingress" "" "cluster") }}
+{{- if $ingress }}
+3. Access the Aladdin console: https://console-openshift-console.{{ $ingress.spec.domain }}/genie/chat
+{{- else }}
+3. Access the Aladdin console: https://console-openshift-console.<your-apps-domain>/genie/chat
+{{- end }}

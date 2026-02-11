@@ -1,0 +1,40 @@
+apiVersion: console.openshift.io/v1
+kind: ConsolePlugin
+metadata:
+  name: {{ template "aladdin.plugin.name" . }}
+  labels:
+    {{- include "aladdin.plugin.labels" . | nindent 4 }}
+spec:
+  displayName: {{ default (printf "%s Plugin" (include "aladdin.plugin.name" .)) .Values.plugin.description }}
+  i18n: 
+    loadType: Preload
+  backend:
+    type: Service
+    service:
+      name: {{ template "aladdin.plugin.name" . }}
+      namespace: {{ .Release.Namespace }}
+      port: {{ .Values.plugin.port }}
+      basePath: {{ .Values.plugin.basePath }}
+  proxy:
+    - alias: ols
+      authorization: UserToken
+      endpoint:
+        service:
+          {{- if .Values.lightspeedCore.enabled }}
+          name: {{ .Values.consolePluginPatch.lcoreTargetService.name }}
+          namespace: {{ .Values.consolePluginPatch.lcoreTargetService.namespace }}
+          port: {{ .Values.consolePluginPatch.lcoreTargetService.port }}
+          {{- else }}
+          name: {{ .Values.consolePluginPatch.olsTargetService.name }}
+          namespace: {{ .Values.consolePluginPatch.olsTargetService.namespace }}
+          port: {{ .Values.consolePluginPatch.olsTargetService.port }}
+          {{- end }}
+        type: Service
+    - alias: dashboard-mcp
+      authorization: UserToken
+      endpoint:
+        service:
+          name: acm-search-mcp-server-service
+          namespace: acm-search
+          port: 80
+        type: Service

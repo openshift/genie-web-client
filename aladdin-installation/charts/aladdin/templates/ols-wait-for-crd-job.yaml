@@ -1,0 +1,71 @@
+{{- if .Values.olsConfig.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ols-crd-wait-sa
+  namespace: {{ .Values.olsSubscription.namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ols-crd-wait-role
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+rules:
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ols-crd-wait-rolebinding
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+subjects:
+- kind: ServiceAccount
+  name: ols-crd-wait-sa
+  namespace: {{ .Values.olsSubscription.namespace }}
+roleRef:
+  kind: ClusterRole
+  name: ols-crd-wait-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ols-wait-for-crd
+  namespace: {{ .Values.olsSubscription.namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  backoffLimit: 30
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      serviceAccountName: ols-crd-wait-sa
+      restartPolicy: OnFailure
+      containers:
+      - name: wait-for-crd
+        image: registry.redhat.io/openshift4/ose-cli:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for OLSConfig CRD to be available..."
+          until kubectl get crd olsconfigs.ols.openshift.io 2>/dev/null; do
+            echo "CRD not found yet, waiting..."
+            sleep 10
+          done
+          echo "OLSConfig CRD is available!"
+{{- end }}
