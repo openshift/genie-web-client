@@ -20,3 +20,948 @@
 .global-layout-container .pf-v6-c-empty-state.pf-m-xl .pf-v6-c-empty-state__body {
   margin-top: var(--pf-t--global--spacer--md, 1rem);
 }
+
+/* stylelint-disable function-disallowed-list -- Glass effects require rgb() for dynamic opacity values */
+
+/* ===========================================================================
+ * FROSTED GLASS CUSTOMIZATIONS
+ * ===========================================================================
+ * This section implements premium frosted glass effects for the Compass
+ * panel component, following modern design language principles.
+ *
+ * PHILOSOPHY:
+ * Premium frosted glass is characterized by aggressive blur, ultra-transparency,
+ * vibrant color saturation, and minimal decorative elements. The material
+ * itself creates depth - not shadows or borders.
+ *
+ * KEY FEATURES:
+ * ✓ Aggressive backdrop blur (28-32px) for privacy and premium feel
+ * ✓ Ultra-transparent backgrounds (6-10% opacity) - blur does the work
+ * ✓ High saturation (150-170%) for vibrant colors through glass
+ * ✓ Brightness boost (light theme only) for luminous quality
+ * ✓ Whisper-thin borders (0.5px) that nearly disappear
+ * ✓ Soft, diffused shadows for subtle elevation
+ * ✓ Diagonal edge lighting (top-left & bottom-right corners)
+ * ✓ Theme-aware: Different settings for light vs dark modes
+ * ✓ Accessibility fallbacks for reduced transparency preference
+ *
+ * ORGANIZATION:
+ * 1. Light Theme Tokens (Default)
+ * 2. Dark Theme Override
+ * 3. Component Styling
+ * 4. Edge Highlights (Top-Left & Bottom-Right Lighting)
+ * 5. Accessibility Fallbacks
+ *
+ * QUICK TWEAKS:
+ *
+ * For Subtler Glass (Less Frosted):
+ *   --pf-v6-c-compass--glass--blur: 20px;
+ *   --pf-v6-c-compass--glass--bg-opacity: 0.04;
+ *   --pf-v6-c-compass--glass--saturate: 130%;
+ *
+ * For More Intense Frosting:
+ *   --pf-v6-c-compass--glass--blur: 36px;
+ *   --pf-v6-c-compass--glass--bg-opacity: 0.12;
+ *   --pf-v6-c-compass--glass--saturate: 180%;
+ *
+ * Adjust Edge Lighting Intensity:
+ *   More Pronounced: --pf-v6-c-compass--glass--edge-highlight-opacity: 0.25;
+ *   Subtle: --pf-v6-c-compass--glass--edge-highlight-opacity: 0.12;
+ *   Disabled: --pf-v6-c-compass--glass--edge-highlight-opacity: 0;
+ *
+ * Adjust Edge Shadow Highlights:
+ *   Top-Left (Brighter): inset 1px 1px 0 rgba(255, 255, 255, 0.35);
+ *   Top-Left (Subtler): inset 1px 1px 0 rgba(255, 255, 255, 0.15);
+ *   Bottom-Right (More Visible): inset -1px -1px 0 rgba(255, 255, 255, 0.12);
+ *   Bottom-Right (Very Subtle): inset -1px -1px 0 rgba(255, 255, 255, 0.03);
+ *
+ * BROWSER SUPPORT:
+ * - backdrop-filter requires -webkit- prefix for Safari/Chrome
+ * - 0.5px borders may render as 1px on low-DPI displays
+ * - Fallback provided for browsers without backdrop-filter support
+ *
+ * NAMING CONVENTION:
+ * Follows PatternFly v6: --pf-v6-c-{component}--{property}--{variant}
+ * Extended tokens: --pf-v6-c-{component}--glass--{property}
+ * =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Custom CSS Tokens
+ * ---------------------------------------------------------------------------
+ * Custom design tokens that extend PatternFly's token system for glass effects.
+ * These tokens can be reused across multiple components and modified globally.
+ * Following PatternFly v6 naming conventions for consistency and maintainability.
+ * --------------------------------------------------------------------------- */
+
+.pf-v6-theme-glass {
+  /* =========================================================================
+   * Frosted Glass Tokens - Light Theme (Default)
+   * =========================================================================
+   * These tokens create an authentic premium frosted glass aesthetic.
+   * Light theme prioritizes subtlety with white-tinted ultra-transparent
+   * surfaces and aggressive blur.
+   *
+   * Philosophy:
+   * - Ultra-transparent backgrounds (let blur do the work)
+   * - Aggressive blur for privacy and premium feel
+   * - High saturation for vibrant colors through glass
+   * - Whisper-thin borders with minimal opacity
+   * - Brightness boost for luminous quality
+   * - Soft, diffused shadows
+   * ========================================================================= */
+
+  /* Backdrop Blur Intensity
+   * Light Theme: 28px - Strong frosted effect, maintains readability
+   * Range: 20-36px | Recommended: 24-30px
+   * Higher = more privacy/frost, Lower = more see-through */
+  --pf-v6-c-compass--glass--blur: 28px;
+
+  /* Backdrop Saturation
+   * Light Theme: 150% - Vibrant colors pop through the glass
+   * Range: 120-180% | Recommended: 140-160%
+   * Higher = more vivid colors, 100% = normal */
+  --pf-v6-c-compass--glass--saturate: 150%;
+
+  /* Backdrop Brightness
+   * Light Theme: 1.05 - Subtle luminous boost
+   * Range: 1.0-1.1 | Recommended: 1.03-1.08
+   * Higher = brighter/more ethereal, 1.0 = no adjustment */
+  --pf-v6-c-compass--glass--brightness: 1.05;
+
+  /* Background Opacity (White Tint)
+   * Light Theme: 0.06 - Ultra-transparent white tint
+   * Range: 0.04-0.10 | Recommended: 0.05-0.08
+   * Design philosophy: blur does the work, tint is minimal */
+  --pf-v6-c-compass--glass--bg-opacity: 0.06;
+
+  /* Border Opacity
+   * Light Theme: 0.15 - Whisper-thin edge definition
+   * Range: 0.10-0.25 | Recommended: 0.12-0.18
+   * Very subtle, almost imperceptible */
+  --pf-v6-c-compass--glass--border-opacity: 0.15;
+
+  /* Border Width
+   * Light Theme: 0.5px - Ultra-thin hairline border
+   * Range: 0.5-1px | Recommended: 0.5px
+   * Thinner = more refined, premium appearance */
+  --pf-v6-c-compass--glass--border-width: 0.5px;
+
+  /* Inset Highlight Opacity
+   * Light Theme: 0.12 - Very subtle top edge reflection
+   * Range: 0.08-0.20 | Recommended: 0.10-0.15
+   * Minimal material reflection */
+  --pf-v6-c-compass--glass--inset-highlight-opacity: 0.12;
+
+  /* Edge Highlight Opacity (Pseudo-elements)
+   * Light Theme: 0.18 - Subtle but visible edge glow
+   * Range: 0.10-0.40 | Recommended: 0.15-0.25
+   * Controls top-left and bottom-right edge lighting */
+  --pf-v6-c-compass--glass--edge-highlight-opacity: 0.18;
+
+  /* Top-Left Edge Shadow (Inset Highlight)
+   * Light Theme: Creates bright edge catch on top-left corner
+   * Simulates light hitting the glass edge from upper-left
+   * Format: inset x-offset y-offset blur color
+   * Positive offsets push shadow inward from top-left */
+  --pf-v6-c-compass--glass--edge-shadow-top-left: inset 1px 1px 0 rgb(255 255 255 / 75%);
+
+  /* Bottom-Right Edge Shadow (Inset Shadow)
+   * Light Theme: Creates subtle depth on bottom-right corner
+   * Negative offsets push shadow inward from bottom-right
+   * Much subtler than top-left for balanced lighting */
+  --pf-v6-c-compass--glass--edge-shadow-bottom-right: inset -1px -1px 0 rgb(255 255 255 / 25%);
+
+  /* -------------------------------------------------------------------------
+   * Chatbot Component Tokens
+   * -------------------------------------------------------------------------
+   * Custom tokens for chatbot-specific layout and styling.
+   * These override defaults to create an optimal chat experience.
+   * ----------------------------------------------------------------------- */
+
+  /* Chatbot Max Width
+   * Constrains chatbot to optimal reading width
+   * 844px provides comfortable line length for conversation
+   * Prevents chat from stretching too wide on large displays */
+  --pf-v6-c-chatbot--max-width: 844px;
+
+  /* Chatbot Border Radius
+   * Custom radius for chatbot container (not in PatternFly's token set)
+   * 32px creates soft, friendly appearance perfect for chat interfaces
+   * PatternFly's closest token is --pf-t--global--border--radius--large (24px)
+   * but chatbot benefits from slightly more roundness */
+  --pf-v6-c-chatbot--border-radius: 32px;
+
+  /* Border Radius
+   * Inherits from PatternFly for consistency
+   * Recommended: 12-20px depending on component size */
+  --pf-v6-c-compass--glass--radius: var(--pf-t--global--border--radius--large);
+
+  /* Drop Shadow
+   * Light Theme: Soft, diffused shadow
+   * Recommended: Subtle elevation with soft blur */
+  --pf-v6-c-compass--glass--shadow: 0 8px 32px rgb(0 0 0 / 12%);
+
+  /* -------------------------------------------------------------------------
+   * Computed Glass Tokens (Auto-calculated)
+   * -------------------------------------------------------------------------
+   * These combine base values with opacity. Do not modify directly.
+   * ----------------------------------------------------------------------- */
+
+  /* Computed background: White tint with configurable opacity */
+  --pf-v6-c-compass--glass--bg: rgb(255 255 255 / var(--pf-v6-c-compass--glass--bg-opacity));
+
+  /* Computed border: White edge with configurable opacity */
+  --pf-v6-c-compass--glass--border-color: rgb(255 255 255 / var(--pf-v6-c-compass--glass--border-opacity));
+
+  /* Computed inset highlight: Subtle top reflection */
+  --pf-v6-c-compass--glass--inset-highlight: rgb(255 255 255 / var(--pf-v6-c-compass--glass--inset-highlight-opacity));
+
+  /* Computed edge highlight: Optional pseudo-element glow */
+  --pf-v6-c-compass--glass--edge-highlight: rgb(255 255 255 / var(--pf-v6-c-compass--glass--edge-highlight-opacity));
+}
+
+/* ===========================================================================
+ * Frosted Glass Tokens - Dark Theme Override
+ * ===========================================================================
+ * Dark theme adjustments for optimal glass effect in dark environments.
+ * Uses higher blur, white tinting (not black), and softer borders.
+ *
+ * Design Philosophy for Dark Glass:
+ * - Even more aggressive blur for depth
+ * - Still uses white tint (just slightly more opaque)
+ * - Higher saturation for vibrant colors
+ * - Softer borders that nearly disappear
+ * - Deeper shadows for elevation
+ * =========================================================================== */
+
+:is(.pf-v6-theme-dark, [class*="pf-v6-theme-dark"]) {
+  /* Backdrop Blur Intensity
+   * Dark Theme: 32px - Even more aggressive blur for depth
+   * Higher blur creates premium frosted effect in dark mode */
+  --pf-v6-c-compass--glass--blur: 32px;
+
+  /* Backdrop Saturation
+   * Dark Theme: 170% - Higher saturation for vivid colors in dark
+   * Colors need to pop more against dark backgrounds */
+  --pf-v6-c-compass--glass--saturate: 170%;
+
+  /* Backdrop Brightness
+   * Dark Theme: 1.0 - No brightness boost (would wash out dark UI)
+   * Keep natural luminosity in dark environments */
+  --pf-v6-c-compass--glass--brightness: 1.0;
+
+  /* Background Opacity (White Tint - Yes, white even in dark!)
+   * Dark Theme: 0.10 - Slightly more opaque white tint
+   * Premium glass uses white tint in dark mode for authentic frosted look */
+  --pf-v6-c-compass--glass--bg-opacity: 0.10;
+
+  /* Border Opacity
+   * Dark Theme: 0.10 - Even softer borders that nearly disappear
+   * Borders fade into darkness */
+  --pf-v6-c-compass--glass--border-opacity: 0.10;
+
+  /* Inset Highlight Opacity
+   * Dark Theme: 0.08 - Very minimal reflection
+   * Subtler material properties in dark */
+  --pf-v6-c-compass--glass--inset-highlight-opacity: 0.08;
+
+  /* Edge Highlight Opacity
+   * Dark Theme: 0.15 - Slightly less pronounced in dark mode
+   * Edge lighting is subtler against dark backgrounds */
+  --pf-v6-c-compass--glass--edge-highlight-opacity: 0.15;
+
+  /* Top-Left Edge Shadow (Inset Highlight)
+   * Dark Theme: Brighter highlight for contrast against dark background
+   * Higher opacity (0.3) makes edge catch more visible in dark mode */
+  --pf-v6-c-compass--glass--edge-shadow-top-left: inset 1px 1px 0 rgb(255 255 255 / 30%);
+
+  /* Bottom-Right Edge Shadow (Inset Shadow)
+   * Dark Theme: Very subtle shadow for depth
+   * Lower opacity (0.05) keeps it from being too prominent */
+  --pf-v6-c-compass--glass--edge-shadow-bottom-right: inset -1px -1px 0 rgb(255 255 255 / 5%);
+
+  /* Drop Shadow
+   * Dark Theme: Deeper, softer shadow for elevation
+   * More pronounced depth in dark environments */
+  --pf-v6-c-compass--glass--shadow: 0 8px 32px rgb(0 0 0 / 24%);
+}
+
+/* ---------------------------------------------------------------------------
+ * Component Styling - Premium Frosted Glass
+ * ---------------------------------------------------------------------------
+ * Simplified, authentic premium frosted glass implementation.
+ *
+ * Key Features:
+ * - Aggressive backdrop blur + saturation + brightness for premium effect
+ * - Ultra-transparent solid background (no gradients)
+ * - Whisper-thin borders (0.5px hairline)
+ * - Minimal shadows (soft and diffused)
+ * - Clean, material-focused aesthetic
+ * - GPU-accelerated for smooth performance
+ * - Accessibility fallbacks for reduced transparency
+ * --------------------------------------------------------------------------- */
+
+.pf-v6-theme-glass .pf-v6-c-compass__panel {
+  /* -------------------------------------------------------------------------
+   * Premium Frosted Glass Material
+   * ----------------------------------------------------------------------- */
+
+  /* Backdrop Filter: Premium frosted glass signature effect
+   * Blur: Heavy frosting for privacy and premium feel (28-32px)
+   * Saturate: Vibrant colors pop through the glass (150-170%)
+   * Brightness: Subtle luminosity boost (1.05 in light, 1.0 in dark)
+   * Browser Support: -webkit- prefix required for Safari/Chrome */
+  backdrop-filter:
+    blur(var(--pf-v6-c-compass--glass--blur)) saturate(var(--pf-v6-c-compass--glass--saturate)) brightness(var(--pf-v6-c-compass--glass--brightness));
+
+  /* Background: Solid ultra-transparent tint
+   * Premium glass uses solid color, not gradients
+   * White tint even in dark mode for authentic frosted appearance */
+  background: var(--pf-v6-c-compass--glass--bg);
+
+  /* Border: Ultra-thin hairline edge
+   * 0.5px creates refined, premium aesthetic
+   * Nearly invisible but provides subtle material definition */
+  border: var(--pf-v6-c-compass--glass--border-width) solid var(--pf-v6-c-compass--glass--border-color);
+
+  /* Border Radius: Smooth, refined corners */
+  border-radius: var(--pf-v6-c-compass--glass--radius);
+
+  /* Box Shadow: Minimal, soft elevation
+   * Single shadow layer for clean, simple aesthetic
+   * Very subtle inset highlight for top edge reflection only */
+  box-shadow:
+    var(--pf-v6-c-compass--glass--shadow),
+    inset 0 1px 0 var(--pf-v6-c-compass--glass--inset-highlight);
+
+  /* GPU Acceleration: Force hardware compositing
+   * Critical for smooth backdrop-filter performance
+   * Prevents janky rendering during scrolling/animations */
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+/* -------------------------------------------------------------------------
+ * Edge Highlight Effects - Top-Left & Bottom-Right Lighting
+ * -------------------------------------------------------------------------
+ * Creates subtle directional lighting on opposite corners of the glass panel.
+ * Simulates environmental light catching the top-left and bottom-right edges.
+ * Uses radial gradients positioned at corners for natural light diffusion.
+ * ----------------------------------------------------------------------- */
+
+/* Top-Left Edge Lighting: Light source from upper-left corner */
+.pf-v6-theme-glass .pf-v6-c-compass__panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: var(--pf-v6-c-compass--glass--radius);
+
+  /* Radial Gradient Background: Diffused light from top-left corner
+   * Creates soft, atmospheric glow that fades toward center
+   * Tight gradient (35% coverage) for subtle, focused edge glow */
+  background: radial-gradient(circle at top left,
+      var(--pf-v6-c-compass--glass--edge-highlight) 0%,
+      rgb(255 255 255 / 8%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Sharp edge highlight on top-left
+   * Creates crisp 1px light catch along top and left edges
+   * Simulates direct light reflection on glass edge
+   * Complements the softer radial gradient with defined edge */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-top-left);
+}
+
+/* Bottom-Right Edge Lighting: Complementary light from lower-right corner */
+.pf-v6-theme-glass .pf-v6-c-compass__panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: var(--pf-v6-c-compass--glass--radius);
+
+  /* Radial Gradient Background: Diffused light from bottom-right corner
+   * Softer than top-left (50% of highlight opacity) for balance
+   * Creates secondary light source for diagonal lighting effect
+   * Prevents harsh single-direction lighting */
+  background: radial-gradient(circle at bottom right,
+      rgb(255 255 255 / calc(var(--pf-v6-c-compass--glass--edge-highlight-opacity) * 0.5)) 0%,
+      rgb(255 255 255 / 4%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Subtle depth shadow on bottom-right
+   * Creates soft 1px shadow along bottom and right edges
+   * Negative offsets (-1px) target bottom-right corner
+   * Much subtler than top-left for realistic lighting contrast
+   * Adds dimensional depth without overpowering the highlight */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-bottom-right);
+}
+
+/* -------------------------------------------------------------------------
+ * Accessibility Fallbacks
+ * -------------------------------------------------------------------------
+ * Respects user system preferences for transparency and motion.
+ * Provides solid, readable alternatives when glass effects aren't suitable.
+ * ----------------------------------------------------------------------- */
+
+/* Reduced Transparency: Solid fallback for accessibility
+ * Activated when user has "Reduce Transparency" enabled in OS settings
+ * Removes backdrop-filter and provides opaque background */
+@media (prefers-reduced-transparency: reduce) {
+  .pf-v6-theme-glass .pf-v6-c-compass__panel {
+    /* Replace frosted glass with solid semi-transparent background */
+    background: rgb(255 255 255 / 95%);
+
+    /* Disable all backdrop filters */
+    backdrop-filter: none;
+
+    /* More visible border for solid panels */
+    border: 1px solid rgb(0 0 0 / 10%);
+
+    /* Subtle shadow for depth without transparency */
+    box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+  }
+
+  /* Remove edge highlights in solid mode */
+  .pf-v6-theme-glass .pf-v6-c-compass__panel::before,
+  .pf-v6-theme-glass .pf-v6-c-compass__panel::after {
+    display: none;
+  }
+
+  /* Dark theme solid fallback */
+  :is(.pf-v6-theme-dark, [class*="pf-v6-theme-dark"]) .pf-v6-c-compass__panel {
+    background: rgb(30 30 30 / 95%);
+    border-color: rgb(255 255 255 / 8%);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 40%);
+  }
+}
+
+/* Reduced Motion: No animations used
+ * Glass effects are static - no motion-based styles to disable */
+
+/* ===========================================================================
+ * NAVIGATION GLASS OVERRIDE - SOLID PANEL TREATMENT
+ * ===========================================================================
+ * Removes frosted glass effects from compass panels nested within the
+ * global navigation layout. Navigation requires solid, opaque backgrounds
+ * for readability, accessibility, and consistent UI structure.
+ *
+ * OVERRIDE APPROACH:
+ * This section uses higher specificity (.global-layout-nav .pf-v6-c-compass__panel)
+ * to override the default glass styling defined earlier. By targeting the
+ * nested context, we disable glass-specific properties while maintaining
+ * all other compass panel functionality.
+ *
+ * WHAT'S DISABLED:
+ * - Backdrop filters (blur, saturation, brightness) → none
+ * - Glass panel background (semi-transparent tint) → transparent
+ * - Glass panel border (0.5px hairline) → none
+ * - Glass panel shadow (soft diffused elevation) → none
+ * - Edge lighting pseudo-elements (::before and ::after) → hidden
+ * - GPU acceleration hints (will-change) → auto
+ *
+ * WHAT'S PRESERVED:
+ * - Border radius for consistent rounded corners
+ * - Basic structural layout and spacing
+ * - All other compass panel features unrelated to glass effects
+ *
+ * RESULT:
+ * Navigation panels are completely transparent with no glass treatment,
+ * allowing the navigation structure to control its own visual styling.
+ * =========================================================================== */
+
+/* Remove glass effects from navigation panels */
+.global-layout-nav .pf-v6-c-compass__panel {
+  /* Disable Backdrop Filters: Remove all frosted glass effects
+   * Sets to 'none' to completely disable blur, saturation, brightness */
+  backdrop-filter: none;
+
+  /* Transparent Background: Remove all background styling
+   * Allows navigation to use its own background treatment
+   * Removes glass panel's semi-transparent white tint entirely */
+  background: transparent;
+
+  /* Remove Border: Eliminate glass panel border
+   * Removes the whisper-thin 0.5px hairline border
+   * Allows navigation structure to define its own borders if needed */
+  border: none;
+
+  /* Remove Shadow: Eliminate glass panel elevation shadow
+   * Removes soft diffused shadow (0 8px 32px)
+   * Prevents shadow conflicts with navigation's own depth treatment */
+  box-shadow: none;
+
+  /* Remove GPU Acceleration Hint: Not needed without backdrop-filter
+   * Backdrop-filter requires GPU compositing, but with all effects disabled
+   * Removing 'will-change' reduces unnecessary GPU memory usage */
+  will-change: auto;
+}
+
+/* Disable Edge Lighting Pseudo-Elements: Remove diagonal corner highlights
+ * Navigation panels don't need decorative lighting effects
+ * Hides ::before (top-left) and ::after (bottom-right) elements */
+.global-layout-nav .pf-v6-c-compass__panel::before,
+.global-layout-nav .pf-v6-c-compass__panel::after {
+  display: none;
+}
+
+/* ===========================================================================
+ * CHATBOT MESSAGE BAR OVERRIDE - TRANSPARENT BACKGROUND
+ * ===========================================================================
+ * Removes background from the chatbot message bar to prevent visual conflicts
+ * with the glass-effect compass panel.
+ *
+ * ISSUE:
+ * The message bar's default background creates a visual clash when rendered
+ * inside a frosted glass panel. The layered backgrounds create unwanted
+ * opacity stacking and reduce the clarity of the glass effect.
+ *
+ * SOLUTION:
+ * Remove the message bar's background entirely, allowing it to inherit the
+ * transparent/glass aesthetic from its parent compass panel. The message bar
+ * content remains fully visible and functional.
+ * =========================================================================== */
+
+.pf-v6-theme-glass .pf-chatbot .pf-chatbot__message-bar {
+  /* Remove Background: Prevent clashing with glass panel
+   * Sets background to 'none' to eliminate opacity stacking
+   * Allows parent glass effect to show through naturally */
+  background: none;
+  border-color: var(--pf-t--global--border--color--default);
+}
+
+/* ===========================================================================
+ * SIDEBAR PANEL PILL SHAPE - ROUNDED BORDER RADIUS
+ * ===========================================================================
+ * Applies pill-shaped border radius to compass panels within sidebar contexts.
+ * Uses PatternFly's pill token (999px) for fully rounded edges.
+ *
+ * DESIGN RATIONALE:
+ * Sidebar panels benefit from more pronounced rounding (pill shape) compared
+ * to standard panels. The extreme border radius creates soft, approachable
+ * edges that complement the vertical orientation of sidebar layouts.
+ *
+ * GLASS COMPATIBILITY:
+ * The glass effect pseudo-elements (::before and ::after) automatically
+ * inherit this border radius via their existing token reference, ensuring
+ * edge lighting respects the pill shape.
+ * =========================================================================== */
+
+.pf-v6-theme-glass .pf-v6-c-compass__sidebar .pf-v6-c-compass__panel {
+  /* Pill Border Radius: Fully rounded edges using PatternFly token
+   * Token value: --pf-t--global--border--radius--pill = 999px
+   * Creates soft, pill-shaped panels in sidebar contexts
+   * Overrides the default glass radius (typically 12-20px) */
+  --pf-v6-c-compass--glass--radius: var(--pf-t--global--border--radius--pill);
+}
+
+/* ===========================================================================
+ * DRAWER PANEL GLASS TREATMENT
+ * ===========================================================================
+ * Applies premium frosted glass effects to pill-shaped drawer panels using
+ * our existing compass glass token system.
+ *
+ * TARGET SELECTOR:
+ * .pf-v6-c-drawer.pf-m-pill > .pf-v6-c-drawer__main > .pf-v6-c-drawer__panel:not(.pf-m-no-glass)
+ * - Applies to pill-shaped drawers
+ * - Targets drawer panels specifically
+ * - Opt-out via .pf-m-no-glass modifier
+ *
+ * GLASS INTEGRATION:
+ * Leverages the existing compass glass tokens for consistent theming across
+ * compass panels and drawer panels. Automatically inherits light/dark theme
+ * values via the compass token system.
+ *
+ * BORDER RADIUS HANDLING:
+ * Unlike compass sidebar panels (which use 999px pill), drawer panels respect
+ * their own border-radius token from PatternFly's drawer component. This
+ * ensures drawers maintain their intended shape while still receiving the
+ * full glass treatment.
+ *
+ * PROPERTIES APPLIED:
+ * - Backdrop filter (blur, saturation, brightness)
+ * - Ultra-transparent background
+ * - Whisper-thin border (0.5px)
+ * - Soft elevation shadow
+ * - GPU acceleration for smooth performance
+ * =========================================================================== */
+
+.pf-v6-c-drawer.pf-m-pill>.pf-v6-c-drawer__main>.pf-v6-c-drawer__panel:not(.pf-m-no-glass) {
+  /* Glass Background: Ultra-transparent white tint
+   * Uses our compass glass background token
+   * Inherits light/dark theme values automatically */
+  --pf-v6-c-drawer__panel--BackgroundColor: var(--pf-v6-c-compass--glass--bg);
+
+  background-color: var(--pf-v6-c-compass--glass--bg);
+
+  /* Whisper-Thin Border: Semi-transparent edge definition
+   * Uses our compass glass border color and width
+   * Creates subtle material boundary */
+  --pf-v6-c-drawer__panel--BorderColor: var(--pf-v6-c-compass--glass--border-color);
+
+  border: var(--pf-v6-c-compass--glass--border-width) solid var(--pf-v6-c-compass--glass--border-color);
+
+  /* Premium Backdrop Filter: Full glass effect stack
+   * Blur: Heavy frosting for privacy and premium feel (28-32px)
+   * Saturate: Vibrant colors pop through the glass (150-170%)
+   * Brightness: Subtle luminosity boost (1.05 in light, 1.0 in dark) */
+  backdrop-filter:
+    blur(var(--pf-v6-c-compass--glass--blur)) saturate(var(--pf-v6-c-compass--glass--saturate)) brightness(var(--pf-v6-c-compass--glass--brightness));
+
+  /* Soft Shadow: Subtle elevation
+   * Uses our compass glass shadow for consistent depth treatment */
+  box-shadow: var(--pf-v6-c-compass--glass--shadow);
+
+  /* GPU Acceleration: Force hardware compositing
+   * Critical for smooth backdrop-filter performance
+   * Prevents janky rendering during drawer animations */
+  will-change: backdrop-filter;
+
+  /* Border Radius: Respects drawer's own radius token
+   * NOTE: We do NOT override border-radius here
+   * Drawer panels use their own PatternFly token, not the 999px pill
+   * This allows drawers to maintain their intended shape */
+}
+
+/* Drawer Panel Edge Lighting - Top-Left Corner */
+.pf-v6-c-drawer.pf-m-pill>.pf-v6-c-drawer__main>.pf-v6-c-drawer__panel:not(.pf-m-no-glass)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from top-left corner
+   * Uses the same compass glass edge highlight token
+   * Creates soft, atmospheric glow that fades toward center */
+  background: radial-gradient(circle at top left,
+      var(--pf-v6-c-compass--glass--edge-highlight) 0%,
+      rgb(255 255 255 / 8%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Sharp edge highlight on top-left
+   * Uses compass glass edge shadow token for consistency
+   * Creates crisp 1px light catch along top and left edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-top-left);
+
+  /* Border Radius: Must match drawer panel's border-radius
+   * Cannot use --pf-v6-c-compass--glass--radius (might be 999px for sidebars)
+   * Inherits from parent drawer panel's computed border-radius */
+  border-radius: inherit;
+}
+
+/* Drawer Panel Edge Lighting - Bottom-Right Corner */
+.pf-v6-c-drawer.pf-m-pill>.pf-v6-c-drawer__main>.pf-v6-c-drawer__panel:not(.pf-m-no-glass)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from bottom-right corner
+   * Softer than top-left (50% of highlight opacity) for balance
+   * Creates secondary light source for diagonal lighting effect */
+  background: radial-gradient(circle at bottom right,
+      rgb(255 255 255 / calc(var(--pf-v6-c-compass--glass--edge-highlight-opacity) * 0.5)) 0%,
+      rgb(255 255 255 / 4%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Subtle depth shadow on bottom-right
+   * Uses compass glass edge shadow token for consistency
+   * Creates soft 1px shadow along bottom and right edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-bottom-right);
+
+  /* Border Radius: Must match drawer panel's border-radius
+   * Cannot use --pf-v6-c-compass--glass--radius (might be 999px for sidebars)
+   * Inherits from parent drawer panel's computed border-radius */
+  border-radius: inherit;
+}
+
+/* ===========================================================================
+ * USER ACCOUNT DROPDOWN MENU GLASS TREATMENT
+ * ===========================================================================
+ * Applies premium frosted glass effects to the user account dropdown menu
+ * using our existing compass glass token system.
+ *
+ * TARGET SELECTOR:
+ * .pf-v6-c-menu.user-account-menu-dropdown
+ * - Targets the user account menu dropdown specifically
+ * - Uses both PatternFly menu class and custom user account class
+ *
+ * GLASS INTEGRATION:
+ * Leverages the existing compass glass tokens for consistent theming across
+ * all glass-enabled components. Automatically inherits light/dark theme
+ * values via the compass token system.
+ *
+ * BORDER RADIUS HANDLING:
+ * Dropdown menus respect their own border-radius from PatternFly's menu
+ * component. This ensures menus maintain their intended rounded corners
+ * while receiving the full glass treatment.
+ *
+ * PROPERTIES APPLIED:
+ * - Backdrop filter (blur, saturation, brightness)
+ * - Ultra-transparent background
+ * - Whisper-thin border (0.5px)
+ * - Soft elevation shadow
+ * - Diagonal edge lighting (top-left & bottom-right corners via pseudo-elements)
+ * - GPU acceleration for smooth performance
+ * =========================================================================== */
+
+.pf-v6-theme-glass .pf-v6-c-menu.user-account-menu-dropdown {
+  /* Glass Background: Ultra-transparent white tint
+   * Uses our compass glass background token
+   * Inherits light/dark theme values automatically */
+  background-color: var(--pf-v6-c-compass--glass--bg);
+
+  /* Whisper-Thin Border: Semi-transparent edge definition
+   * Uses our compass glass border color and width
+   * Creates subtle material boundary */
+  border: var(--pf-v6-c-compass--glass--border-width) solid var(--pf-v6-c-compass--glass--border-color);
+
+  /* Premium Backdrop Filter: Full glass effect stack
+   * Blur: Heavy frosting for privacy and premium feel (28-32px)
+   * Saturate: Vibrant colors pop through the glass (150-170%)
+   * Brightness: Subtle luminosity boost (1.05 in light, 1.0 in dark) */
+  backdrop-filter:
+    blur(var(--pf-v6-c-compass--glass--blur)) saturate(var(--pf-v6-c-compass--glass--saturate)) brightness(var(--pf-v6-c-compass--glass--brightness));
+
+  /* Soft Shadow: Subtle elevation
+   * Uses our compass glass shadow for consistent depth treatment */
+  box-shadow: var(--pf-v6-c-compass--glass--shadow);
+
+  /* GPU Acceleration: Force hardware compositing
+   * Critical for smooth backdrop-filter performance
+   * Prevents janky rendering during menu animations */
+  will-change: backdrop-filter;
+
+  /* Border Radius: Respects menu's own radius token
+   * NOTE: We do NOT override border-radius here
+   * Menu uses its own PatternFly token for rounded corners */
+}
+
+/* User Account Menu Edge Lighting - Top-Left Corner */
+.pf-v6-theme-glass .pf-v6-c-menu.user-account-menu-dropdown::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from top-left corner
+   * Uses the same compass glass edge highlight token
+   * Creates soft, atmospheric glow that fades toward center */
+  background: radial-gradient(circle at top left,
+      var(--pf-v6-c-compass--glass--edge-highlight) 0%,
+      rgb(255 255 255 / 8%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Sharp edge highlight on top-left
+   * Uses compass glass edge shadow token for consistency
+   * Creates crisp 1px light catch along top and left edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-top-left);
+
+  /* Border Radius: Must match menu's border-radius
+   * Inherits from parent menu's computed border-radius */
+  border-radius: inherit;
+}
+
+/* User Account Menu Edge Lighting - Bottom-Right Corner */
+.pf-v6-theme-glass .pf-v6-c-menu.user-account-menu-dropdown::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from bottom-right corner
+   * Softer than top-left (50% of highlight opacity) for balance
+   * Creates secondary light source for diagonal lighting effect */
+  background: radial-gradient(circle at bottom right,
+      rgb(255 255 255 / calc(var(--pf-v6-c-compass--glass--edge-highlight-opacity) * 0.5)) 0%,
+      rgb(255 255 255 / 4%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Subtle depth shadow on bottom-right
+   * Uses compass glass edge shadow token for consistency
+   * Creates soft 1px shadow along bottom and right edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-bottom-right);
+
+  /* Border Radius: Must match menu's border-radius
+   * Inherits from parent menu's computed border-radius */
+  border-radius: inherit;
+}
+
+/* ===========================================================================
+ * CHATBOT COMPONENT GLASS TREATMENT
+ * ===========================================================================
+ * Applies premium frosted glass effects to the main chatbot container
+ * using our existing compass glass token system.
+ *
+ * TARGET SELECTOR:
+ * .pf-chatbot
+ * - Targets the main chatbot container component
+ * - PatternFly's chatbot component wrapper
+ *
+ * GLASS INTEGRATION:
+ * Leverages the existing compass glass tokens for consistent theming across
+ * all glass-enabled components. Automatically inherits light/dark theme
+ * values via the compass token system.
+ *
+ * BORDER RADIUS HANDLING:
+ * Chatbot uses a custom 32px border-radius token for optimal chat aesthetic.
+ * This is larger than PatternFly's --pf-t--global--border--radius--large (24px)
+ * to create a softer, more approachable conversation interface.
+ *
+ * PROPERTIES APPLIED:
+ * - Max width constraint (844px) for optimal reading experience
+ * - Custom border radius (32px) for soft, friendly appearance
+ * - Backdrop filter (blur, saturation, brightness)
+ * - Ultra-transparent background
+ * - Whisper-thin border (0.5px)
+ * - Soft elevation shadow
+ * - Diagonal edge lighting (top-left & bottom-right corners via pseudo-elements)
+ * - GPU acceleration for smooth performance
+ * =========================================================================== */
+
+.global-layout-container .pf-chatbot {
+  /* Glass Background: Ultra-transparent white tint
+   * Uses our compass glass background token
+   * Inherits light/dark theme values automatically */
+  background-color: var(--pf-v6-c-compass--glass--bg);
+
+  /* Whisper-Thin Border: Semi-transparent edge definition
+   * Uses our compass glass border color and width
+   * Creates subtle material boundary */
+  border: var(--pf-v6-c-compass--glass--border-width) solid var(--pf-v6-c-compass--glass--border-color);
+
+  /* Premium Backdrop Filter: Full glass effect stack
+   * Blur: Heavy frosting for privacy and premium feel (28-32px)
+   * Saturate: Vibrant colors pop through the glass (150-170%)
+   * Brightness: Subtle luminosity boost (1.05 in light, 1.0 in dark) */
+  backdrop-filter:
+    blur(var(--pf-v6-c-compass--glass--blur)) saturate(var(--pf-v6-c-compass--glass--saturate)) brightness(var(--pf-v6-c-compass--glass--brightness));
+
+  /* Soft Shadow: Subtle elevation
+   * Uses our compass glass shadow for consistent depth treatment */
+  box-shadow: var(--pf-v6-c-compass--glass--shadow);
+
+  /* GPU Acceleration: Force hardware compositing
+   * Critical for smooth backdrop-filter performance
+   * Prevents janky rendering during chatbot interactions */
+  will-change: backdrop-filter;
+
+  /* Max Width: Constrains chatbot to optimal reading width
+   * 844px prevents chat from becoming too wide on large displays
+   * Maintains comfortable line length for conversation */
+  max-width: var(--pf-v6-c-chatbot--max-width);
+
+  /* Horizontal Centering: Centers chatbot when max-width is reached
+   * 0 top/bottom margin, auto left/right margin centers the container
+   * Works in conjunction with max-width to create centered, constrained layout */
+  margin: 0 auto;
+
+  /* Border Radius: Custom chatbot radius for soft, friendly appearance
+   * Uses custom 32px token (larger than PatternFly's --pf-t--global--border--radius--large at 24px)
+   * Creates more pronounced roundness perfect for chat interfaces */
+  border-radius: var(--pf-v6-c-chatbot--border-radius);
+}
+
+/* Chatbot Edge Lighting - Top-Left Corner */
+.global-layout-container .pf-chatbot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from top-left corner
+   * Uses the same compass glass edge highlight token
+   * Creates soft, atmospheric glow that fades toward center */
+  background: radial-gradient(circle at top left,
+      var(--pf-v6-c-compass--glass--edge-highlight) 0%,
+      rgb(255 255 255 / 8%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Sharp edge highlight on top-left
+   * Uses compass glass edge shadow token for consistency
+   * Creates crisp 1px light catch along top and left edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-top-left);
+
+  /* Border Radius: Must match chatbot's border-radius
+   * Inherits from parent chatbot's computed border-radius */
+  border-radius: inherit;
+}
+
+/* Chatbot Edge Lighting - Bottom-Right Corner */
+.global-layout-container .pf-chatbot::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* Radial Gradient Background: Diffused light from bottom-right corner
+   * Softer than top-left (50% of highlight opacity) for balance
+   * Creates secondary light source for diagonal lighting effect */
+  background: radial-gradient(circle at bottom right,
+      rgb(255 255 255 / calc(var(--pf-v6-c-compass--glass--edge-highlight-opacity) * 0.5)) 0%,
+      rgb(255 255 255 / 4%) 20%,
+      transparent 35%);
+
+  /* Inset Box Shadow: Subtle depth shadow on bottom-right
+   * Uses compass glass edge shadow token for consistency
+   * Creates soft 1px shadow along bottom and right edges */
+  box-shadow: var(--pf-v6-c-compass--glass--edge-shadow-bottom-right);
+
+  /* Border Radius: Must match chatbot's border-radius
+   * Inherits from parent chatbot's computed border-radius */
+  border-radius: inherit;
+}
+
+/* ===========================================================================
+ * COMPASS CONTENT OVERFLOW FIX
+ * ===========================================================================
+ * Unsets overflow restrictions on the compass content container to allow
+ * glass effects and pseudo-elements to render properly.
+ *
+ * TARGET SELECTOR:
+ * .pf-v6-c-compass__content
+ * - Main content container within PatternFly's compass layout
+ * - Parent container that may clip child elements
+ *
+ * ISSUE:
+ * PatternFly's compass layout may set overflow: hidden or overflow: auto
+ * on the content container, which can clip:
+ * - Backdrop-filter blur effects extending beyond element bounds
+ * - Pseudo-element edge lighting and shadows
+ * - Drop shadows on glass components
+ *
+ * SOLUTION:
+ * Unset overflow to allow glass effects to render naturally without clipping.
+ * This ensures blur, shadows, and edge lighting display as intended.
+ * =========================================================================== */
+
+.pf-v6-c-compass__content {
+  /* Overflow: Unset to prevent clipping of glass effects
+   * Allows backdrop-filter blur and pseudo-element lighting to render fully
+   * Prevents shadows and edge effects from being cut off */
+  overflow: unset;
+}
