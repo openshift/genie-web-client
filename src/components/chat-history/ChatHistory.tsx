@@ -25,11 +25,13 @@ import {
   useIsInitializing,
 } from '../../hooks/AIState';
 import { useDrawer } from '../drawer';
+import { useToastAlerts } from '../toast-alerts/ToastAlertProvider';
 import { ChatNew, mainGenieRoute, SubRoutes } from '../routeList';
 import { ChatHistorySearch } from './ChatHistorySearch';
 import { groupByDate } from './dateHelpers';
 import EditableChatHeader from '../chat/EditableChatHeader';
 import { DeleteConversationModal } from '../chat/DeleteConversationModal';
+import { createOnDeletedHandler } from '../chat/deleteConversationToast';
 import { isTempConversationId } from '../../utils/conversationUtils';
 import './ChatHistory.css';
 
@@ -54,6 +56,8 @@ interface ChatHistoryGroupProps {
   isLoading: boolean;
   onRowActivate?: (conversation: Conversation) => void;
   onDeleteClick?: (conversation: Pick<Conversation, 'id' | 'title'>) => void;
+  openDropdownId: string | null;
+  setOpenDropdownId: (id: string | null) => void;
 }
 
 const ChatHistoryGroup = ({
@@ -62,6 +66,8 @@ const ChatHistoryGroup = ({
   isLoading,
   onRowActivate,
   onDeleteClick,
+  openDropdownId,
+  setOpenDropdownId,
 }: ChatHistoryGroupProps) => {
   const { t } = useTranslation('plugin__genie-web-client');
   const title = t(`chatHistory.group.${titleKey}`);
@@ -104,6 +110,8 @@ const ChatHistoryGroup = ({
                 variant="inline"
                 conversationId={conversation.id}
                 onDeleteClick={onDeleteClick}
+                isDropdownOpen={openDropdownId === conversation.id}
+                onDropdownOpenChange={(open) => setOpenDropdownId(open ? conversation.id : null)}
               />
             </ListItem>
           ))}
@@ -155,10 +163,12 @@ const LoadingComponent: React.FC = () => {
 export const ChatHistory: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { t } = useTranslation('plugin__genie-web-client');
   const conversations = useConversations();
   const isInitializing = useIsInitializing();
   const activeConversation = useActiveConversation();
   const { closeDrawer } = useDrawer();
+  const { addAlert, removeAlert } = useToastAlerts();
   const {
     conversationToDelete,
     openDeleteModal,
@@ -167,20 +177,21 @@ export const ChatHistory: React.FC = () => {
     isDeleting,
     error: deleteError,
   } = useDeleteConversationModal({
-    onDeleted: (deletedId) => {
-      closeDrawer();
-      const wasActiveConversation = activeConversation?.id === deletedId;
-      const wasLastConversation = (conversations?.length ?? 0) === 1;
-      const newChatPath = `${mainGenieRoute}/${ChatNew}`;
-      const alreadyOnNewChat = pathname.endsWith(newChatPath);
-      if (!alreadyOnNewChat && (wasActiveConversation || wasLastConversation)) {
-        navigate(newChatPath, { replace: true });
-      }
-    },
+    onDeleted: createOnDeletedHandler({
+      navigate,
+      newChatPath: `${mainGenieRoute}/${ChatNew}`,
+      activeConversationId: activeConversation?.id,
+      conversationsCount: (conversations as unknown as Conversation[] | undefined)?.length ?? 0,
+      addAlert,
+      removeAlert,
+      t: t as (key: string) => string,
+      closeDrawer,
+      pathname,
+    }),
   });
-  const { t } = useTranslation('plugin__genie-web-client');
 
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   const handleNewChatClick = useCallback(() => {
     closeDrawer();
@@ -280,6 +291,8 @@ export const ChatHistory: React.FC = () => {
                 isLoading={isInitializing}
                 onRowActivate={handleRowActivate}
                 onDeleteClick={openDeleteModal}
+                openDropdownId={openDropdownId}
+                setOpenDropdownId={setOpenDropdownId}
               />
               <ChatHistoryGroup
                 titleKey="yesterday"
@@ -287,6 +300,8 @@ export const ChatHistory: React.FC = () => {
                 isLoading={isInitializing}
                 onRowActivate={handleRowActivate}
                 onDeleteClick={openDeleteModal}
+                openDropdownId={openDropdownId}
+                setOpenDropdownId={setOpenDropdownId}
               />
               <ChatHistoryGroup
                 titleKey="lastWeek"
@@ -294,6 +309,8 @@ export const ChatHistory: React.FC = () => {
                 isLoading={isInitializing}
                 onRowActivate={handleRowActivate}
                 onDeleteClick={openDeleteModal}
+                openDropdownId={openDropdownId}
+                setOpenDropdownId={setOpenDropdownId}
               />
               <ChatHistoryGroup
                 titleKey="older"
@@ -301,6 +318,8 @@ export const ChatHistory: React.FC = () => {
                 isLoading={isInitializing}
                 onRowActivate={handleRowActivate}
                 onDeleteClick={openDeleteModal}
+                openDropdownId={openDropdownId}
+                setOpenDropdownId={setOpenDropdownId}
               />
             </>
           )}
