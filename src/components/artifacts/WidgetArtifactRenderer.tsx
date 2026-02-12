@@ -13,8 +13,6 @@ export interface WidgetArtifactRendererProps {
   artifact: WidgetArtifact;
   /** Tool calls from the message */
   toolCalls?: ToolCallState[];
-  /** Namespace for dashboard operations */
-  namespace?: string;
 }
 
 /**
@@ -40,14 +38,15 @@ function findToolCallIdForArtifact(
  * If the widget is on a dashboard, shows a CanvasCard.
  * Otherwise, renders the widget inline with an "Add to Dashboard" button.
  */
+const DEFAULT_NAMESPACE = 'default';
+
 export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRendererProps> = ({
   artifact,
   toolCalls,
-  namespace = 'default',
 }) => {
   const { addWidgetToDashboard, setActiveDashboard, activeDashboard, clearActiveDashboard } =
-    useActiveDashboard(namespace);
-  const { getDashboardForToolCall } = useDashboards({ namespace });
+    useActiveDashboard(DEFAULT_NAMESPACE);
+  const { getDashboardForToolCall } = useDashboards({ namespace: DEFAULT_NAMESPACE });
 
   // Look up if this widget is already on a dashboard
   const dashboardRef = useMemo(() => {

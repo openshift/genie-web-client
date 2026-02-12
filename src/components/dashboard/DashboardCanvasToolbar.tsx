@@ -3,20 +3,16 @@ import { Button } from '@patternfly/react-core';
 import { CanvasToolbar } from '../canvas';
 import { useActiveDashboard } from '../../hooks/useActiveDashboard';
 
-export interface DashboardCanvasToolbarProps {
-  /** Namespace for dashboard operations */
-  namespace?: string;
-}
+const DEFAULT_NAMESPACE = 'default';
 
 /**
  * Renders the canvas toolbar with save button for unsaved dashboards.
  */
-export const DashboardCanvasToolbar: React.FunctionComponent<DashboardCanvasToolbarProps> = ({
-  namespace = 'default',
-}) => {
+export const DashboardCanvasToolbar: React.FunctionComponent = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const { saveDashboard, hasActiveDashboard, isDashboardSaved } = useActiveDashboard(namespace);
+  const { saveDashboard, hasActiveDashboard, isDashboardSaved } =
+    useActiveDashboard(DEFAULT_NAMESPACE);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);

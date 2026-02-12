@@ -8,8 +8,6 @@ export interface ArtifactRendererProps {
   artifacts: Artifact[];
   /** Tool calls from the message, used to look up query args for Perses components */
   toolCalls?: ToolCallState[];
-  /** Namespace for dashboard operations */
-  namespace?: string;
 }
 
 /**
@@ -19,7 +17,6 @@ export interface ArtifactRendererProps {
 export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = ({
   artifacts,
   toolCalls,
-  namespace = 'default',
 }) => {
   if (artifacts.length === 0) {
     return null;
@@ -31,12 +28,7 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
         switch (artifact.type) {
           case 'widget':
             return (
-              <WidgetArtifactRenderer
-                key={artifact.id}
-                artifact={artifact}
-                toolCalls={toolCalls}
-                namespace={namespace}
-              />
+              <WidgetArtifactRenderer key={artifact.id} artifact={artifact} toolCalls={toolCalls} />
             );
 
           case 'dashboard':
