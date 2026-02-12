@@ -9,8 +9,7 @@ import {
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
-import { CanvasLayout, CanvasContent } from '../canvas';
-import { DashboardCanvasToolbar } from '../dashboard';
+import { CanvasLayout, CanvasContent, CanvasToolbarContent } from '../canvas';
 import {
   useSetActiveConversation,
   useActiveConversation,
@@ -106,7 +105,7 @@ const ChatInner: React.FunctionComponent = () => {
           <BadResponseModal />
         </Chatbot>
         <div className="chat__canvas pf-v6-c-compass__panel pf-m-full-height">
-          <CanvasLayout toolbar={<DashboardCanvasToolbar />}>
+          <CanvasLayout toolbar={<CanvasToolbarContent />}>
             <CanvasContent />
           </CanvasLayout>
         </div>
@@ -115,10 +114,6 @@ const ChatInner: React.FunctionComponent = () => {
   );
 };
 
-/**
- * Chat component wrapped with ChatConversationProvider.
- * Provides canvas and artifact state to all nested components.
- */
 export const Chat: React.FunctionComponent = () => {
   return (
     <ChatConversationProvider>

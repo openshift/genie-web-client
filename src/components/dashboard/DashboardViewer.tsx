@@ -15,14 +15,12 @@ import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from '../artifacts/WidgetRenderer';
 import { parseToolResultToArtifacts } from '../../utils/toolResultParsers';
 
-export interface DashboardViewerProps {
-  /** The dashboard to render */
+export interface DashboardProps {
   dashboard: AladdinDashboard;
 }
 
 /**
- * Convert stored ToolCall[] to ToolCallState[] for WidgetRenderer.
- * WidgetRenderer expects the runtime format with 'name' instead of 'tool'.
+ * Converts stored ToolCall[] to ToolCallState[] format expected by WidgetRenderer.
  */
 function convertToolCallsForRenderer(toolCalls: ToolCall[]): ToolCallState[] {
   return toolCalls.map((tc) => ({
@@ -31,17 +29,14 @@ function convertToolCallsForRenderer(toolCalls: ToolCall[]): ToolCallState[] {
     status: 'success' as const,
     arguments: tc.arguments,
     result: tc.result,
-    // Re-parse artifacts from result if it's a generate_ui tool
     artifacts: tc.result ? parseToolResultToArtifacts(tc.tool, tc.result) : undefined,
   }));
 }
 
 /**
- * Extract the NGUIWidget from a panel's stored tool calls.
- * Looks for a generate_ui tool call and parses its result to get the widget spec.
+ * Extracts NGUIWidget from a panel's component config or tool calls.
  */
 function extractWidgetFromPanel(panel: DashboardPanel): NGUIWidget | null {
-  // First, try to get widget from component config (stored directly)
   if (panel.component.config && Object.keys(panel.component.config).length > 0) {
     return {
       id: `widget-${panel.id}`,
@@ -51,7 +46,6 @@ function extractWidgetFromPanel(panel: DashboardPanel): NGUIWidget | null {
     };
   }
 
-  // Fallback: parse from generate_ui tool result
   const generateUICall = panel.dataSource.toolCalls.find(
     (tc) => tc.tool.toLowerCase().includes('generate_ui') && tc.result,
   );
@@ -67,9 +61,6 @@ function extractWidgetFromPanel(panel: DashboardPanel): NGUIWidget | null {
   return null;
 }
 
-/**
- * Renders a single dashboard panel in a card.
- */
 const DashboardPanelCard: React.FunctionComponent<{ panel: DashboardPanel }> = ({ panel }) => {
   const widget = useMemo(() => extractWidgetFromPanel(panel), [panel]);
   const toolCalls = useMemo(
@@ -106,11 +97,7 @@ const DashboardPanelCard: React.FunctionComponent<{ panel: DashboardPanel }> = (
   );
 };
 
-/**
- * Renders an AladdinDashboard in a grid layout.
- * Each panel is rendered based on its position and component configuration.
- */
-export const DashboardViewer: React.FunctionComponent<DashboardViewerProps> = ({ dashboard }) => {
+export const Dashboard: React.FunctionComponent<DashboardProps> = ({ dashboard }) => {
   const panels = dashboard.spec.layout.panels ?? [];
   const columns = dashboard.spec.layout.columns ?? 12;
 
@@ -134,8 +121,6 @@ export const DashboardViewer: React.FunctionComponent<DashboardViewerProps> = ({
       ) : null}
       <Grid hasGutter>
         {panels.map((panel) => {
-          // Convert grid position to PatternFly grid span
-          // PatternFly Grid uses a 12-column system by default
           const span = Math.round((panel.position.width / columns) * 12);
           const clampedSpan = Math.max(1, Math.min(12, span)) as
             | 1
