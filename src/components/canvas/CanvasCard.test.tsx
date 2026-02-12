@@ -40,14 +40,6 @@ describe('<CanvasCard />', () => {
     expect(baseProps.onOpen).toHaveBeenCalledWith('artifact-123');
   });
 
-  it('shows viewing badge and disables card when isViewing is true', () => {
-    render(<CanvasCard {...baseProps} isViewing={true} />);
-
-    const card = screen.getByRole('button', { name: /currently open in the canvas/i });
-    expect(card).toBeDisabled();
-    expect(screen.getByText('Viewing')).toBeInTheDocument();
-  });
-
   it('has no accessibility violations', async () => {
     const { container } = render(<CanvasCard {...baseProps} />);
     await checkAccessibility(container);

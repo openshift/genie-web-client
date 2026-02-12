@@ -5,3 +5,5 @@ export type { CanvasCardProps } from './CanvasCard';
 export { CanvasToolbar } from './CanvasToolbar';
 export type { CanvasToolbarProps } from './CanvasToolbar';
 export { CanvasPreview } from './CanvasPreview';
+export { CanvasContent } from './CanvasContent';
+export { CanvasToolbarContent } from './CanvasToolbarContent';

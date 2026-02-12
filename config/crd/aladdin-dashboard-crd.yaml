@@ -1,0 +1,183 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: aladdindashboards.aladdin.openshift.io
+spec:
+  group: aladdin.openshift.io
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: AladdinDashboard represents a namespace-scoped dashboard containing UI components
+        required:
+        - spec
+        properties:
+          spec:
+            type: object
+            description: AladdinDashboardSpec defines the desired state of an Aladdin dashboard
+            required:
+            - title
+            - layout
+            properties:
+              title:
+                type: string
+                description: Title is the display name for the dashboard
+                maxLength: 255
+              description:
+                type: string
+                description: Description provides additional context about the dashboard purpose
+                maxLength: 1024
+              refreshInterval:
+                type: string
+                description: RefreshInterval specifies how often to refresh dashboard data (e.g. 5m, 1h)
+              layout:
+                type: object
+                description: Layout defines the dashboard grid system and panel arrangement
+                required:
+                - panels
+                properties:
+                  columns:
+                    type: integer
+                    description: Columns defines the number of columns in the grid layout
+                    minimum: 1
+                    maximum: 24
+                  panels:
+                    type: array
+                    description: Panels contains the dashboard components and their positioning
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - position
+                      - component
+                      - dataSource
+                      properties:
+                        id:
+                          type: string
+                          description: ID is a unique identifier for the panel within the dashboard
+                          maxLength: 63
+                        title:
+                          type: string
+                          description: Title is the display name for the panel
+                          maxLength: 255
+                        position:
+                          type: object
+                          description: Position defines the panel location and dimensions in the grid
+                          required:
+                          - x
+                          - "y"
+                          - width
+                          - height
+                          properties:
+                            x:
+                              type: integer
+                              description: X coordinate (column position) in the grid
+                              minimum: 0
+                            "y":
+                              type: integer
+                              description: Y coordinate (row position) in the grid
+                              minimum: 0
+                            width:
+                              type: integer
+                              description: Width in grid columns
+                              minimum: 1
+                            height:
+                              type: integer
+                              description: Height in grid rows
+                              minimum: 1
+                        component:
+                          type: object
+                          description: Component defines the UI component configuration
+                          required:
+                          - type
+                          properties:
+                            type:
+                              type: string
+                              description: Type specifies the UI component to render
+                            config:
+                              type: object
+                              description: Config contains component-specific configuration
+                              x-kubernetes-preserve-unknown-fields: true
+                            version:
+                              type: string
+                              description: Version specifies the component API version
+                        dataSource:
+                          type: object
+                          description: DataSource contains the tool calls needed to recreate the widget
+                          required:
+                          - toolCalls
+                          properties:
+                            toolCalls:
+                              type: array
+                              description: ToolCalls contains all MCP tool invocations from the message that produced this widget
+                              items:
+                                type: object
+                                required:
+                                - id
+                                - tool
+                                - arguments
+                                properties:
+                                  id:
+                                    type: string
+                                    description: Unique identifier for the tool call
+                                    maxLength: 255
+                                  server:
+                                    type: string
+                                    description: Server identifies the MCP server that handled the request
+                                  tool:
+                                    type: string
+                                    description: Tool is the name of the MCP tool that was invoked
+                                    maxLength: 255
+                                  arguments:
+                                    type: object
+                                    description: Arguments contains the parameters passed to the tool call
+                                    x-kubernetes-preserve-unknown-fields: true
+                                  result:
+                                    type: string
+                                    description: Tool result - only stored for generate_ui (contains NGUI widget spec)
+                                  requestId:
+                                    type: string
+                                    description: RequestID links to the original Lightspeed API request
+              tags:
+                type: array
+                description: Tags provide metadata for dashboard organization and discovery
+                items:
+                  type: string
+                  maxLength: 63
+              owner:
+                type: string
+                description: Owner identifies the user or service account that created the dashboard
+                maxLength: 255
+          status:
+            type: object
+            description: AladdinDashboardStatus defines the observed state of the dashboard
+            properties:
+              observedGeneration:
+                type: integer
+                description: ObservedGeneration represents the generation of the spec that was last processed
+                format: int64
+    additionalPrinterColumns:
+    - name: Title
+      type: string
+      jsonPath: .spec.title
+    - name: Owner
+      type: string
+      jsonPath: .spec.owner
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
+  scope: Namespaced
+  names:
+    plural: aladdindashboards
+    singular: aladdindashboard
+    kind: AladdinDashboard
+    shortNames:
+    - adash
+    - adashboard
+    categories:
+    - aladdin

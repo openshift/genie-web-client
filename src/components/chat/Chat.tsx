@@ -9,8 +9,7 @@ import {
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
-import { useChatConversation } from '../../hooks/useChatConversation';
-import { CanvasLayout } from '../canvas';
+import { CanvasLayout, CanvasContent, CanvasToolbarContent } from '../canvas';
 import {
   useSetActiveConversation,
   useActiveConversation,
@@ -19,8 +18,15 @@ import {
 } from '../../hooks/AIState';
 import { useParams, useNavigate } from 'react-router-dom-v5-compat';
 import { isTempConversationId } from '../../utils/conversationUtils';
+import {
+  ChatConversationProvider,
+  useChatConversationContext,
+} from '../../hooks/useChatConversation';
 
-export const Chat: React.FunctionComponent = () => {
+/**
+ * Inner Chat component that uses the context.
+ */
+const ChatInner: React.FunctionComponent = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const setActiveConversation = useSetActiveConversation();
@@ -29,15 +35,7 @@ export const Chat: React.FunctionComponent = () => {
   const isInProgress = useInProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
-  const { isCanvasOpen, canvasState } = useChatConversation();
-
-  // // Test toggle for canvas states (development only)
-  // const handleToggleCanvasState = useCallback(() => {
-  //   const stateOrder: CanvasState[] = ['closed', 'open', 'maximized'];
-  //   const currentIndex = stateOrder.indexOf(canvasState);
-  //   const nextIndex = (currentIndex + 1) % stateOrder.length;
-  //   setCanvasState(stateOrder[nextIndex]);
-  // }, [canvasState, setCanvasState]);
+  const { isCanvasOpen, canvasState } = useChatConversationContext();
 
   useEffect(() => {
     // Don't try to load the temp conversation ID as a real conversation
@@ -89,17 +87,6 @@ export const Chat: React.FunctionComponent = () => {
 
   return (
     <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
-      {/* Test button for canvas states - development only */}
-      {/* {process.env.NODE_ENV === 'development' ? (
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleToggleCanvasState}
-          style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 1000 }}
-        >
-          Toggle Canvas: {canvasState}
-        </Button>
-      ) : null} */}
       <BadResponseModalProvider>
         <Chatbot
           displayMode={ChatbotDisplayMode.embedded}
@@ -117,15 +104,20 @@ export const Chat: React.FunctionComponent = () => {
           </ChatbotFooter>
           <BadResponseModal />
         </Chatbot>
-        {/* TODO: We may want to create Canvas component wrapper in the future */}
         <div className="chat__canvas pf-v6-c-compass__panel pf-m-full-height">
-          <CanvasLayout>
-            <div className="chat__canvas-content">
-              <h1>Canvas Content</h1>
-            </div>
+          <CanvasLayout toolbar={<CanvasToolbarContent />}>
+            <CanvasContent />
           </CanvasLayout>
         </div>
       </BadResponseModalProvider>
     </div>
+  );
+};
+
+export const Chat: React.FunctionComponent = () => {
+  return (
+    <ChatConversationProvider>
+      <ChatInner />
+    </ChatConversationProvider>
   );
 };

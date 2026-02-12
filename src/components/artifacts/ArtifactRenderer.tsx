@@ -2,6 +2,7 @@ import React from 'react';
 import type { Artifact } from '../../types/chat';
 import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from './WidgetRenderer';
+import { WidgetArtifactRenderer } from './WidgetArtifactRenderer';
 
 export interface ArtifactRendererProps {
   artifacts: Artifact[];
@@ -9,22 +10,14 @@ export interface ArtifactRendererProps {
   toolCalls?: ToolCallState[];
 }
 
+/**
+ * Renders a list of artifacts from a chat message.
+ * Dispatches to specialized renderers based on artifact type.
+ */
 export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = ({
   artifacts,
   toolCalls,
 }) => {
-  // DEBUG: Log artifacts and toolCalls
-  console.log('[ArtifactRenderer] Rendering:', {
-    artifactsCount: artifacts.length,
-    artifacts: artifacts.map((a) => ({
-      id: a.id,
-      type: a.type,
-      widget: a.type === 'widget' ? a.widget : undefined,
-    })),
-    toolCallsCount: toolCalls?.length ?? 0,
-    toolCalls: toolCalls?.map((tc) => ({ name: tc.name, args: tc.arguments })) ?? [],
-  });
-
   if (artifacts.length === 0) {
     return null;
   }
@@ -35,7 +28,7 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
         switch (artifact.type) {
           case 'widget':
             return (
-              <WidgetRenderer key={artifact.id} widget={artifact.widget} toolCalls={toolCalls} />
+              <WidgetArtifactRenderer key={artifact.id} artifact={artifact} toolCalls={toolCalls} />
             );
 
           case 'dashboard':
@@ -57,9 +50,8 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
               </div>
             );
 
-          default: {
+          default:
             return null;
-          }
         }
       })}
     </>
