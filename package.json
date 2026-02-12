@@ -13,7 +13,7 @@
     "build": "yarn clean && NODE_ENV=production yarn webpack",
     "build-dev": "yarn clean && yarn webpack",
     "start": "yarn webpack serve --progress",
-    "start-console": "./start-console.sh",
+    "start-console": "oc apply -f config/crd/aladdin-dashboard-crd.yaml && ./start-console.sh",
     "i18n": "./i18n-scripts/build-i18n.sh && node ./i18n-scripts/set-english-defaults.js",
     "lint": "yarn eslint src integration-tests && stylelint 'src/**/*.css' --allow-empty-input",
     "lint:fix": "yarn eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
