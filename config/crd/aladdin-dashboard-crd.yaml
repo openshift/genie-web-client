@@ -153,6 +153,10 @@ spec:
                 type: string
                 description: Owner identifies the user or service account that created the dashboard
                 maxLength: 255
+              conversationId:
+                type: string
+                description: ConversationID links the dashboard to the conversation that created it
+                maxLength: 255
           status:
             type: object
             description: AladdinDashboardStatus defines the observed state of the dashboard

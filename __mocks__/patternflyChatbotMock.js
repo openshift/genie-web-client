@@ -58,7 +58,7 @@ const MessageBox = React.forwardRef(({ children, enableSmartScroll, ...props }, 
 
 MessageBox.displayName = 'MessageBox';
 
-const Message = ({ children, name, role, content, isLoading, timestamp, actions, ...props }) => {
+const Message = ({ children, name, role, content, isLoading, timestamp, actions, extraContent, ...props }) => {
   // render action buttons if provided
   const actionButtons = actions ? Object.entries(actions).map(([key, action]) => {
     return React.createElement('button', {
@@ -70,6 +70,9 @@ const Message = ({ children, name, role, content, isLoading, timestamp, actions,
     }, action.icon);
   }) : null;
 
+  const afterMainContent = extraContent?.afterMainContent || null;
+  const endContent = extraContent?.endContent || null;
+
   return React.createElement('div', {
     'data-testid': 'message',
     'data-role': role,
@@ -78,7 +81,7 @@ const Message = ({ children, name, role, content, isLoading, timestamp, actions,
     'data-timestamp': timestamp,
     actions: actions,
     ...props,
-  }, content || children, actionButtons);
+  }, content || children, actionButtons, afterMainContent, endContent);
 };
 
 // Header pieces used by Chat.tsx

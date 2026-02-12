@@ -22,6 +22,9 @@ import {
   ChatConversationProvider,
   useChatConversationContext,
 } from '../../hooks/useChatConversation';
+import { useDashboards } from '../../hooks/useDashboards';
+import { useActiveDashboard } from '../../hooks/useActiveDashboard';
+import { DEFAULT_DASHBOARD_NAMESPACE } from '../../types/dashboard';
 
 /**
  * Inner Chat component that uses the context.
@@ -36,6 +39,36 @@ const ChatInner: React.FunctionComponent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidConversationId, setIsValidConversationId] = useState(true);
   const { isCanvasOpen, canvasState } = useChatConversationContext();
+  const { getDashboardsForConversation, loaded } = useDashboards({
+    namespace: DEFAULT_DASHBOARD_NAMESPACE,
+  });
+  const { setActiveDashboard, clearActiveDashboard } = useActiveDashboard(
+    DEFAULT_DASHBOARD_NAMESPACE,
+    activeConversation?.id,
+  );
+
+  // When the user switches conversations: open canvas and load dashboard if one exists for that
+  // conversation; otherwise close the canvas and show only chat.
+  useEffect(() => {
+    if (!loaded) return;
+    const cid = activeConversation?.id;
+    if (!cid || isTempConversationId(cid)) {
+      clearActiveDashboard();
+      return;
+    }
+    const dashboards = getDashboardsForConversation(cid);
+    if (dashboards.length > 0) {
+      setActiveDashboard(dashboards[0]);
+    } else {
+      clearActiveDashboard();
+    }
+  }, [
+    activeConversation?.id,
+    loaded,
+    getDashboardsForConversation,
+    setActiveDashboard,
+    clearActiveDashboard,
+  ]);
 
   useEffect(() => {
     // Don't try to load the temp conversation ID as a real conversation
