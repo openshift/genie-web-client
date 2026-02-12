@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useChatConversationContext } from './useChatConversation';
-import { useDashboardActions } from './useDashboard';
+import { useDashboardActions } from './useDashboardActions';
 import type {
   AladdinDashboard,
   AladdinDashboardSpec,

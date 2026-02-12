@@ -1,94 +1,12 @@
-import { useCallback, useMemo } from 'react';
-import {
-  k8sCreate,
-  k8sDelete,
-  k8sGet,
-  k8sUpdate,
-  useK8sWatchResource,
-  K8sModel,
-} from '@openshift-console/dynamic-plugin-sdk';
-import {
-  AladdinDashboard,
-  AladdinDashboardGVK,
-  AladdinDashboardModel,
-  AladdinDashboardSpec,
-  DashboardPanel,
-  createDashboardResource,
-} from '../types/dashboard';
+import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
+import { AladdinDashboard, AladdinDashboardGVK } from '../types/dashboard';
 
-/**
- * Reference to a dashboard and the specific panel containing a tool call
- */
-export interface DashboardPanelRef {
-  dashboard: AladdinDashboard;
-  panel: DashboardPanel;
-}
-
-interface UseDashboardsOptions {
-  namespace: string;
-}
-
-interface UseDashboardsResult {
-  dashboards: AladdinDashboard[];
-  loaded: boolean;
-  error: Error | null;
-  /** Look up which dashboard/panel contains a given tool call ID */
-  getDashboardForToolCall: (toolCallId: string) => DashboardPanelRef | null;
-}
-
-/**
- * Hook to watch all dashboards in a namespace
- */
-export function useDashboards({ namespace }: UseDashboardsOptions): UseDashboardsResult {
-  const [dashboards, loaded, error] = useK8sWatchResource<AladdinDashboard[]>({
-    groupVersionKind: AladdinDashboardGVK,
-    namespace,
-    isList: true,
-  });
-
-  const dashboardList = dashboards ?? [];
-
-  // Build a lookup map from toolCallId -> { dashboard, panel }
-  // This allows O(1) lookup to check if a widget is already on a dashboard
-  const toolCallLookup = useMemo(() => {
-    const lookup = new Map<string, DashboardPanelRef>();
-
-    for (const dashboard of dashboardList) {
-      const panels = dashboard.spec?.layout?.panels ?? [];
-      for (const panel of panels) {
-        const toolCalls = panel.dataSource?.toolCalls ?? [];
-        for (const toolCall of toolCalls) {
-          if (toolCall.id) {
-            lookup.set(toolCall.id, { dashboard, panel });
-          }
-        }
-      }
-    }
-
-    return lookup;
-  }, [dashboardList]);
-
-  const getDashboardForToolCall = useCallback(
-    (toolCallId: string): DashboardPanelRef | null => {
-      return toolCallLookup.get(toolCallId) ?? null;
-    },
-    [toolCallLookup],
-  );
-
-  return {
-    dashboards: dashboardList,
-    loaded,
-    error: error as Error | null,
-    getDashboardForToolCall,
-  };
-}
-
-interface UseDashboardOptions {
+export interface UseDashboardOptions {
   name: string;
   namespace: string;
 }
 
-interface UseDashboardResult {
+export interface UseDashboardResult {
   dashboard: AladdinDashboard | null;
   loaded: boolean;
   error: Error | null;
@@ -110,59 +28,3 @@ export function useDashboard({ name, namespace }: UseDashboardOptions): UseDashb
     error: error as Error | null,
   };
 }
-
-/**
- * Hook providing CRUD operations for dashboards
- */
-export function useDashboardActions(namespace: string) {
-  const createDashboard = useCallback(
-    async (name: string, spec: AladdinDashboardSpec): Promise<AladdinDashboard> => {
-      const resource = createDashboardResource(name, namespace, spec);
-      return k8sCreate({
-        model: AladdinDashboardModel as K8sModel,
-        data: resource,
-      });
-    },
-    [namespace],
-  );
-
-  const getDashboard = useCallback(
-    async (name: string): Promise<AladdinDashboard> => {
-      return k8sGet({
-        model: AladdinDashboardModel as K8sModel,
-        name,
-        ns: namespace,
-      });
-    },
-    [namespace],
-  );
-
-  const updateDashboard = useCallback(
-    async (dashboard: AladdinDashboard): Promise<AladdinDashboard> => {
-      return k8sUpdate({
-        model: AladdinDashboardModel as K8sModel,
-        data: dashboard,
-      });
-    },
-    [],
-  );
-
-  const deleteDashboard = useCallback(async (dashboard: AladdinDashboard): Promise<void> => {
-    await k8sDelete({
-      model: AladdinDashboardModel as K8sModel,
-      resource: dashboard,
-    });
-  }, []);
-
-  return useMemo(
-    () => ({
-      createDashboard,
-      getDashboard,
-      updateDashboard,
-      deleteDashboard,
-    }),
-    [createDashboard, getDashboard, updateDashboard, deleteDashboard],
-  );
-}
-
-export { AladdinDashboard, AladdinDashboardSpec };

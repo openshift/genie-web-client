@@ -6,7 +6,7 @@ import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from './WidgetRenderer';
 import { CanvasCard } from '../canvas/CanvasCard';
 import { useActiveDashboard } from '../../hooks/useActiveDashboard';
-import { useDashboards } from '../../hooks/useDashboard';
+import { useDashboards } from '../../hooks/useDashboards';
 
 export interface WidgetArtifactRendererProps {
   /** The widget artifact to render */
