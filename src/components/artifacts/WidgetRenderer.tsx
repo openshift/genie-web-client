@@ -73,15 +73,6 @@ export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
      */
     const toolCallArgs = findToolCallArgs(toolCalls, inputDataType);
     const persesProps = extractPersesProps(widget.spec, toolCallArgs);
-
-    console.log('[WidgetRenderer] Rendering Perses component:', {
-      componentName,
-      inputDataType,
-      foundToolCallArgs: !!toolCallArgs,
-      toolCallArgs,
-      persesProps,
-    });
-
     const Component = getPersesComponent(componentName);
 
     return (
@@ -92,6 +83,5 @@ export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
   }
 
   // Default: render via DynamicComponent
-  console.log('[WidgetRenderer] Falling back to DynamicComponent');
   return <DynamicComponent key={widget.id} config={widget.spec} />;
 };
