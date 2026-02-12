@@ -1,3 +1,3 @@
-export { Dashboard } from './DashboardViewer';
-export type { DashboardProps } from './DashboardViewer';
+export { Dashboard } from './Dashboard';
+export type { DashboardProps } from './Dashboard';
 export { DashboardCanvasToolbar } from './DashboardCanvasToolbar';
