@@ -1,14 +1,15 @@
 import { useState, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
 import type { AladdinDashboard } from '../types/dashboard';
+import type { CodeArtifact } from '../types/chat';
 
 export type CanvasState = 'open' | 'closed' | 'maximized';
 
 /**
  * Active artifact displayed in the canvas.
- * Currently only AladdinDashboard is supported; expand this union for future artifact types.
- * Use the K8s `kind` field to discriminate between types.
+ * Expand this union as new artifact types are added.
+ * Use the `kind` field (for K8s resources) or `type` field (for chat artifacts) to discriminate.
  */
-export type ActiveArtifact = AladdinDashboard | null;
+export type ActiveArtifact = AladdinDashboard | CodeArtifact | null;
 
 export interface ChatConversationContextValue {
   // Canvas state - region for rendering artifacts from conversation

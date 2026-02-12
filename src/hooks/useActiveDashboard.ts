@@ -120,7 +120,7 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
 
   // Derive activeDashboard from activeArtifact when it's an AladdinDashboard
   const activeDashboard = useMemo((): AladdinDashboard | null => {
-    if (activeArtifact && activeArtifact.kind === 'AladdinDashboard') {
+    if (activeArtifact && 'kind' in activeArtifact && activeArtifact.kind === 'AladdinDashboard') {
       return activeArtifact as AladdinDashboard;
     }
     return null;

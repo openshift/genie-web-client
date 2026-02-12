@@ -6,13 +6,11 @@ import {
   ChatbotFooter,
   MessageBar,
 } from '@patternfly/chatbot';
-import { Button, EmptyState, EmptyStateBody } from '@patternfly/react-core';
 import './Chat.css';
 import { MessageList } from './MessageList';
 import { BadResponseModal, BadResponseModalProvider } from './feedback/BadResponseModal';
-import { CanvasLayout, CanvasToolbar } from '../canvas';
-import { DashboardViewer } from '../dashboard';
-import type { AladdinDashboard } from '../../types/dashboard';
+import { CanvasLayout, CanvasContent } from '../canvas';
+import { DashboardCanvasToolbar } from '../dashboard';
 import {
   useSetActiveConversation,
   useActiveConversation,
@@ -25,74 +23,6 @@ import {
   ChatConversationProvider,
   useChatConversationContext,
 } from '../../hooks/useChatConversation';
-import { useActiveDashboard } from '../../hooks/useActiveDashboard';
-/**
- * Renders the appropriate content in the canvas based on activeArtifact type.
- */
-const CanvasContent: React.FunctionComponent = () => {
-  const { activeArtifact } = useChatConversationContext();
-
-  // Render based on artifact kind
-  if (activeArtifact?.kind === 'AladdinDashboard') {
-    return <DashboardViewer dashboard={activeArtifact as AladdinDashboard} />;
-  }
-
-  // Default: empty state when no artifact is active
-  return (
-    <EmptyState titleText="No content" headingLevel="h4">
-      <EmptyStateBody>Add widgets to a dashboard to view them here.</EmptyStateBody>
-    </EmptyState>
-  );
-};
-
-/**
- * Renders the canvas toolbar with save button for unsaved dashboards.
- */
-const DashboardCanvasToolbar: React.FunctionComponent = () => {
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const { saveDashboard, hasActiveDashboard, isDashboardSaved } = useActiveDashboard('default');
-
-  const handleSave = useCallback(async () => {
-    setIsSaving(true);
-    setSaveError(null);
-    try {
-      await saveDashboard();
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to save dashboard');
-      console.error('[DashboardCanvasToolbar] Failed to save dashboard:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [saveDashboard]);
-
-  // Only show toolbar when there's an active dashboard
-  if (!hasActiveDashboard) {
-    return null;
-  }
-
-  return (
-    <CanvasToolbar
-      right={
-        <>
-          {saveError ? (
-            <span style={{ color: 'var(--pf-v5-global--danger-color--100)', marginRight: '8px' }}>
-              {saveError}
-            </span>
-          ) : null}
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            isLoading={isSaving}
-            isDisabled={isSaving || isDashboardSaved}
-          >
-            {isDashboardSaved ? 'Saved' : 'Save'}
-          </Button>
-        </>
-      }
-    />
-  );
-};
 
 /**
  * Inner Chat component that uses the context.
@@ -158,17 +88,6 @@ const ChatInner: React.FunctionComponent = () => {
 
   return (
     <div className={`chat${isCanvasOpen ? ` chat--canvas-${canvasState}` : ''}`}>
-      {/* Test button for canvas states - development only */}
-      {/* {process.env.NODE_ENV === 'development' ? (
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleToggleCanvasState}
-          style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 1000 }}
-        >
-          Toggle Canvas: {canvasState}
-        </Button>
-      ) : null} */}
       <BadResponseModalProvider>
         <Chatbot
           displayMode={ChatbotDisplayMode.embedded}
