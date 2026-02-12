@@ -57,27 +57,11 @@ export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
   widget,
   toolCalls,
 }) => {
-  // DEBUG: Log widget and toolCalls to trace rendering
-  console.log('[WidgetRenderer] Rendering widget:', {
-    widgetId: widget.id,
-    widgetType: widget.type,
-    spec: widget.type === 'ngui' ? widget.spec : 'N/A',
-    toolCallsCount: toolCalls?.length ?? 0,
-    toolCallNames: toolCalls?.map((tc) => tc.name) ?? [],
-  });
-
   if (widget.type !== 'ngui') {
-    console.log('[WidgetRenderer] Widget type is not ngui, returning null');
     return null;
   }
 
   const componentName = widget.spec.component as string | undefined;
-
-  console.log('[WidgetRenderer] Component detection:', {
-    componentName,
-    isPersesComponent: componentName ? isPersesComponent(componentName) : false,
-    inputDataType: widget.spec.input_data_type,
-  });
 
   // Check if this is a registered Perses component
   if (componentName && isPersesComponent(componentName)) {

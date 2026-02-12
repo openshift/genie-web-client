@@ -32,7 +32,7 @@ export const ArtifactRenderer: React.FunctionComponent<ArtifactRendererProps> = 
             );
 
           case 'dashboard':
-            // Render dashboard with multiple widgets
+            // Future: Implement dashboard renderer
             return (
               <div key={artifact.id}>
                 <p>Dashboard: {artifact.widgets.length} widgets</p>
