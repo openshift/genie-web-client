@@ -1802,10 +1802,10 @@
     remark-gfm "^4.0.0"
     unist-util-visit "^5.0.0"
 
-"@patternfly/patternfly@6.5.0-prerelease.35":
-  version "6.5.0-prerelease.35"
-  resolved "https://registry.npmjs.org/@patternfly/patternfly/-/patternfly-6.5.0-prerelease.35.tgz#8d4dc3dbb326f8cf35ae7c515d14df03e40c7e8f"
-  integrity sha512-SoFzSheZc7hQAEA5CcdC8TUvI+CN+RVZS3kEKzZjpJXQhxJ58ZoiXauj83dmloSWW7sEIpt6t+1Qgu+z7kO/ag==
+"@patternfly/patternfly@6.5.0-prerelease.41":
+  version "6.5.0-prerelease.41"
+  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-6.5.0-prerelease.41.tgz#1d88339077cd25694887c6b2b14583c65a859fc5"
+  integrity sha512-2tsnraBeUjiVkTGRs0gCtHaFHrvAL6UZo8Bb17uDqYsX1itFIKPZjJlRqFKFOzCTatdC9fbOW5GbXwB5uPyGQA==
 
 "@patternfly/react-charts@^8.4.0":
   version "8.4.0"
