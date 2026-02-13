@@ -10,6 +10,7 @@ import {
   Button,
   ButtonVariant,
 } from '@patternfly/react-core';
+import { useUserSettings } from '@openshift-console/dynamic-plugin-sdk';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { ModalDeck } from '@patternfly/react-component-groups/dist/dynamic/ModalDeck';
 import Deck from '@patternfly/react-component-groups/dist/dynamic/Deck';
@@ -20,6 +21,7 @@ import SharingImg from '../../assets/images/onboarding/sharing.svg';
 import './onboarding.css';
 
 export const ONBOARDING_STORAGE_KEY = 'genie-onboarding-completed';
+export const ONBOARDING_COMPLETED_USER_SETTING_KEY = 'genie.onboardingCompleted';
 
 const imageMap: Record<string, string> = {
   welcome: WelcomeImg,
@@ -30,20 +32,22 @@ const imageMap: Record<string, string> = {
 
 export const OnboardingModal: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
+  const [onboardingCompleted, setOnboardingCompleted, onboardingLoaded] = useUserSettings<boolean>(
+    ONBOARDING_COMPLETED_USER_SETTING_KEY,
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === 'true';
-    if (!hasCompleted) {
+    if (onboardingLoaded && !onboardingCompleted) {
       setIsOpen(true);
     }
-  }, []);
+  }, [onboardingLoaded, onboardingCompleted]);
 
   const handleComplete = useCallback(() => {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    setOnboardingCompleted(true);
     setIsOpen(false);
-  }, []);
+  }, [setOnboardingCompleted]);
 
   if (!isOpen) {
     return null;

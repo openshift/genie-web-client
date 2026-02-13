@@ -1,13 +1,14 @@
 import { render, screen, user, waitFor } from '../../../unitTestUtils';
-import { OnboardingModal, ONBOARDING_STORAGE_KEY } from '../OnboardingModal';
+import { OnboardingModal } from '../OnboardingModal';
+import { useUserSettings } from '@openshift-console/dynamic-plugin-sdk';
+
+// Mock useUserSettings
+const mockUseUserSettings = useUserSettings as jest.MockedFunction<typeof useUserSettings>;
+const mockSetOnboardingCompleted = jest.fn();
 
 describe('OnboardingModal', () => {
-  let getItemSpy: jest.SpyInstance;
-  let setItemSpy: jest.SpyInstance;
-
   beforeEach(() => {
-    getItemSpy = jest.spyOn(Storage.prototype, 'getItem');
-    setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -15,19 +16,19 @@ describe('OnboardingModal', () => {
   });
 
   it('should not render when onboarding has been completed', () => {
-    getItemSpy.mockReturnValue('true');
+    mockUseUserSettings.mockReturnValue([true, mockSetOnboardingCompleted, true]);
 
     render(<OnboardingModal />);
 
-    expect(screen.queryByText('Welcome to Red Hat Genie')).not.toBeInTheDocument();
+    expect(screen.queryByText('Welcome to Red Hat Project Aladdin')).not.toBeInTheDocument();
   });
 
   it('should render when onboarding has not been completed', () => {
-    getItemSpy.mockReturnValue(null);
+    mockUseUserSettings.mockReturnValue([false, mockSetOnboardingCompleted, true]);
 
     render(<OnboardingModal />);
 
-    expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
+    expect(screen.getByText('Welcome to Red Hat Project Aladdin')).toBeInTheDocument();
     expect(
       screen.getByText('Harness the full potential of the hybrid cloud, simply by asking.'),
     ).toBeInTheDocument();
@@ -35,10 +36,10 @@ describe('OnboardingModal', () => {
   });
 
   it('should set completion in storage when the flow is finished', async () => {
-    getItemSpy.mockReturnValue(null);
+    mockUseUserSettings.mockReturnValue([false, mockSetOnboardingCompleted, true]);
     render(<OnboardingModal />);
 
-    expect(screen.getByText('Welcome to Red Hat Genie')).toBeInTheDocument();
+    expect(screen.getByText('Welcome to Red Hat Project Aladdin')).toBeInTheDocument();
 
     // navigate through all 5 pages
     const totalPages = 5;
@@ -50,11 +51,11 @@ describe('OnboardingModal', () => {
     const getStartedButton = await screen.findByRole('button', { name: /get started/i });
     await user.click(getStartedButton);
 
-    expect(setItemSpy).toHaveBeenCalledWith(ONBOARDING_STORAGE_KEY, 'true');
+    expect(mockSetOnboardingCompleted).toHaveBeenCalledWith(true);
 
     // Wait for modal to disappear after completion
     await waitFor(() => {
-      expect(screen.queryByText('Welcome to Red Hat Genie')).not.toBeInTheDocument();
+      expect(screen.queryByText('Welcome to Red Hat Project Aladdin')).not.toBeInTheDocument();
     });
   });
 });
