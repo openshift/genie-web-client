@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { MessageBox, type MessageBoxHandle } from '@patternfly/chatbot';
@@ -52,6 +52,9 @@ interface MessageListProps {
   isValidConversationId: boolean;
 }
 
+// Grace period after "back to top" click to prevent streaming autoscroll race condition
+const SCROLL_TO_TOP_GRACE_PERIOD_MS = 300;
+
 // eslint-disable-next-line react/display-name
 export const MessageList: React.FC<MessageListProps> = React.memo(
   // eslint-disable-next-line react/prop-types
@@ -85,6 +88,7 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
     });
     const isInitialLoadRef = useRef(true);
     const previousMessagesLengthRef = useRef(0);
+    const lastScrollToTopClickRef = useRef(0);
 
     const visibleMessages = useMemo(
       () => messages.filter((msg) => !msg.additionalAttributes?.hidden),
@@ -179,19 +183,51 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       }
     }, [messages.length]);
 
-    // Handle LLM streaming: Auto-scroll only if user is at bottom (sticky-bottom logic)
+    // Handle LLM streaming: Auto-scroll only if smart scroll is active
     useEffect(() => {
       if (isStreaming && streamingMessage?.content && messageBoxRef.current) {
-        // PatternFly's scrollToBottom will automatically check if user has scrolled up
-        // If pauseAutoScrollRef is true (user scrolled up), it won't scroll
-        // This implements the "sticky-bottom" logic automatically
-        // Use 'auto' for instant scroll during streaming to avoid animation lag
-        messageBoxRef.current.scrollToBottom({ behavior: 'auto', resumeSmartScroll: false });
+        // Prevent race condition: if "back to top" was clicked recently, skip autoscroll
+        // to allow the scroll animation to complete without interference
+        const timeSinceLastClick = Date.now() - lastScrollToTopClickRef.current;
+        if (timeSinceLastClick > 0 && timeSinceLastClick < SCROLL_TO_TOP_GRACE_PERIOD_MS) {
+          return;
+        }
+
+        // Only autoscroll if PatternFly's smart scroll is active
+        // Smart scroll becomes inactive when user scrolls up (manually or via "back to top" button)
+        // Smart scroll becomes active again when user scrolls to bottom (manually or via "back to bottom" button)
+        if (messageBoxRef.current.isSmartScrollActive()) {
+          // Use 'auto' for instant scroll during streaming to avoid animation lag
+          messageBoxRef.current.scrollToBottom({ behavior: 'auto', resumeSmartScroll: false });
+        }
       }
     }, [streamingMessage?.content, isStreaming]);
 
+    // Handle when user clicks "back to top" button
+    const handleScrollToTopClick = useCallback(() => {
+      // Store timestamp to block streaming autoscroll during scroll animation
+      lastScrollToTopClickRef.current = Date.now();
+
+      // During streaming, manually trigger scroll to ensure it completes
+      // PatternFly's button handler might not execute fast enough due to rapid streaming updates
+      if (isStreaming && messageBoxRef.current) {
+        messageBoxRef.current.scrollToTop({ behavior: 'smooth' });
+      }
+    }, [isStreaming]);
+
+    // Handle when user clicks "back to bottom" button
+    const handleScrollToBottomClick = useCallback(() => {
+      // Clear timestamp to resume streaming autoscroll immediately
+      lastScrollToTopClickRef.current = 0;
+    }, []);
+
     return (
-      <MessageBox ref={messageBoxRef} enableSmartScroll={true}>
+      <MessageBox
+        ref={messageBoxRef}
+        enableSmartScroll={true}
+        onScrollToTopClick={handleScrollToTopClick}
+        onScrollToBottomClick={handleScrollToBottomClick}
+      >
         {conversationToDelete && (
           <DeleteConversationModal
             conversation={conversationToDelete}
