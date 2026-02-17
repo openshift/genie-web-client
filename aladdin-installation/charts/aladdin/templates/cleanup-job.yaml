@@ -32,9 +32,7 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ .Release.Namespace }}-aladdin-cleanup
   annotations:
-    "helm.sh/hook": post-delete
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/resource-policy": "keep"
 subjects:
   - kind: ServiceAccount
     name: aladdin-cleanup-sa

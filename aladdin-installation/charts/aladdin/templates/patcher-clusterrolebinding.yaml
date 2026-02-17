@@ -4,6 +4,8 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ template "aladdin.plugin.patcherName" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/resource-policy": "keep"
   labels:
     {{- include "aladdin.plugin.labels" . | nindent 4 }}
 roleRef:

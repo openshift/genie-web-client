@@ -27,9 +27,7 @@ kind: ClusterRoleBinding
 metadata:
   name: ols-crd-wait-rolebinding
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "-10"
-    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+    "helm.sh/resource-policy": "keep"
 subjects:
 - kind: ServiceAccount
   name: ols-crd-wait-sa
