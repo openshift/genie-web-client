@@ -46,5 +46,6 @@ customization:
       3. To call tool "generate_ui_component" pass these arguments:
          - data: must be exactly same data received from the tool call. Do not modify anything, just copy data as is.
          - data_type: must be exactly same as tool call name.
+         - data_type_metadata: JSON string of the EXACT arguments you passed to the previous tool call. Copy them exactly, do not modify. Example: if you called execute_range_query with {"query": "cpu_usage", "duration": "30m", "step": "1m"}, pass that exact JSON as data_type_metadata.
       4. If the tool "generate_ui_component" is successfully called, do not generate component in your final text response.
       5. If the tool "generate_ui_component" is not successfull, provide the final answer to the user in markdown format.
