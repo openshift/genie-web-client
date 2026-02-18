@@ -1,15 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { useChatConversationContext } from './useChatConversation';
 import { useDashboardActions } from './useDashboardActions';
-import type {
-  AladdinDashboard,
-  AladdinDashboardSpec,
-  DashboardPanel,
-  ToolCall,
-} from '../types/dashboard';
-import type { ToolCallState } from '../utils/toolCallHelpers';
+import type { AladdinDashboard, AladdinDashboardSpec, DashboardPanel } from '../types/dashboard';
 import type { WidgetArtifact } from '../types/chat';
-import { isGenerateUITool } from '../utils/toolResultParsers';
 
 interface UseActiveDashboardResult {
   /** The currently active dashboard (if artifact is an AladdinDashboard) */
@@ -23,9 +16,8 @@ interface UseActiveDashboardResult {
    * If no dashboard exists, creates a local dashboard with default name/description.
    * Does NOT persist to K8s - call saveDashboard to persist.
    * @param widget - The widget to add
-   * @param toolCalls - Tool calls from the message for persistence
    */
-  addWidgetToDashboard: (widget: WidgetArtifact, toolCalls: ToolCallState[]) => void;
+  addWidgetToDashboard: (widget: WidgetArtifact) => void;
   /**
    * Save the active dashboard to K8s.
    * @returns The saved dashboard
@@ -35,23 +27,6 @@ interface UseActiveDashboardResult {
   hasActiveDashboard: boolean;
   /** Whether the active dashboard has been saved to K8s */
   isDashboardSaved: boolean;
-}
-
-/**
- * Convert ToolCallState[] from chat to ToolCall[] for persistence.
- * - Filters to only successful tool calls
- * - Maps 'name' to 'tool'
- * - Only stores 'result' for generate_ui tools
- */
-function convertToolCallsForPersistence(toolCallStates: ToolCallState[]): ToolCall[] {
-  return toolCallStates
-    .filter((tc) => tc.status === 'success')
-    .map((tc) => ({
-      id: tc.id,
-      tool: tc.name,
-      arguments: tc.arguments ?? {},
-      result: isGenerateUITool(tc.name) ? tc.result : undefined,
-    }));
 }
 
 /**
@@ -142,12 +117,9 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
   }, [clearActiveArtifact, closeCanvas]);
 
   const addWidgetToDashboard = useCallback(
-    (widget: WidgetArtifact, toolCalls: ToolCallState[]): void => {
+    (widget: WidgetArtifact): void => {
       // Use existing dashboard or create a new local one
       const dashboard = activeDashboard ?? createLocalDashboard(namespace);
-
-      // Convert tool calls for persistence
-      const persistedToolCalls = convertToolCallsForPersistence(toolCalls);
 
       // Create the new panel
       const existingPanels = dashboard.spec.layout.panels ?? [];
@@ -163,10 +135,10 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
         },
         component: {
           type: 'Custom',
-          config: widget.widget.spec,
-        },
-        dataSource: {
-          toolCalls: persistedToolCalls,
+          config: {
+            ...widget.widget.spec,
+            widgetId: widget.widget.id,
+          },
         },
       };
 

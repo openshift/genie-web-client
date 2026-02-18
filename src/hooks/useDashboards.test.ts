@@ -14,7 +14,7 @@ const createMockDashboard = (
   name: string,
   panels: Array<{
     id: string;
-    toolCallIds: string[];
+    widgetId?: string;
   }> = [],
 ): AladdinDashboard => ({
   apiVersion: 'aladdin.openshift.io/v1alpha1',
@@ -32,13 +32,9 @@ const createMockDashboard = (
         id: p.id,
         title: `Panel ${p.id}`,
         position: { x: 0, y: 0, width: 6, height: 3 },
-        component: { type: 'Chart' as const, config: {} },
-        dataSource: {
-          toolCalls: p.toolCallIds.map((tcId) => ({
-            id: tcId,
-            tool: 'test_tool',
-            arguments: {},
-          })),
+        component: {
+          type: 'Chart' as const,
+          config: p.widgetId ? { widgetId: p.widgetId } : {},
         },
       })),
     },
@@ -117,67 +113,63 @@ describe('useDashboards', () => {
     });
   });
 
-  describe('getDashboardForToolCall', () => {
+  describe('getDashboardForWidgetId', () => {
     it('returns null when no dashboards exist', () => {
       mockUseK8sWatchResource.mockReturnValue([[], true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      expect(result.current.getDashboardForToolCall('tc-123')).toBeNull();
+      expect(result.current.getDashboardForWidgetId('widget-123')).toBeNull();
     });
 
-    it('returns null when tool call ID is not found', () => {
-      const dashboards = [
-        createMockDashboard('dash-1', [{ id: 'panel-1', toolCallIds: ['tc-1', 'tc-2'] }]),
-      ];
+    it('returns null when widget ID is not found', () => {
+      const dashboards = [createMockDashboard('dash-1', [{ id: 'panel-1', widgetId: 'widget-1' }])];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      expect(result.current.getDashboardForToolCall('tc-unknown')).toBeNull();
+      expect(result.current.getDashboardForWidgetId('widget-unknown')).toBeNull();
     });
 
-    it('returns dashboard and panel reference when tool call ID is found', () => {
-      const dashboards = [
-        createMockDashboard('dash-1', [{ id: 'panel-1', toolCallIds: ['tc-1', 'tc-2'] }]),
-      ];
+    it('returns dashboard and panel reference when widget ID is found', () => {
+      const dashboards = [createMockDashboard('dash-1', [{ id: 'panel-1', widgetId: 'widget-1' }])];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      const ref = result.current.getDashboardForToolCall('tc-1');
+      const ref = result.current.getDashboardForWidgetId('widget-1');
 
       expect(ref).not.toBeNull();
       expect(ref?.dashboard.metadata?.name).toBe('dash-1');
       expect(ref?.panel.id).toBe('panel-1');
     });
 
-    it('finds tool call in second panel', () => {
+    it('finds widget in second panel', () => {
       const dashboards = [
         createMockDashboard('dash-1', [
-          { id: 'panel-1', toolCallIds: ['tc-1'] },
-          { id: 'panel-2', toolCallIds: ['tc-2', 'tc-3'] },
+          { id: 'panel-1', widgetId: 'widget-1' },
+          { id: 'panel-2', widgetId: 'widget-2' },
         ]),
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      const ref = result.current.getDashboardForToolCall('tc-3');
+      const ref = result.current.getDashboardForWidgetId('widget-2');
 
       expect(ref?.panel.id).toBe('panel-2');
     });
 
-    it('finds tool call across multiple dashboards', () => {
+    it('finds widget across multiple dashboards', () => {
       const dashboards = [
-        createMockDashboard('dash-1', [{ id: 'panel-1', toolCallIds: ['tc-1'] }]),
-        createMockDashboard('dash-2', [{ id: 'panel-2', toolCallIds: ['tc-2'] }]),
+        createMockDashboard('dash-1', [{ id: 'panel-1', widgetId: 'widget-1' }]),
+        createMockDashboard('dash-2', [{ id: 'panel-2', widgetId: 'widget-2' }]),
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      const ref = result.current.getDashboardForToolCall('tc-2');
+      const ref = result.current.getDashboardForWidgetId('widget-2');
 
       expect(ref?.dashboard.metadata?.name).toBe('dash-2');
       expect(ref?.panel.id).toBe('panel-2');
@@ -189,34 +181,16 @@ describe('useDashboards', () => {
 
       const { result } = renderHook(() => useDashboards());
 
-      expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
+      expect(result.current.getDashboardForWidgetId('widget-1')).toBeNull();
     });
 
-    it('handles panels with empty toolCalls array', () => {
-      const dashboard: AladdinDashboard = {
-        apiVersion: 'aladdin.openshift.io/v1alpha1',
-        kind: 'AladdinDashboard',
-        metadata: { name: 'dash-1', namespace: 'default' },
-        spec: {
-          title: 'Dashboard',
-          layout: {
-            columns: 12,
-            panels: [
-              {
-                id: 'panel-1',
-                position: { x: 0, y: 0, width: 6, height: 3 },
-                component: { type: 'Chart', config: {} },
-                dataSource: { toolCalls: [] },
-              },
-            ],
-          },
-        },
-      };
-      mockUseK8sWatchResource.mockReturnValue([[dashboard], true, null]);
+    it('handles panels without widgetId in config', () => {
+      const dashboards = [createMockDashboard('dash-1', [{ id: 'panel-1' }])];
+      mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result } = renderHook(() => useDashboards());
 
-      expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
+      expect(result.current.getDashboardForWidgetId('widget-1')).toBeNull();
     });
 
     it('handles malformed dashboard with missing spec', () => {
@@ -229,46 +203,20 @@ describe('useDashboards', () => {
 
       const { result } = renderHook(() => useDashboards());
 
-      expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
-    });
-
-    it('handles malformed panel with missing dataSource', () => {
-      const dashboard: AladdinDashboard = {
-        apiVersion: 'aladdin.openshift.io/v1alpha1',
-        kind: 'AladdinDashboard',
-        metadata: { name: 'dash-1', namespace: 'default' },
-        spec: {
-          title: 'Dashboard',
-          layout: {
-            columns: 12,
-            panels: [
-              {
-                id: 'panel-1',
-                position: { x: 0, y: 0, width: 6, height: 3 },
-                component: { type: 'Chart', config: {} },
-              } as AladdinDashboard['spec']['layout']['panels'][0],
-            ],
-          },
-        },
-      };
-      mockUseK8sWatchResource.mockReturnValue([[dashboard], true, null]);
-
-      const { result } = renderHook(() => useDashboards());
-
-      expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
+      expect(result.current.getDashboardForWidgetId('widget-1')).toBeNull();
     });
   });
 
   describe('memoization', () => {
-    it('maintains stable getDashboardForToolCall reference when dashboards do not change', () => {
+    it('maintains stable getDashboardForWidgetId reference when dashboards do not change', () => {
       const dashboards = [createMockDashboard('dash-1')];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
       const { result, rerender } = renderHook(() => useDashboards());
 
-      const firstRef = result.current.getDashboardForToolCall;
+      const firstRef = result.current.getDashboardForWidgetId;
       rerender();
-      const secondRef = result.current.getDashboardForToolCall;
+      const secondRef = result.current.getDashboardForWidgetId;
 
       expect(firstRef).toBe(secondRef);
     });
