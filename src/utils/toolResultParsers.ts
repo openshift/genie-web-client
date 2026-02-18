@@ -83,12 +83,6 @@ export function parseToolResultToArtifacts(toolName: string, result: unknown): A
   if (isGenerateUITool(toolName)) {
     return parseGenerateUIResult(result);
   }
-
-  // Future: Add more parsers here
-  // if (toolName === 'create_dashboard') {
-  //   return parseDashboardResult(result);
-  // }
-
   // No artifacts for unknown tools
   return [];
 }

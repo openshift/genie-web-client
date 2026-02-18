@@ -10,10 +10,6 @@ export interface DashboardPanelRef {
   panel: DashboardPanel;
 }
 
-export interface UseDashboardsOptions {
-  namespace: string;
-}
-
 export interface UseDashboardsResult {
   dashboards: AladdinDashboard[];
   loaded: boolean;
@@ -25,10 +21,10 @@ export interface UseDashboardsResult {
 /**
  * Hook to watch all dashboards in a namespace
  */
-export function useDashboards({ namespace }: UseDashboardsOptions): UseDashboardsResult {
+export function useDashboards(): UseDashboardsResult {
   const [dashboards, loaded, error] = useK8sWatchResource<AladdinDashboard[]>({
     groupVersionKind: AladdinDashboardGVK,
-    namespace,
+    namespace: 'default',
     isList: true,
   });
 

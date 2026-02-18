@@ -55,7 +55,7 @@ describe('useDashboards', () => {
     it('returns empty array when no dashboards exist', () => {
       mockUseK8sWatchResource.mockReturnValue([[], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.dashboards).toEqual([]);
     });
@@ -64,7 +64,7 @@ describe('useDashboards', () => {
       const dashboards = [createMockDashboard('dash-1'), createMockDashboard('dash-2')];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.dashboards).toHaveLength(2);
       expect(result.current.dashboards[0].metadata?.name).toBe('dash-1');
@@ -74,7 +74,7 @@ describe('useDashboards', () => {
     it('returns empty array when useK8sWatchResource returns null', () => {
       mockUseK8sWatchResource.mockReturnValue([null, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.dashboards).toEqual([]);
     });
@@ -84,7 +84,7 @@ describe('useDashboards', () => {
     it('returns loaded state from useK8sWatchResource', () => {
       mockUseK8sWatchResource.mockReturnValue([[], false, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.loaded).toBe(false);
     });
@@ -92,7 +92,7 @@ describe('useDashboards', () => {
     it('returns true when loading is complete', () => {
       mockUseK8sWatchResource.mockReturnValue([[], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.loaded).toBe(true);
     });
@@ -102,7 +102,7 @@ describe('useDashboards', () => {
     it('returns null when there is no error', () => {
       mockUseK8sWatchResource.mockReturnValue([[], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.error).toBeNull();
     });
@@ -111,7 +111,7 @@ describe('useDashboards', () => {
       const error = new Error('Failed to fetch dashboards');
       mockUseK8sWatchResource.mockReturnValue([[], true, error]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.error).toBe(error);
     });
@@ -121,7 +121,7 @@ describe('useDashboards', () => {
     it('returns null when no dashboards exist', () => {
       mockUseK8sWatchResource.mockReturnValue([[], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-123')).toBeNull();
     });
@@ -132,7 +132,7 @@ describe('useDashboards', () => {
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-unknown')).toBeNull();
     });
@@ -143,7 +143,7 @@ describe('useDashboards', () => {
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       const ref = result.current.getDashboardForToolCall('tc-1');
 
@@ -161,7 +161,7 @@ describe('useDashboards', () => {
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       const ref = result.current.getDashboardForToolCall('tc-3');
 
@@ -175,7 +175,7 @@ describe('useDashboards', () => {
       ];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       const ref = result.current.getDashboardForToolCall('tc-2');
 
@@ -187,7 +187,7 @@ describe('useDashboards', () => {
       const dashboards = [createMockDashboard('dash-1', [])];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
     });
@@ -214,7 +214,7 @@ describe('useDashboards', () => {
       };
       mockUseK8sWatchResource.mockReturnValue([[dashboard], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
     });
@@ -227,7 +227,7 @@ describe('useDashboards', () => {
       } as AladdinDashboard;
       mockUseK8sWatchResource.mockReturnValue([[malformedDashboard], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
     });
@@ -253,7 +253,7 @@ describe('useDashboards', () => {
       };
       mockUseK8sWatchResource.mockReturnValue([[dashboard], true, null]);
 
-      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result } = renderHook(() => useDashboards());
 
       expect(result.current.getDashboardForToolCall('tc-1')).toBeNull();
     });
@@ -264,7 +264,7 @@ describe('useDashboards', () => {
       const dashboards = [createMockDashboard('dash-1')];
       mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
 
-      const { result, rerender } = renderHook(() => useDashboards({ namespace: 'default' }));
+      const { result, rerender } = renderHook(() => useDashboards());
 
       const firstRef = result.current.getDashboardForToolCall;
       rerender();

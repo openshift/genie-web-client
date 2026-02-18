@@ -46,7 +46,7 @@ export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRende
 }) => {
   const { addWidgetToDashboard, setActiveDashboard, activeDashboard, clearActiveDashboard } =
     useActiveDashboard(DEFAULT_NAMESPACE);
-  const { getDashboardForToolCall } = useDashboards({ namespace: DEFAULT_NAMESPACE });
+  const { getDashboardForToolCall } = useDashboards();
 
   // Look up if this widget is already on a dashboard
   const dashboardRef = useMemo(() => {
