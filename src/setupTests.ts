@@ -187,6 +187,21 @@ jest.mock('@redhat-cloud-services/ai-react-state', () => {
   };
 });
 
+// Mock @openshift-console/dynamic-plugin-sdk useUserSettings hook
+// Returns a tuple [value, setValue, loaded] where loaded indicates if the value has been loaded
+jest.mock('@openshift-console/dynamic-plugin-sdk', () => {
+  const actual = jest.requireActual('@openshift-console/dynamic-plugin-sdk');
+  return {
+    ...actual,
+    useUserSettings: jest.fn(<T>(_key: string, defaultValue?: T) => {
+      // Default mock implementation: returns [defaultValue, setter, true]
+      // Individual tests can override this using mockReturnValue
+      const [value, setValue] = [defaultValue ?? (false as T), jest.fn()];
+      return [value, setValue, true] as [T, (value: T) => void, boolean];
+    }),
+  };
+});
+
 // Mock aiStateManager to prevent real API calls during tests
 // This prevents the "fetch is not defined" error when the state manager tries to initialize
 jest.mock('./components/utils/aiStateManager', () => {
