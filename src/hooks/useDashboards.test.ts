@@ -16,6 +16,7 @@ const createMockDashboard = (
     id: string;
     toolCallIds: string[];
   }> = [],
+  conversationId?: string,
 ): AladdinDashboard => ({
   apiVersion: 'aladdin.openshift.io/v1alpha1',
   kind: 'AladdinDashboard',
@@ -26,6 +27,7 @@ const createMockDashboard = (
   },
   spec: {
     title: `Dashboard ${name}`,
+    conversationId,
     layout: {
       columns: 12,
       panels: panels.map((p) => ({
@@ -271,6 +273,60 @@ describe('useDashboards', () => {
       const secondRef = result.current.getDashboardForToolCall;
 
       expect(firstRef).toBe(secondRef);
+    });
+  });
+
+  describe('getDashboardsForConversation', () => {
+    it('returns empty array when no dashboards exist', () => {
+      mockUseK8sWatchResource.mockReturnValue([[], true, null]);
+
+      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+
+      expect(result.current.getDashboardsForConversation('conv-1')).toEqual([]);
+    });
+
+    it('returns dashboards matching the conversationId', () => {
+      const dashboards = [
+        createMockDashboard('dash-1', [], 'conv-1'),
+        createMockDashboard('dash-2', [], 'conv-2'),
+        createMockDashboard('dash-3', [], 'conv-1'),
+      ];
+      mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
+
+      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+
+      const matches = result.current.getDashboardsForConversation('conv-1');
+      expect(matches).toHaveLength(2);
+      expect(matches[0].metadata?.name).toBe('dash-1');
+      expect(matches[1].metadata?.name).toBe('dash-3');
+    });
+
+    it('returns empty array when no dashboards match conversationId', () => {
+      const dashboards = [
+        createMockDashboard('dash-1', [], 'conv-1'),
+        createMockDashboard('dash-2', [], 'conv-2'),
+      ];
+      mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
+
+      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+
+      expect(result.current.getDashboardsForConversation('conv-3')).toEqual([]);
+    });
+
+    it('filters out dashboards without conversationId', () => {
+      const dashboards = [
+        createMockDashboard('dash-1', [], 'conv-1'),
+        createMockDashboard('dash-2', []), // no conversationId
+        createMockDashboard('dash-3', [], 'conv-1'),
+      ];
+      mockUseK8sWatchResource.mockReturnValue([dashboards, true, null]);
+
+      const { result } = renderHook(() => useDashboards({ namespace: 'default' }));
+
+      const matches = result.current.getDashboardsForConversation('conv-1');
+      expect(matches).toHaveLength(2);
+      expect(matches[0].metadata?.name).toBe('dash-1');
+      expect(matches[1].metadata?.name).toBe('dash-3');
     });
   });
 });

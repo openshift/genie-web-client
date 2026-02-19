@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -12,6 +12,8 @@ import {
 import { RhUiCollectionIcon, RhUiAiExperienceIcon, RhUiRefreshIcon } from '@patternfly/react-icons';
 import ErrorState from '@patternfly/react-component-groups/dist/dynamic/ErrorState';
 import { useTranslation } from 'react-i18next';
+import { useStartChatWithPrompt } from '../../hooks/useStartChatWithPrompt';
+import { CREATE_DASHBOARD_PROMPT } from '../../constants/prompts';
 import './ArtifactLibrary.css';
 
 export type Artifact = { id: string };
@@ -24,12 +26,17 @@ export const artifactApi = {
 
 export const ArtifactLibrary = () => {
   const { t } = useTranslation('plugin__genie-web-client');
+  const startChatWithPrompt = useStartChatWithPrompt();
 
   // Temporary fetch wiring; will be replaced when API is finalized
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const retryRef = useRef<HTMLButtonElement>(null);
+
+  const handleCreateDashboard = useCallback(() => {
+    startChatWithPrompt(CREATE_DASHBOARD_PROMPT);
+  }, [startChatWithPrompt]);
 
   const refreshArtifacts = async (): Promise<void> => {
     setIsLoading(true);
@@ -100,7 +107,7 @@ export const ArtifactLibrary = () => {
               <Button
                 variant="primary"
                 icon={<RhUiAiExperienceIcon />}
-                onClick={() => console.log('Create dashboard clicked')}
+                onClick={handleCreateDashboard}
               >
                 {t('artifactLibrary.emptyState.primaryCta')}
               </Button>

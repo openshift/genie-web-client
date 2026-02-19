@@ -83,7 +83,7 @@ function generateDashboardName(): string {
 /**
  * Create a new local dashboard with default values
  */
-function createLocalDashboard(namespace: string): AladdinDashboard {
+function createLocalDashboard(namespace: string, conversationId?: string): AladdinDashboard {
   return {
     apiVersion: 'aladdin.openshift.io/v1alpha1',
     kind: 'AladdinDashboard',
@@ -94,6 +94,7 @@ function createLocalDashboard(namespace: string): AladdinDashboard {
     spec: {
       title: 'Untitled Dashboard',
       description: 'Dashboard created from conversation',
+      conversationId,
       layout: {
         columns: 12,
         panels: [],
@@ -106,7 +107,10 @@ function createLocalDashboard(namespace: string): AladdinDashboard {
  * Hook for dashboard-specific operations.
  * Consumes ChatConversationContext and provides methods to manage the active dashboard.
  */
-export function useActiveDashboard(namespace: string): UseActiveDashboardResult {
+export function useActiveDashboard(
+  namespace: string,
+  conversationId?: string,
+): UseActiveDashboardResult {
   const {
     activeArtifact,
     setActiveArtifact,
@@ -144,7 +148,7 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
   const addWidgetToDashboard = useCallback(
     (widget: WidgetArtifact, toolCalls: ToolCallState[]): void => {
       // Use existing dashboard or create a new local one
-      const dashboard = activeDashboard ?? createLocalDashboard(namespace);
+      const dashboard = activeDashboard ?? createLocalDashboard(namespace, conversationId);
 
       // Convert tool calls for persistence
       const persistedToolCalls = convertToolCallsForPersistence(toolCalls);
@@ -189,7 +193,7 @@ export function useActiveDashboard(namespace: string): UseActiveDashboardResult 
       setDashboardSaved(false);
       openCanvas();
     },
-    [activeDashboard, namespace, setActiveArtifact, setDashboardSaved, openCanvas],
+    [activeDashboard, namespace, conversationId, setActiveArtifact, setDashboardSaved, openCanvas],
   );
 
   const saveDashboard = useCallback(async (): Promise<AladdinDashboard> => {

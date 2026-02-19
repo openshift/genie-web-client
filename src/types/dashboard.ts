@@ -24,6 +24,9 @@ export const AladdinDashboardGVK = {
   kind: 'AladdinDashboard',
 };
 
+/** Default namespace for AladdinDashboard resources; use for useDashboards, useActiveDashboard, useDashboardActions. */
+export const DEFAULT_DASHBOARD_NAMESPACE = 'default';
+
 /**
  * Panel position in the grid layout
  */
@@ -100,6 +103,7 @@ export interface AladdinDashboardSpec {
   layout: DashboardLayout;
   tags?: string[];
   owner?: string;
+  conversationId?: string;
 }
 
 /**

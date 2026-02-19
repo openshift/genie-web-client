@@ -1,11 +1,19 @@
 import { waitFor } from '@testing-library/react';
-import { render, screen } from '../../unitTestUtils';
+import { render, screen, user } from '../../unitTestUtils';
 import { ArtifactLibrary } from './ArtifactLibrary';
 import * as ArtifactLib from './ArtifactLibrary';
+import { CREATE_DASHBOARD_PROMPT } from '../../constants/prompts';
+
+const mockStartChatWithPrompt = jest.fn();
+
+jest.mock('../../hooks/useStartChatWithPrompt', () => ({
+  useStartChatWithPrompt: () => mockStartChatWithPrompt,
+}));
 
 let fetchMock: jest.SpyInstance;
 
 beforeEach(() => {
+  jest.clearAllMocks();
   fetchMock = jest.spyOn(ArtifactLib.artifactApi, 'fetchArtifacts').mockResolvedValue([]);
 });
 
@@ -89,5 +97,13 @@ describe('ArtifactLibrary', () => {
     render(<ArtifactLibrary />);
     const retry = await screen.findByRole('button', { name: /retry/i });
     await waitFor(() => expect(retry).toHaveFocus());
+  });
+
+  it('calls startChatWithPrompt with create-dashboard message when primary CTA is clicked', async () => {
+    render(<ArtifactLibrary />);
+    const primaryCta = await screen.findByRole('button', { name: /create a dashboard/i });
+    await user.click(primaryCta);
+    expect(mockStartChatWithPrompt).toHaveBeenCalledTimes(1);
+    expect(mockStartChatWithPrompt).toHaveBeenCalledWith(CREATE_DASHBOARD_PROMPT);
   });
 });

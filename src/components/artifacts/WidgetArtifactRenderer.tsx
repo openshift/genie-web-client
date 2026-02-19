@@ -7,6 +7,8 @@ import { WidgetRenderer } from './WidgetRenderer';
 import { CanvasCard } from '../canvas/CanvasCard';
 import { useActiveDashboard } from '../../hooks/useActiveDashboard';
 import { useDashboards } from '../../hooks/useDashboards';
+import { useActiveConversation } from '../../hooks/AIState';
+import { DEFAULT_DASHBOARD_NAMESPACE } from '../../types/dashboard';
 
 export interface WidgetArtifactRendererProps {
   /** The widget artifact to render */
@@ -38,15 +40,14 @@ function findToolCallIdForArtifact(
  * If the widget is on a dashboard, shows a CanvasCard.
  * Otherwise, renders the widget inline with an "Add to Dashboard" button.
  */
-const DEFAULT_NAMESPACE = 'default';
-
 export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRendererProps> = ({
   artifact,
   toolCalls,
 }) => {
+  const activeConversation = useActiveConversation();
   const { addWidgetToDashboard, setActiveDashboard, activeDashboard, clearActiveDashboard } =
-    useActiveDashboard(DEFAULT_NAMESPACE);
-  const { getDashboardForToolCall } = useDashboards({ namespace: DEFAULT_NAMESPACE });
+    useActiveDashboard(DEFAULT_DASHBOARD_NAMESPACE, activeConversation?.id);
+  const { getDashboardForToolCall } = useDashboards({ namespace: DEFAULT_DASHBOARD_NAMESPACE });
 
   // Look up if this widget is already on a dashboard
   const dashboardRef = useMemo(() => {

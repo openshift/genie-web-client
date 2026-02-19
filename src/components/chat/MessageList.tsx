@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import { useTranslation } from 'react-i18next';
 import { MessageBox, type MessageBoxHandle } from '@patternfly/chatbot';
@@ -21,6 +21,8 @@ import { UserMessage } from './UserMessage';
 import { AIMessage } from './AIMessage';
 import { getUserQuestionForBotMessage } from './feedback/utils';
 import { EditableChatHeader } from './EditableChatHeader';
+import { ConversationDashboards } from './ConversationDashboards';
+import { isTempConversationId } from '../../utils/conversationUtils';
 
 // TODO: remove this stub data after testing
 const STUB_REFERENCED_DOCUMENTS = [
@@ -190,6 +192,17 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
       }
     }, [streamingMessage?.content, isStreaming]);
 
+    // Ref callback for when ConversationDashboards component mounts
+    const handleDashboardsRef = useCallback((element: HTMLDivElement | null) => {
+      if (element && messageBoxRef.current) {
+        // Force scroll to bottom when the dashboards component appears
+        // Use requestAnimationFrame to ensure DOM has updated
+        requestAnimationFrame(() => {
+          messageBoxRef.current?.scrollToBottom({ behavior: 'smooth', resumeSmartScroll: true });
+        });
+      }
+    }, []);
+
     return (
       <MessageBox ref={messageBoxRef} enableSmartScroll={true}>
         {conversationToDelete && (
@@ -205,6 +218,17 @@ export const MessageList: React.FC<MessageListProps> = React.memo(
         {isLoading && messages.length === 0 ? <ChatLoading /> : null}
         {!isValidConversationId ? <ConversationNotFound /> : null}
         {renderedMessages}
+        <div ref={handleDashboardsRef}>
+          <ConversationDashboards
+            conversationId={conversationId}
+            shouldDisplay={
+              !!conversationId &&
+              !isLoading &&
+              isValidConversationId &&
+              !isTempConversationId(conversationId)
+            }
+          />
+        </div>
       </MessageBox>
     );
   },

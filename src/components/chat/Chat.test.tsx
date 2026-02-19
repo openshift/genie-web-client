@@ -11,6 +11,9 @@ const mockUseInProgress = jest.fn();
 const mockUseActiveConversation = jest.fn();
 const mockUseParams = jest.fn();
 const mockNavigate = jest.fn();
+const mockGetDashboardsForConversation = jest.fn();
+const mockSetActiveDashboard = jest.fn();
+const mockClearActiveDashboard = jest.fn();
 
 jest.mock('../../hooks/AIState', () => ({
   useMessages: () => mockUseMessages(),
@@ -26,6 +29,20 @@ jest.mock('react-router-dom-v5-compat', () => ({
   ...jest.requireActual('react-router-dom-v5-compat'),
   useParams: () => mockUseParams(),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../hooks/useDashboards', () => ({
+  useDashboards: () => ({
+    getDashboardsForConversation: mockGetDashboardsForConversation,
+    loaded: true,
+  }),
+}));
+
+jest.mock('../../hooks/useActiveDashboard', () => ({
+  useActiveDashboard: () => ({
+    setActiveDashboard: mockSetActiveDashboard,
+    clearActiveDashboard: mockClearActiveDashboard,
+  }),
 }));
 
 // Mock MessageList to isolate Chat component testing
@@ -70,6 +87,7 @@ describe('Chat', () => {
     mockUseActiveConversation.mockReturnValue(null);
     mockUseParams.mockReturnValue({});
     mockNavigate.mockClear();
+    mockGetDashboardsForConversation.mockReturnValue([]);
   });
 
   const renderChat = () => {
@@ -420,6 +438,76 @@ describe('Chat', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockNavigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Canvas sync when changing conversations', () => {
+    it('calls clearActiveDashboard when active conversation has no dashboard', async () => {
+      mockUseActiveConversation.mockReturnValue({
+        id: 'conv-no-dashboard',
+        messages: [],
+      });
+      mockGetDashboardsForConversation.mockReturnValue([]);
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockClearActiveDashboard).toHaveBeenCalled();
+      });
+      expect(mockGetDashboardsForConversation).toHaveBeenCalledWith('conv-no-dashboard');
+      expect(mockSetActiveDashboard).not.toHaveBeenCalled();
+    });
+
+    it('calls setActiveDashboard with first dashboard when conversation has a dashboard', async () => {
+      const mockDashboard = {
+        apiVersion: 'aladdin.openshift.io/v1alpha1',
+        kind: 'AladdinDashboard',
+        metadata: { name: 'dash-1', uid: 'uid-1', namespace: 'default' },
+        spec: {
+          title: 'My Dashboard',
+          conversationId: 'conv-with-dashboard',
+          layout: { columns: 12, panels: [] },
+        },
+      };
+      mockUseActiveConversation.mockReturnValue({
+        id: 'conv-with-dashboard',
+        messages: [],
+      });
+      mockGetDashboardsForConversation.mockReturnValue([mockDashboard]);
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockSetActiveDashboard).toHaveBeenCalledWith(mockDashboard);
+      });
+      expect(mockGetDashboardsForConversation).toHaveBeenCalledWith('conv-with-dashboard');
+      expect(mockClearActiveDashboard).not.toHaveBeenCalled();
+    });
+
+    it('calls clearActiveDashboard when active conversation is null', async () => {
+      mockUseActiveConversation.mockReturnValue(null);
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockClearActiveDashboard).toHaveBeenCalled();
+      });
+      expect(mockSetActiveDashboard).not.toHaveBeenCalled();
+    });
+
+    it('calls clearActiveDashboard when active conversation has temp id', async () => {
+      mockUseActiveConversation.mockReturnValue({
+        id: '__temp_conversation__',
+        messages: [],
+      });
+
+      renderChat();
+
+      await waitFor(() => {
+        expect(mockClearActiveDashboard).toHaveBeenCalled();
+      });
+      expect(mockGetDashboardsForConversation).not.toHaveBeenCalled();
+      expect(mockSetActiveDashboard).not.toHaveBeenCalled();
     });
   });
 });

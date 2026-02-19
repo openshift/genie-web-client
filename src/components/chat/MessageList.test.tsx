@@ -56,6 +56,11 @@ jest.mock('./ConversationNotFound', () => ({
   ConversationNotFound: () => <div data-testid="conversation-not-found">Not Found</div>,
 }));
 
+// Mock ConversationDashboards to avoid useChatConversationContext (requires ChatConversationProvider)
+jest.mock('./ConversationDashboards', () => ({
+  ConversationDashboards: () => null,
+}));
+
 jest.mock('./UserMessage', () => ({
   UserMessage: ({
     message,
