@@ -38,7 +38,10 @@ export function parseGenerateUIResult(response: unknown): Artifact[] {
     return blocks
       .map((block: unknown, index: number): WidgetArtifact | null => {
         try {
-          const blockObj = block as { rendering?: { content?: string } };
+          const blockObj = block as {
+            rendering?: { content?: string };
+            configuration?: { data_type_metadata?: string };
+          };
           const contentString = blockObj?.rendering?.content;
 
           if (typeof contentString !== 'string') {
@@ -46,12 +49,26 @@ export function parseGenerateUIResult(response: unknown): Artifact[] {
             return null;
           }
 
-          const nguiConfig = JSON.parse(contentString);
+          const nguiConfig = JSON.parse(contentString) as Record<string, unknown>;
+
+          // Parse data_type_metadata from configuration if available
+          const configMetadata = blockObj?.configuration?.data_type_metadata;
+          let dataTypeMetadata: Record<string, unknown> | undefined;
+          if (typeof configMetadata === 'string') {
+            try {
+              dataTypeMetadata = JSON.parse(configMetadata) as Record<string, unknown>;
+            } catch {
+              // Ignore parse errors for metadata
+            }
+          }
 
           const widget: NGUIWidget = {
             id: `ngui-widget-${Date.now()}-${index}`,
             type: 'ngui',
-            spec: nguiConfig,
+            spec: {
+              ...nguiConfig,
+              ...(dataTypeMetadata ? { dataTypeMetadata } : {}),
+            },
             createdAt: new Date(),
           };
 
@@ -83,12 +100,6 @@ export function parseToolResultToArtifacts(toolName: string, result: unknown): A
   if (isGenerateUITool(toolName)) {
     return parseGenerateUIResult(result);
   }
-
-  // Future: Add more parsers here
-  // if (toolName === 'create_dashboard') {
-  //   return parseDashboardResult(result);
-  // }
-
   // No artifacts for unknown tools
   return [];
 }

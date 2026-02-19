@@ -44,34 +44,6 @@ export interface PanelComponent {
 }
 
 /**
- * MCP tool call information for data retrieval.
- * Stores the tool invocation details needed to recreate widgets on dashboards.
- */
-export interface ToolCall {
-  /** Unique identifier for the tool call */
-  id: string;
-  /** MCP server that handled the request */
-  server?: string;
-  /** Name of the tool that was invoked */
-  tool: string;
-  /** Arguments passed to the tool call */
-  arguments: Record<string, unknown>;
-  /** Tool result - only stored for generate_ui (contains NGUI widget spec) */
-  result?: string;
-  /** Links to the original Lightspeed API request */
-  requestId?: string;
-}
-
-/**
- * Data source configuration for a panel.
- * Contains all tool calls from the message that produced the widget.
- */
-export interface PanelDataSource {
-  /** Array of tool calls needed to recreate the widget */
-  toolCalls: ToolCall[];
-}
-
-/**
  * Individual panel in a dashboard
  */
 export interface DashboardPanel {
@@ -79,7 +51,6 @@ export interface DashboardPanel {
   title?: string;
   position: PanelPosition;
   component: PanelComponent;
-  dataSource: PanelDataSource;
 }
 
 /**

@@ -10,43 +10,37 @@ export interface DashboardPanelRef {
   panel: DashboardPanel;
 }
 
-export interface UseDashboardsOptions {
-  namespace: string;
-}
-
 export interface UseDashboardsResult {
   dashboards: AladdinDashboard[];
   loaded: boolean;
   error: Error | null;
-  /** Look up which dashboard/panel contains a given tool call ID */
-  getDashboardForToolCall: (toolCallId: string) => DashboardPanelRef | null;
+  /** Look up which dashboard/panel contains a given widget ID */
+  getDashboardForWidgetId: (widgetId: string) => DashboardPanelRef | null;
 }
 
 /**
  * Hook to watch all dashboards in a namespace
  */
-export function useDashboards({ namespace }: UseDashboardsOptions): UseDashboardsResult {
+export function useDashboards(): UseDashboardsResult {
   const [dashboards, loaded, error] = useK8sWatchResource<AladdinDashboard[]>({
     groupVersionKind: AladdinDashboardGVK,
-    namespace,
+    namespace: 'default',
     isList: true,
   });
 
   const dashboardList = dashboards ?? [];
 
-  // Build a lookup map from toolCallId -> { dashboard, panel }
+  // Build a lookup map from widgetId -> { dashboard, panel }
   // This allows O(1) lookup to check if a widget is already on a dashboard
-  const toolCallLookup = useMemo(() => {
+  const widgetLookup = useMemo(() => {
     const lookup = new Map<string, DashboardPanelRef>();
 
     for (const dashboard of dashboardList) {
       const panels = dashboard.spec?.layout?.panels ?? [];
       for (const panel of panels) {
-        const toolCalls = panel.dataSource?.toolCalls ?? [];
-        for (const toolCall of toolCalls) {
-          if (toolCall.id) {
-            lookup.set(toolCall.id, { dashboard, panel });
-          }
+        const widgetId = panel.component?.config?.widgetId as string | undefined;
+        if (widgetId) {
+          lookup.set(widgetId, { dashboard, panel });
         }
       }
     }
@@ -54,17 +48,17 @@ export function useDashboards({ namespace }: UseDashboardsOptions): UseDashboard
     return lookup;
   }, [dashboardList]);
 
-  const getDashboardForToolCall = useCallback(
-    (toolCallId: string): DashboardPanelRef | null => {
-      return toolCallLookup.get(toolCallId) ?? null;
+  const getDashboardForWidgetId = useCallback(
+    (widgetId: string): DashboardPanelRef | null => {
+      return widgetLookup.get(widgetId) ?? null;
     },
-    [toolCallLookup],
+    [widgetLookup],
   );
 
   return {
     dashboards: dashboardList,
     loaded,
     error: error as Error | null,
-    getDashboardForToolCall,
+    getDashboardForWidgetId,
   };
 }

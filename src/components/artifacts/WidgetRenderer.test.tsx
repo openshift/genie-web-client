@@ -1,7 +1,6 @@
 import { render, screen } from '../../unitTestUtils';
 import { WidgetRenderer } from './WidgetRenderer';
 import type { NGUIWidget } from '../../types/chat';
-import type { ToolCallState } from '../../utils/toolCallHelpers';
 import type { BasePersesProps } from '../../types/perses';
 
 // Mock DynamicComponent
@@ -127,7 +126,6 @@ describe('WidgetRenderer', () => {
         spec: {
           component: 'PersesTimeSeries',
           query: 'up',
-          // Missing: start, end, duration, step
         },
         createdAt: new Date(),
       };
@@ -137,6 +135,8 @@ describe('WidgetRenderer', () => {
       const persesComponent = screen.getByTestId('perses-time-series');
       expect(persesComponent).toBeInTheDocument();
       expect(persesComponent).toHaveAttribute('data-query', 'up');
+      expect(persesComponent).toHaveAttribute('data-duration', '1h');
+      expect(persesComponent).toHaveAttribute('data-step', '1m');
     });
 
     it('handles empty query gracefully', () => {
@@ -145,7 +145,6 @@ describe('WidgetRenderer', () => {
         type: 'ngui',
         spec: {
           component: 'PersesTimeSeries',
-          // Missing query
         },
         createdAt: new Date(),
       };
@@ -158,170 +157,127 @@ describe('WidgetRenderer', () => {
     });
   });
 
-  describe('tool call lookup', () => {
-    it('extracts query from tool call args when input_data_type matches', () => {
+  describe('dataTypeMetadata extraction', () => {
+    it('extracts query from dataTypeMetadata when present', () => {
       const widget: NGUIWidget = {
         id: 'widget-7',
         type: 'ngui',
         spec: {
           component: 'PersesTimeSeries',
-          input_data_type: 'execute_range_query',
-          // NGUI spec might not have query, but tool call does
-        },
-        createdAt: new Date(),
-      };
-
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'execute_range_query',
-          status: 'success',
-          arguments: {
+          dataTypeMetadata: {
             query: 'rate(container_cpu_usage_seconds_total[5m])',
             duration: '1h',
             step: '1m',
           },
         },
-      ];
+        createdAt: new Date(),
+      };
 
-      render(<WidgetRenderer widget={widget} toolCalls={toolCalls} />);
+      render(<WidgetRenderer widget={widget} />);
 
       const persesComponent = screen.getByTestId('perses-time-series');
       expect(persesComponent).toHaveAttribute(
         'data-query',
         'rate(container_cpu_usage_seconds_total[5m])',
       );
+      expect(persesComponent).toHaveAttribute('data-duration', '1h');
+      expect(persesComponent).toHaveAttribute('data-step', '1m');
     });
 
-    it('prefers tool call args over NGUI spec values', () => {
+    it('prefers dataTypeMetadata over direct spec values', () => {
       const widget: NGUIWidget = {
         id: 'widget-8',
         type: 'ngui',
         spec: {
           component: 'PersesTimeSeries',
-          input_data_type: 'execute_range_query',
           query: 'old_query_from_spec',
           duration: '30m',
-        },
-        createdAt: new Date(),
-      };
-
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'execute_range_query',
-          status: 'success',
-          arguments: {
-            query: 'fresh_query_from_tool_call',
+          dataTypeMetadata: {
+            query: 'fresh_query_from_metadata',
             duration: '2h',
             step: '5m',
           },
         },
-      ];
+        createdAt: new Date(),
+      };
 
-      render(<WidgetRenderer widget={widget} toolCalls={toolCalls} />);
+      render(<WidgetRenderer widget={widget} />);
 
       const persesComponent = screen.getByTestId('perses-time-series');
-      // Should use tool call args, not spec values
-      expect(persesComponent).toHaveAttribute('data-query', 'fresh_query_from_tool_call');
+      expect(persesComponent).toHaveAttribute('data-query', 'fresh_query_from_metadata');
+      expect(persesComponent).toHaveAttribute('data-duration', '2h');
+      expect(persesComponent).toHaveAttribute('data-step', '5m');
     });
 
-    it('falls back to spec values when no matching tool call found', () => {
+    it('falls back to spec values when dataTypeMetadata is not present', () => {
       const widget: NGUIWidget = {
         id: 'widget-9',
         type: 'ngui',
         spec: {
           component: 'PersesTimeSeries',
-          input_data_type: 'execute_range_query',
           query: 'fallback_query',
           duration: '1h',
+          step: '2m',
         },
         createdAt: new Date(),
       };
 
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'some_other_tool',
-          status: 'success',
-          arguments: {
-            query: 'different_query',
-          },
-        },
-      ];
-
-      render(<WidgetRenderer widget={widget} toolCalls={toolCalls} />);
+      render(<WidgetRenderer widget={widget} />);
 
       const persesComponent = screen.getByTestId('perses-time-series');
       expect(persesComponent).toHaveAttribute('data-query', 'fallback_query');
+      expect(persesComponent).toHaveAttribute('data-duration', '1h');
+      expect(persesComponent).toHaveAttribute('data-step', '2m');
     });
 
-    it('uses most recent matching tool call when multiple exist', () => {
+    it('uses spec values for fields missing from dataTypeMetadata', () => {
       const widget: NGUIWidget = {
         id: 'widget-10',
         type: 'ngui',
         spec: {
           component: 'PersesTimeSeries',
-          input_data_type: 'execute_range_query',
+          query: 'spec_query',
+          duration: 'spec_duration',
+          step: 'spec_step',
+          dataTypeMetadata: {
+            query: 'metadata_query',
+          },
         },
         createdAt: new Date(),
       };
 
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'execute_range_query',
-          status: 'success',
-          arguments: {
-            query: 'first_query',
-          },
-        },
-        {
-          id: 'tc-2',
-          name: 'execute_range_query',
-          status: 'success',
-          arguments: {
-            query: 'second_query',
-          },
-        },
-      ];
-
-      render(<WidgetRenderer widget={widget} toolCalls={toolCalls} />);
+      render(<WidgetRenderer widget={widget} />);
 
       const persesComponent = screen.getByTestId('perses-time-series');
-      // Should use the most recent (last) matching tool call
-      expect(persesComponent).toHaveAttribute('data-query', 'second_query');
+      expect(persesComponent).toHaveAttribute('data-query', 'metadata_query');
+      expect(persesComponent).toHaveAttribute('data-duration', 'spec_duration');
+      expect(persesComponent).toHaveAttribute('data-step', 'spec_step');
     });
 
-    it('works with execute_instant_query for PersesPieChart', () => {
+    it('works with PersesPieChart and dataTypeMetadata', () => {
       const widget: NGUIWidget = {
         id: 'widget-11',
         type: 'ngui',
         spec: {
           component: 'PersesPieChart',
-          input_data_type: 'execute_instant_query',
+          dataTypeMetadata: {
+            query: 'sum(kube_pod_status_phase) by (phase)',
+            duration: '15m',
+            step: '30s',
+          },
         },
         createdAt: new Date(),
       };
 
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'execute_instant_query',
-          status: 'success',
-          arguments: {
-            query: 'sum(kube_pod_status_phase) by (phase)',
-          },
-        },
-      ];
-
-      render(<WidgetRenderer widget={widget} toolCalls={toolCalls} />);
+      render(<WidgetRenderer widget={widget} />);
 
       const persesComponent = screen.getByTestId('perses-pie-chart');
       expect(persesComponent).toHaveAttribute(
         'data-query',
         'sum(kube_pod_status_phase) by (phase)',
       );
+      expect(persesComponent).toHaveAttribute('data-duration', '15m');
+      expect(persesComponent).toHaveAttribute('data-step', '30s');
     });
   });
 });

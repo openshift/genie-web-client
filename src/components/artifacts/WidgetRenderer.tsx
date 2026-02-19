@@ -2,42 +2,21 @@ import React, { Suspense } from 'react';
 import DynamicComponent from '@rhngui/patternfly-react-renderer';
 import { Spinner } from '@patternfly/react-core';
 import type { Widget } from '../../types/chat';
-import type { ToolCallState } from '../../utils/toolCallHelpers';
 import type { BasePersesProps } from '../../types/perses';
 import { isPersesComponent, getPersesComponent } from '../perses/componentRegistry';
 
 export interface WidgetRendererProps {
   widget: Widget;
-  /** Tool calls from the message, used to look up query args for Perses components */
-  toolCalls?: ToolCallState[];
 }
 
 /**
- * Find matching tool call by name and return its arguments.
- * Returns the most recent (last) matching tool call when multiple exist.
+ * Extract Perses props from widget spec.
+ * Uses dataTypeMetadata (from NGUI configuration) as the primary source,
+ * falling back to direct spec values.
  */
-function findToolCallArgs(
-  toolCalls: ToolCallState[] | undefined,
-  inputDataType: string | undefined,
-): Record<string, unknown> | undefined {
-  if (!toolCalls || !inputDataType) {
-    return undefined;
-  }
-
-  const matchingCalls = toolCalls.filter((toolCall) => toolCall.name === inputDataType);
-
-  return matchingCalls.length > 0 ? matchingCalls[matchingCalls.length - 1].arguments : undefined;
-}
-
-/**
- * Extract Perses props from widget spec and tool call args.
- * Tool call args take priority over spec values.
- */
-function extractPersesProps(
-  spec: Record<string, unknown>,
-  toolCallArgs: Record<string, unknown> | undefined,
-): BasePersesProps {
-  const source = toolCallArgs ?? spec;
+function extractPersesProps(spec: Record<string, unknown>): BasePersesProps {
+  const metadata = spec.dataTypeMetadata as Record<string, unknown> | undefined;
+  const source = metadata ?? spec;
 
   return {
     query: String(source.query ?? spec.query ?? ''),
@@ -51,12 +30,9 @@ function extractPersesProps(
 /**
  * Renders a Widget based on its type.
  * For NGUI widgets, checks if the component is a Perses component and renders it
- * with args from the matching tool call. Otherwise, uses DynamicComponent.
+ * with props from dataTypeMetadata. Otherwise, uses DynamicComponent.
  */
-export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
-  widget,
-  toolCalls,
-}) => {
+export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({ widget }) => {
   if (widget.type !== 'ngui') {
     return null;
   }
@@ -65,14 +41,7 @@ export const WidgetRenderer: React.FunctionComponent<WidgetRendererProps> = ({
 
   // Check if this is a registered Perses component
   if (componentName && isPersesComponent(componentName)) {
-    const inputDataType = widget.spec.input_data_type as string | undefined;
-    /***
-     * This is a temporary solution to get the tool call args for the perses component.
-     * In the future, we will use the tool call args directly from NGUI:
-     * https://issues.redhat.com/browse/NGUI-448
-     */
-    const toolCallArgs = findToolCallArgs(toolCalls, inputDataType);
-    const persesProps = extractPersesProps(widget.spec, toolCallArgs);
+    const persesProps = extractPersesProps(widget.spec);
     const Component = getPersesComponent(componentName);
 
     return (

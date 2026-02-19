@@ -9,53 +9,25 @@ import {
   EmptyState,
   EmptyStateBody,
 } from '@patternfly/react-core';
-import type { AladdinDashboard, DashboardPanel, ToolCall } from '../../types/dashboard';
+import type { AladdinDashboard, DashboardPanel } from '../../types/dashboard';
 import type { NGUIWidget } from '../../types/chat';
-import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from '../artifacts/WidgetRenderer';
-import { parseToolResultToArtifacts } from '../../utils/toolResultParsers';
 
 export interface DashboardProps {
   dashboard: AladdinDashboard;
 }
 
 /**
- * Converts stored ToolCall[] to ToolCallState[] format expected by WidgetRenderer.
- */
-function convertToolCallsForRenderer(toolCalls: ToolCall[]): ToolCallState[] {
-  return toolCalls.map((tc) => ({
-    id: tc.id,
-    name: tc.tool,
-    status: 'success' as const,
-    arguments: tc.arguments,
-    result: tc.result,
-    artifacts: tc.result ? parseToolResultToArtifacts(tc.tool, tc.result) : undefined,
-  }));
-}
-
-/**
- * Extracts NGUIWidget from a panel's component config or tool calls.
+ * Extracts NGUIWidget from a panel's component config.
  */
 function extractWidgetFromPanel(panel: DashboardPanel): NGUIWidget | null {
   if (panel.component.config && Object.keys(panel.component.config).length > 0) {
     return {
-      id: `widget-${panel.id}`,
+      id: (panel.component.config.widgetId as string) ?? `widget-${panel.id}`,
       type: 'ngui',
       spec: panel.component.config,
       createdAt: new Date(),
     };
-  }
-
-  const generateUICall = panel.dataSource.toolCalls.find(
-    (tc) => tc.tool.toLowerCase().includes('generate_ui') && tc.result,
-  );
-
-  if (generateUICall?.result) {
-    const artifacts = parseToolResultToArtifacts(generateUICall.tool, generateUICall.result);
-    const widgetArtifact = artifacts.find((a) => a.type === 'widget');
-    if (widgetArtifact && widgetArtifact.type === 'widget') {
-      return widgetArtifact.widget as NGUIWidget;
-    }
   }
 
   return null;
@@ -63,10 +35,6 @@ function extractWidgetFromPanel(panel: DashboardPanel): NGUIWidget | null {
 
 const DashboardPanelCard: React.FunctionComponent<{ panel: DashboardPanel }> = ({ panel }) => {
   const widget = useMemo(() => extractWidgetFromPanel(panel), [panel]);
-  const toolCalls = useMemo(
-    () => convertToolCallsForRenderer(panel.dataSource.toolCalls),
-    [panel.dataSource.toolCalls],
-  );
 
   if (!widget) {
     return (
@@ -91,7 +59,7 @@ const DashboardPanelCard: React.FunctionComponent<{ panel: DashboardPanel }> = (
         </CardHeader>
       ) : null}
       <CardBody>
-        <WidgetRenderer widget={widget} toolCalls={toolCalls} />
+        <WidgetRenderer widget={widget} />
       </CardBody>
     </Card>
   );
