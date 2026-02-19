@@ -21,6 +21,7 @@ const {
   mockScrollToBottom,
   mockScrollToTop,
   mockIsSmartScrollActive,
+  getLastMessageBoxProps,
   // eslint-disable-next-line @typescript-eslint/no-var-requires
 } = require('@patternfly/chatbot');
 
@@ -664,15 +665,11 @@ describe('<MessageList />', () => {
         rerender(<MessageList isLoading={true} isValidConversationId={true} />);
         rerender(<MessageList isLoading={false} isValidConversationId={true} />);
 
-        // Note: scrollToBottom is called, but PatternFly's internal logic
-        // will prevent actual scrolling when pauseAutoScrollRef is true
-        // We're testing that we call it with resumeSmartScroll: false
-        await waitFor(() => {
-          expect(mockScrollToBottom).toHaveBeenCalledWith({
-            behavior: 'auto',
-            resumeSmartScroll: false,
-          });
-        });
+        // Wait a bit to ensure useEffect has chance to run
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        // Should NOT call scrollToBottom because smart scroll is not active
+        expect(mockScrollToBottom).not.toHaveBeenCalled();
       });
 
       it('does not scroll when not streaming even if content changes', () => {
@@ -698,6 +695,172 @@ describe('<MessageList />', () => {
 
         // Should not trigger streaming scroll behavior
         expect(mockScrollToBottom).not.toHaveBeenCalled();
+      });
+
+      it('prevents autoscroll during grace period after back to top button click', async () => {
+        jest.useFakeTimers();
+        const now = Date.now();
+        jest.spyOn(Date, 'now').mockReturnValue(now);
+
+        const streamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming...',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        mockIsSmartScrollActive.mockReturnValue(true);
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Wait for initial render
+        await act(async () => {
+          jest.runAllTimers();
+        });
+        mockScrollToBottom.mockClear();
+
+        // Simulate back to top button click
+        const { onScrollToTopClick } = getLastMessageBoxProps();
+
+        await act(async () => {
+          onScrollToTopClick();
+        });
+
+        // Advance time by 100ms (within grace period)
+        jest.spyOn(Date, 'now').mockReturnValue(now + 100);
+
+        // Update streaming content immediately after click
+        const updatedStreamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming... more text',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage: updatedStreamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // Force re-render
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should NOT scroll because we're in the grace period
+        await act(async () => {
+          jest.advanceTimersByTime(10);
+        });
+        expect(mockScrollToBottom).not.toHaveBeenCalled();
+
+        // Advance time past the grace period (350ms total)
+        jest.spyOn(Date, 'now').mockReturnValue(now + 350);
+
+        // Update streaming content again
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage: { messageId: 'bot-1', content: 'Even more text' },
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should now scroll because grace period has expired
+        await act(async () => {
+          jest.runAllTimers();
+        });
+        expect(mockScrollToBottom).toHaveBeenCalledWith({
+          behavior: 'auto',
+          resumeSmartScroll: false,
+        });
+
+        jest.restoreAllMocks();
+        jest.useRealTimers();
+      });
+
+      it('resumes autoscroll immediately after back to bottom button click', async () => {
+        const streamingMessage: StreamingMessage = {
+          messageId: 'bot-1',
+          content: 'Streaming...',
+        };
+
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage,
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        mockIsSmartScrollActive.mockReturnValue(true);
+
+        const { rerender } = render(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalled();
+        });
+        mockScrollToBottom.mockClear();
+
+        // Simulate back to bottom button click
+        const { onScrollToBottomClick } = getLastMessageBoxProps();
+        act(() => {
+          onScrollToBottomClick();
+        });
+
+        // Update streaming content
+        mockUseChatMessages.mockReturnValue(
+          createMockChatMessagesReturn({
+            messages: [
+              { id: 'user-1', role: 'user', answer: 'Question', date: new Date() },
+              { id: 'bot-1', role: 'bot', answer: '', date: new Date() },
+            ],
+            streamingMessage: { messageId: 'bot-1', content: 'More text' },
+            isStreaming: true,
+            lastUserMessageIndex: 0,
+            lastBotMessageIndex: 1,
+          }),
+        );
+
+        // Force re-render
+        rerender(<MessageList isLoading={true} isValidConversationId={true} />);
+        rerender(<MessageList isLoading={false} isValidConversationId={true} />);
+
+        // Should scroll immediately because back to bottom clears the grace period
+        await waitFor(() => {
+          expect(mockScrollToBottom).toHaveBeenCalledWith({
+            behavior: 'auto',
+            resumeSmartScroll: false,
+          });
+        });
       });
 
       it('scrolls on each streaming content update', async () => {
