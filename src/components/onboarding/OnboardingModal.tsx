@@ -21,7 +21,19 @@ import SharingImg from '../../assets/images/onboarding/sharing.svg';
 import './onboarding.css';
 
 export const ONBOARDING_STORAGE_KEY = 'genie-onboarding-completed';
-export const ONBOARDING_COMPLETED_USER_SETTING_KEY = 'genie.onboardingCompleted';
+export const ALADDIN_USER_SETTING_KEY = 'aladdin.settings';
+export const ALADDIN_PLUGIN_VERSION = '0.0.1';
+
+const defaultAladdinSettings = {
+  onboarding: {
+    version: ALADDIN_PLUGIN_VERSION,
+    completed: false,
+  },
+  guidedTour: {
+    completed: false,
+    lastStep: 0,
+  },
+};
 
 const imageMap: Record<string, string> = {
   welcome: WelcomeImg,
@@ -32,22 +44,30 @@ const imageMap: Record<string, string> = {
 
 export const OnboardingModal: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
-  const [onboardingCompleted, setOnboardingCompleted, onboardingLoaded] = useUserSettings<boolean>(
-    ONBOARDING_COMPLETED_USER_SETTING_KEY,
+  const [aladdinSettings, setAladdinSettings, aladdinSettingsLoaded] = useUserSettings(
+    ALADDIN_USER_SETTING_KEY,
+    defaultAladdinSettings,
   );
   const [isOpen, setIsOpen] = useState(false);
   const [, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    if (onboardingLoaded && !onboardingCompleted) {
+    if (
+      aladdinSettingsLoaded &&
+      aladdinSettings?.onboarding?.version !== ALADDIN_PLUGIN_VERSION &&
+      !aladdinSettings?.onboarding?.completed
+    ) {
       setIsOpen(true);
     }
-  }, [onboardingLoaded, onboardingCompleted]);
+  }, [aladdinSettingsLoaded, aladdinSettings]);
 
   const handleComplete = useCallback(() => {
-    setOnboardingCompleted(true);
+    setAladdinSettings({
+      ...aladdinSettings,
+      onboarding: { ...aladdinSettings.onboarding, completed: true },
+    });
     setIsOpen(false);
-  }, [setOnboardingCompleted]);
+  }, [setAladdinSettings]);
 
   if (!isOpen) {
     return null;

@@ -1,10 +1,10 @@
 import { render, screen, user, waitFor } from '../../../unitTestUtils';
-import { OnboardingModal } from '../OnboardingModal';
+import { OnboardingModal, ALADDIN_PLUGIN_VERSION } from '../OnboardingModal';
 import { useUserSettings } from '@openshift-console/dynamic-plugin-sdk';
 
 // Mock useUserSettings
 const mockUseUserSettings = useUserSettings as jest.MockedFunction<typeof useUserSettings>;
-const mockSetOnboardingCompleted = jest.fn();
+const mockSetAladdinSettings = jest.fn();
 
 describe('OnboardingModal', () => {
   beforeEach(() => {
@@ -16,7 +16,17 @@ describe('OnboardingModal', () => {
   });
 
   it('should not render when onboarding has been completed', () => {
-    mockUseUserSettings.mockReturnValue([true, mockSetOnboardingCompleted, true]);
+    const completedSettings = {
+      onboarding: {
+        version: ALADDIN_PLUGIN_VERSION,
+        completed: true,
+      },
+      guidedTour: {
+        completed: false,
+        lastStep: 0,
+      },
+    };
+    mockUseUserSettings.mockReturnValue([completedSettings, mockSetAladdinSettings, true]);
 
     render(<OnboardingModal />);
 
@@ -24,7 +34,19 @@ describe('OnboardingModal', () => {
   });
 
   it('should render when onboarding has not been completed', () => {
-    mockUseUserSettings.mockReturnValue([false, mockSetOnboardingCompleted, true]);
+    // The modal shows when version doesn't match AND completed is false
+    // To trigger showing, we need version to not match
+    const oldVersionSettings = {
+      onboarding: {
+        version: '0.0.0', // Different version
+        completed: false,
+      },
+      guidedTour: {
+        completed: false,
+        lastStep: 0,
+      },
+    };
+    mockUseUserSettings.mockReturnValue([oldVersionSettings, mockSetAladdinSettings, true]);
 
     render(<OnboardingModal />);
 
@@ -36,7 +58,17 @@ describe('OnboardingModal', () => {
   });
 
   it('should set completion in storage when the flow is finished', async () => {
-    mockUseUserSettings.mockReturnValue([false, mockSetOnboardingCompleted, true]);
+    const initialSettings = {
+      onboarding: {
+        version: '0.0.0', // Different version to trigger modal
+        completed: false,
+      },
+      guidedTour: {
+        completed: false,
+        lastStep: 0,
+      },
+    };
+    mockUseUserSettings.mockReturnValue([initialSettings, mockSetAladdinSettings, true]);
     render(<OnboardingModal />);
 
     expect(screen.getByText('Welcome to Red Hat Project Aladdin')).toBeInTheDocument();
@@ -51,7 +83,10 @@ describe('OnboardingModal', () => {
     const getStartedButton = await screen.findByRole('button', { name: /get started/i });
     await user.click(getStartedButton);
 
-    expect(mockSetOnboardingCompleted).toHaveBeenCalledWith(true);
+    expect(mockSetAladdinSettings).toHaveBeenCalledWith({
+      ...initialSettings,
+      onboarding: { ...initialSettings.onboarding, completed: true },
+    });
 
     // Wait for modal to disappear after completion
     await waitFor(() => {
