@@ -10,6 +10,7 @@ import {
   Button,
   ButtonVariant,
 } from '@patternfly/react-core';
+import { useUserSettings } from '@openshift-console/dynamic-plugin-sdk';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { ModalDeck } from '@patternfly/react-component-groups/dist/dynamic/ModalDeck';
 import Deck from '@patternfly/react-component-groups/dist/dynamic/Deck';
@@ -20,6 +21,19 @@ import SharingImg from '../../assets/images/onboarding/sharing.svg';
 import './onboarding.css';
 
 export const ONBOARDING_STORAGE_KEY = 'genie-onboarding-completed';
+export const ALADDIN_USER_SETTING_KEY = 'aladdin.settings';
+export const ALADDIN_PLUGIN_VERSION = '0.0.1';
+
+const defaultAladdinSettings = {
+  onboarding: {
+    version: ALADDIN_PLUGIN_VERSION,
+    completed: false,
+  },
+  guidedTour: {
+    completed: false,
+    lastStep: 0,
+  },
+};
 
 const imageMap: Record<string, string> = {
   welcome: WelcomeImg,
@@ -30,20 +44,30 @@ const imageMap: Record<string, string> = {
 
 export const OnboardingModal: React.FC = () => {
   const { t } = useTranslation('plugin__genie-web-client');
+  const [aladdinSettings, setAladdinSettings, aladdinSettingsLoaded] = useUserSettings(
+    ALADDIN_USER_SETTING_KEY,
+    defaultAladdinSettings,
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    const hasCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY) === 'true';
-    if (!hasCompleted) {
+    if (
+      aladdinSettingsLoaded &&
+      aladdinSettings?.onboarding?.version !== ALADDIN_PLUGIN_VERSION &&
+      !aladdinSettings?.onboarding?.completed
+    ) {
       setIsOpen(true);
     }
-  }, []);
+  }, [aladdinSettingsLoaded, aladdinSettings]);
 
   const handleComplete = useCallback(() => {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    setAladdinSettings({
+      ...aladdinSettings,
+      onboarding: { ...aladdinSettings.onboarding, completed: true },
+    });
     setIsOpen(false);
-  }, []);
+  }, [setAladdinSettings]);
 
   if (!isOpen) {
     return null;
