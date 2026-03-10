@@ -39,20 +39,18 @@ spec:
 {{ .Files.Get "files/prompts/system-prompt.txt" | indent 6 }}
   mcpServers:
     - name: obs
-      streamableHTTP:
-        enableSSE: false
-        headers:
-          Authorization: "kubernetes"
-        sseReadTimeout: 30
-        timeout: 30
-        url: {{ .Values.olsConfig.mcpServers.obs.url | quote }}
+      headers:
+        - name: Authorization
+          valueFrom:
+            type: kubernetes
+      timeout: 30
+      url: {{ .Values.olsConfig.mcpServers.obs.url | quote }}
     - name: ngui
-      streamableHTTP:
-        enableSSE: false
-        headers:
-          Authorization: "kubernetes"
-        sseReadTimeout: 30
-        timeout: 30
-        url: {{ .Values.olsConfig.mcpServers.ngui.url | quote }}
+      headers:
+        - name: Authorization
+          valueFrom:
+            type: kubernetes
+      timeout: 30
+      url: {{ .Values.olsConfig.mcpServers.ngui.url | quote }}
 
 {{- end }}
