@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import { Button, Flex, FlexItem } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import type { WidgetArtifact } from '../../types/chat';
-import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from './WidgetRenderer';
 import { CanvasCard } from '../canvas/CanvasCard';
 import { useActiveDashboard } from '../../hooks/useActiveDashboard';
@@ -11,26 +10,6 @@ import { useDashboards } from '../../hooks/useDashboards';
 export interface WidgetArtifactRendererProps {
   /** The widget artifact to render */
   artifact: WidgetArtifact;
-  /** Tool calls from the message */
-  toolCalls?: ToolCallState[];
-}
-
-/**
- * Find the tool call ID that produced a given artifact.
- * Matches by checking if the artifact's id exists in any tool call's artifacts array.
- */
-function findToolCallIdForArtifact(
-  artifactId: string,
-  toolCalls: ToolCallState[] | undefined,
-): string | null {
-  if (!toolCalls) return null;
-
-  for (const tc of toolCalls) {
-    if (tc.artifacts?.some((a) => a.id === artifactId)) {
-      return tc.id;
-    }
-  }
-  return null;
 }
 
 /**
@@ -42,25 +21,21 @@ const DEFAULT_NAMESPACE = 'default';
 
 export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRendererProps> = ({
   artifact,
-  toolCalls,
 }) => {
   const { addWidgetToDashboard, setActiveDashboard, activeDashboard, clearActiveDashboard } =
     useActiveDashboard(DEFAULT_NAMESPACE);
-  const { getDashboardForToolCall } = useDashboards({ namespace: DEFAULT_NAMESPACE });
+  const { getDashboardForWidgetId } = useDashboards();
 
-  // Look up if this widget is already on a dashboard
+  // Look up if this widget is already on a dashboard by widget ID
   const dashboardRef = useMemo(() => {
-    const toolCallId = findToolCallIdForArtifact(artifact.id, toolCalls);
-    if (!toolCallId) return null;
-
-    const ref = getDashboardForToolCall(toolCallId);
+    const ref = getDashboardForWidgetId(artifact.widget.id);
     if (!ref) return null;
 
     return {
       dashboard: ref.dashboard,
       panelTitle: ref.panel.title,
     };
-  }, [artifact.id, toolCalls, getDashboardForToolCall]);
+  }, [artifact.widget.id, getDashboardForWidgetId]);
 
   // Calculate if this widget's dashboard is currently being viewed
   const isViewing = useMemo(() => {
@@ -76,9 +51,8 @@ export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRende
   }, [dashboardRef, activeDashboard]);
 
   const handleAddToDashboard = useCallback(() => {
-    if (!toolCalls) return;
-    addWidgetToDashboard(artifact, toolCalls);
-  }, [artifact, toolCalls, addWidgetToDashboard]);
+    addWidgetToDashboard(artifact);
+  }, [artifact, addWidgetToDashboard]);
 
   const handleOpenDashboard = useCallback(() => {
     if (dashboardRef) {
@@ -117,7 +91,7 @@ export const WidgetArtifactRenderer: React.FunctionComponent<WidgetArtifactRende
         </Button>
       </FlexItem>
       <FlexItem>
-        <WidgetRenderer widget={artifact.widget} toolCalls={toolCalls} />
+        <WidgetRenderer widget={artifact.widget} />
       </FlexItem>
     </Flex>
   );

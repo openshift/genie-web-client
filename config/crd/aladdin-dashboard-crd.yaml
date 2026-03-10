@@ -55,7 +55,6 @@ spec:
                       - id
                       - position
                       - component
-                      - dataSource
                       properties:
                         id:
                           type: string
@@ -106,43 +105,6 @@ spec:
                             version:
                               type: string
                               description: Version specifies the component API version
-                        dataSource:
-                          type: object
-                          description: DataSource contains the tool calls needed to recreate the widget
-                          required:
-                          - toolCalls
-                          properties:
-                            toolCalls:
-                              type: array
-                              description: ToolCalls contains all MCP tool invocations from the message that produced this widget
-                              items:
-                                type: object
-                                required:
-                                - id
-                                - tool
-                                - arguments
-                                properties:
-                                  id:
-                                    type: string
-                                    description: Unique identifier for the tool call
-                                    maxLength: 255
-                                  server:
-                                    type: string
-                                    description: Server identifies the MCP server that handled the request
-                                  tool:
-                                    type: string
-                                    description: Tool is the name of the MCP tool that was invoked
-                                    maxLength: 255
-                                  arguments:
-                                    type: object
-                                    description: Arguments contains the parameters passed to the tool call
-                                    x-kubernetes-preserve-unknown-fields: true
-                                  result:
-                                    type: string
-                                    description: Tool result - only stored for generate_ui (contains NGUI widget spec)
-                                  requestId:
-                                    type: string
-                                    description: RequestID links to the original Lightspeed API request
               tags:
                 type: array
                 description: Tags provide metadata for dashboard organization and discovery

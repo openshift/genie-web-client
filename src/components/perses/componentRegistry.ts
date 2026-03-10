@@ -4,7 +4,6 @@
  * Maps Perses component names to their lazy-loaded implementations.
  * Uses React.lazy() for code splitting - Perses components are only loaded when needed.
  */
-
 import { lazy, type ComponentType } from 'react';
 import type { BasePersesProps, PersesComponentName } from '../../types/perses';
 

@@ -2,7 +2,6 @@ import { renderHook, act } from '../unitTestUtils';
 import { useActiveDashboard } from './useActiveDashboard';
 import type { AladdinDashboard } from '../types/dashboard';
 import type { WidgetArtifact, NGUIWidget } from '../types/chat';
-import type { ToolCallState } from '../utils/toolCallHelpers';
 
 // Mock useChatConversationContext
 const mockSetActiveArtifact = jest.fn();
@@ -52,7 +51,6 @@ const createMockDashboard = (name: string, panels = 0): AladdinDashboard => ({
         title: `Panel ${i}`,
         position: { x: 0, y: i * 3, width: 6, height: 3 },
         component: { type: 'Chart' as const, config: {} },
-        dataSource: { toolCalls: [] },
       })),
     },
   },
@@ -71,16 +69,6 @@ const createMockWidgetArtifact = (id: string, title?: string): WidgetArtifact =>
     createdAt: new Date(),
   } as NGUIWidget,
 });
-
-// Helper to create mock tool calls
-const createMockToolCalls = (count = 1): ToolCallState[] =>
-  Array.from({ length: count }, (_, i) => ({
-    id: `tc-${i}`,
-    name: i === 0 ? 'generate_ui' : 'get_data',
-    status: 'success' as const,
-    arguments: { query: `test-${i}` },
-    result: i === 0 ? '{"component": "Chart"}' : undefined,
-  }));
 
 describe('useActiveDashboard', () => {
   beforeEach(() => {
@@ -184,10 +172,9 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('test-namespace'));
       const widget = createMockWidgetArtifact('widget-1', 'My Widget');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockSetActiveArtifact).toHaveBeenCalledWith(
@@ -209,10 +196,9 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = createMockDashboard('existing-dash', 1);
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1', 'My Widget');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockSetActiveArtifact).toHaveBeenCalledWith(
@@ -233,10 +219,9 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1', 'CPU Metrics');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockSetActiveArtifact).toHaveBeenCalledWith(
@@ -254,10 +239,9 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1'); // no title
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockSetActiveArtifact).toHaveBeenCalledWith(
@@ -271,67 +255,34 @@ describe('useActiveDashboard', () => {
       );
     });
 
-    it('filters to only successful tool calls', () => {
+    it('stores widget spec in panel component config', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1');
-      const toolCalls: ToolCallState[] = [
-        { id: 'tc-1', name: 'generate_ui', status: 'success', arguments: {}, result: '{}' },
-        { id: 'tc-2', name: 'get_data', status: 'failure', arguments: {} },
-        { id: 'tc-3', name: 'other_tool', status: 'success', arguments: {} },
-      ];
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       const callArg = mockSetActiveArtifact.mock.calls[0][0] as AladdinDashboard;
-      const persistedToolCalls = callArg.spec.layout.panels[0].dataSource.toolCalls;
+      const panel = callArg.spec.layout.panels[0];
 
-      expect(persistedToolCalls).toHaveLength(2);
-      expect(persistedToolCalls.map((tc) => tc.id)).toEqual(['tc-1', 'tc-3']);
-    });
-
-    it('only stores result for generate_ui tool calls', () => {
-      mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
-      const widget = createMockWidgetArtifact('widget-1');
-      const toolCalls: ToolCallState[] = [
-        {
-          id: 'tc-1',
-          name: 'generate_ui',
-          status: 'success',
-          arguments: {},
-          result: '{"widget": "spec"}',
-        },
-        {
-          id: 'tc-2',
-          name: 'get_metrics',
-          status: 'success',
-          arguments: {},
-          result: '{"metrics": "data"}',
-        },
-      ];
-
-      act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
-      });
-
-      const callArg = mockSetActiveArtifact.mock.calls[0][0] as AladdinDashboard;
-      const persistedToolCalls = callArg.spec.layout.panels[0].dataSource.toolCalls;
-
-      expect(persistedToolCalls[0].result).toBe('{"widget": "spec"}');
-      expect(persistedToolCalls[1].result).toBeUndefined();
+      expect(panel.component.config).toEqual(
+        expect.objectContaining({
+          component: 'TestComponent',
+          data: [],
+          widgetId: 'widget-widget-1',
+        }),
+      );
     });
 
     it('sets dashboard as unsaved', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockSetDashboardSaved).toHaveBeenCalledWith(false);
@@ -341,10 +292,9 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = null;
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       expect(mockOpenCanvas).toHaveBeenCalled();
@@ -356,10 +306,9 @@ describe('useActiveDashboard', () => {
       // So max y + height = 3 + 3 = 6
       const { result } = renderHook(() => useActiveDashboard('default'));
       const widget = createMockWidgetArtifact('widget-1');
-      const toolCalls = createMockToolCalls();
 
       act(() => {
-        result.current.addWidgetToDashboard(widget, toolCalls);
+        result.current.addWidgetToDashboard(widget);
       });
 
       const callArg = mockSetActiveArtifact.mock.calls[0][0] as AladdinDashboard;

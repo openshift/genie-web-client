@@ -162,6 +162,77 @@ describe('parseGenerateUIResult', () => {
     expect(result[0].createdAt).toBeInstanceOf(Date);
     expect(result[0].widget.createdAt).toBeInstanceOf(Date);
   });
+
+  it('parses data_type_metadata from configuration and adds to widget spec', () => {
+    const nguiConfig = { component: 'PersesTimeSeries' };
+    const metadata = { query: 'up{job="prometheus"}', duration: '30m', step: '1m' };
+    const response = JSON.stringify({
+      blocks: [
+        {
+          rendering: { content: JSON.stringify(nguiConfig) },
+          configuration: { data_type_metadata: JSON.stringify(metadata) },
+        },
+      ],
+    });
+
+    const result = parseGenerateUIResult(response) as WidgetArtifact[];
+
+    expect(result).toHaveLength(1);
+    expect(result[0].widget.spec.dataTypeMetadata).toEqual(metadata);
+    expect(result[0].widget.spec.component).toBe('PersesTimeSeries');
+  });
+
+  it('handles missing configuration.data_type_metadata gracefully', () => {
+    const nguiConfig = { component: 'PersesTimeSeries', query: 'up' };
+    const response = JSON.stringify({
+      blocks: [
+        {
+          rendering: { content: JSON.stringify(nguiConfig) },
+        },
+      ],
+    });
+
+    const result = parseGenerateUIResult(response) as WidgetArtifact[];
+
+    expect(result).toHaveLength(1);
+    expect(result[0].widget.spec.dataTypeMetadata).toBeUndefined();
+    expect(result[0].widget.spec.query).toBe('up');
+  });
+
+  it('handles invalid JSON in data_type_metadata gracefully', () => {
+    const nguiConfig = { component: 'PersesTimeSeries', query: 'up' };
+    const response = JSON.stringify({
+      blocks: [
+        {
+          rendering: { content: JSON.stringify(nguiConfig) },
+          configuration: { data_type_metadata: 'not valid json' },
+        },
+      ],
+    });
+
+    const result = parseGenerateUIResult(response) as WidgetArtifact[];
+
+    expect(result).toHaveLength(1);
+    expect(result[0].widget.spec.dataTypeMetadata).toBeUndefined();
+    expect(result[0].widget.spec.query).toBe('up');
+  });
+
+  it('handles empty configuration object gracefully', () => {
+    const nguiConfig = { component: 'PersesTimeSeries', query: 'up' };
+    const response = JSON.stringify({
+      blocks: [
+        {
+          rendering: { content: JSON.stringify(nguiConfig) },
+          configuration: {},
+        },
+      ],
+    });
+
+    const result = parseGenerateUIResult(response) as WidgetArtifact[];
+
+    expect(result).toHaveLength(1);
+    expect(result[0].widget.spec.dataTypeMetadata).toBeUndefined();
+  });
 });
 
 describe('parseToolResultToArtifacts', () => {
