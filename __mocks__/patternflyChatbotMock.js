@@ -5,6 +5,7 @@ const React = require('react');
 const mockScrollToBottom = jest.fn();
 const mockScrollToTop = jest.fn();
 const mockIsSmartScrollActive = jest.fn(() => true);
+let lastMessageBoxProps = {};
 
 const MessageBar = React.forwardRef((props, ref) => {
   const { onSendMessage, ...restProps } = props;
@@ -41,7 +42,10 @@ const ChatbotContent = ({ children, ...props }) => {
   return React.createElement('div', { 'data-testid': 'chatbot-content', ...props }, children);
 };
 
-const MessageBox = React.forwardRef(({ children, enableSmartScroll, ...props }, ref) => {
+const MessageBox = React.forwardRef(({ children, enableSmartScroll, onScrollToTopClick, onScrollToBottomClick, ...props }, ref) => {
+  // Capture props for testing
+  lastMessageBoxProps = { enableSmartScroll, onScrollToTopClick, onScrollToBottomClick, ...props };
+
   // Mock implementation of MessageBox ref methods
   React.useImperativeHandle(ref, () => ({
     scrollToBottom: mockScrollToBottom,
@@ -125,4 +129,5 @@ module.exports = {
   mockScrollToBottom,
   mockScrollToTop,
   mockIsSmartScrollActive,
+  getLastMessageBoxProps: () => lastMessageBoxProps,
 };
