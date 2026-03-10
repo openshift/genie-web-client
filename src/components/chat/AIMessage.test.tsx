@@ -42,6 +42,10 @@ jest.mock('../toast-alerts/ToastAlertProvider', () => ({
   }),
 }));
 
+jest.mock('../dashboard/ChatDashboardButtons', () => ({
+  ChatDashboardButtons: () => <div data-testid="chat-dashboard-buttons" />,
+}));
+
 describe('<AIMessage />', () => {
   const mockOnQuickResponse = jest.fn();
   const defaultConversationId = 'test-conversation-id';
@@ -479,6 +483,72 @@ describe('<AIMessage />', () => {
 
       // button state gets reset after error, so should be unclicked again
       expect(thumbsUpButton).toHaveAttribute('data-is-clicked', 'false');
+    });
+  });
+
+  describe('Dashboard CTA buttons', () => {
+    it('renders dashboard buttons when not streaming, has content, and user question matches trigger phrase', () => {
+      const message = createMessage({ answer: 'I can help you create a dashboard.' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion="Can you help me create a new dashboard?"
+          onQuickResponse={mockOnQuickResponse}
+          isStreaming={false}
+        />,
+      );
+
+      expect(screen.getByTestId('chat-dashboard-buttons')).toBeInTheDocument();
+    });
+
+    it('does not render dashboard buttons when isStreaming is true', () => {
+      const message = createMessage({ answer: 'Streaming content so far.' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion="create a new dashboard"
+          onQuickResponse={mockOnQuickResponse}
+          isStreaming={true}
+        />,
+      );
+
+      expect(screen.queryByTestId('chat-dashboard-buttons')).not.toBeInTheDocument();
+    });
+
+    it('does not render dashboard buttons when message content is empty', () => {
+      const message = createMessage({ answer: '' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion="create a new dashboard"
+          onQuickResponse={mockOnQuickResponse}
+          isStreaming={false}
+        />,
+      );
+
+      expect(screen.queryByTestId('chat-dashboard-buttons')).not.toBeInTheDocument();
+    });
+
+    it('does not render dashboard buttons when user question does not match trigger phrase', () => {
+      const message = createMessage({ answer: 'Here is some help.' });
+
+      render(
+        <AIMessage
+          message={message}
+          conversationId={defaultConversationId}
+          userQuestion="What is the weather?"
+          onQuickResponse={mockOnQuickResponse}
+          isStreaming={false}
+        />,
+      );
+
+      expect(screen.queryByTestId('chat-dashboard-buttons')).not.toBeInTheDocument();
     });
   });
 });

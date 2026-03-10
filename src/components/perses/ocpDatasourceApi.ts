@@ -48,16 +48,17 @@ export class OcpDatasourceApi implements DatasourceApi {
     return `${this.basePath}/proxy/${url}`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getDatasource = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     project: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     selector: DatasourceSelector,
   ): Promise<DatasourceResource | undefined> => {
     return Promise.resolve(undefined);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getGlobalDatasource = async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     selector: DatasourceSelector,
   ): Promise<GlobalDatasourceResource | undefined> => {
     // For now return always the default data source

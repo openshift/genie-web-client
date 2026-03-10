@@ -14,6 +14,7 @@ import type { NGUIWidget } from '../../types/chat';
 import type { ToolCallState } from '../../utils/toolCallHelpers';
 import { WidgetRenderer } from '../artifacts/WidgetRenderer';
 import { parseToolResultToArtifacts } from '../../utils/toolResultParsers';
+import { EmptyDashboard } from './EmptyDashboard';
 
 export interface DashboardProps {
   dashboard: AladdinDashboard;
@@ -102,13 +103,7 @@ export const Dashboard: React.FunctionComponent<DashboardProps> = ({ dashboard }
   const columns = dashboard.spec.layout.columns ?? 12;
 
   if (panels.length === 0) {
-    return (
-      <EmptyState titleText="No panels" headingLevel="h4">
-        <EmptyStateBody>
-          This dashboard has no panels yet. Add widgets from chat to populate it.
-        </EmptyStateBody>
-      </EmptyState>
-    );
+    return <EmptyDashboard />;
   }
 
   return (

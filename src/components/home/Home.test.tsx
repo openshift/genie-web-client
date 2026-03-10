@@ -1,12 +1,12 @@
-import React from 'react';
-import { render, screen } from '../../unitTestUtils';
+import { render, screen, user } from '../../unitTestUtils';
 import { Home } from './Home';
 import { AIProvider } from '../../hooks/AIState';
+import { CREATE_DASHBOARD_PROMPT } from '../../constants/prompts';
 
-// Stub out MessageBar so it doesn't render (but remains a valid component)
-jest.mock('@patternfly/chatbot', () => ({
-  // eslint-disable-next-line react/display-name
-  MessageBar: React.forwardRef(() => null),
+const mockStartChatWithPrompt = jest.fn();
+
+jest.mock('../../hooks/useStartChatWithPrompt', () => ({
+  useStartChatWithPrompt: () => mockStartChatWithPrompt,
 }));
 
 describe('Home', () => {
@@ -16,6 +16,10 @@ describe('Home', () => {
         <Home />
       </AIProvider>,
     );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('renders heading without username when none stored', () => {
     renderWithProviders();
@@ -38,5 +42,13 @@ describe('Home', () => {
     const cta = screen.getByRole('button', { name: /create your first dashboard/i });
     expect(cta).toBeInTheDocument();
     expect(cta).toBeEnabled();
+  });
+
+  it('calls startChatWithPrompt with create-dashboard message when CTA is clicked', async () => {
+    render(<Home />);
+    const cta = screen.getByRole('button', { name: /create your first dashboard/i });
+    await user.click(cta);
+    expect(mockStartChatWithPrompt).toHaveBeenCalledTimes(1);
+    expect(mockStartChatWithPrompt).toHaveBeenCalledWith(CREATE_DASHBOARD_PROMPT);
   });
 });

@@ -93,7 +93,7 @@ describe('useActiveDashboard', () => {
     it('returns null when no active artifact exists', () => {
       mockActiveArtifact = null;
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.activeDashboard).toBeNull();
     });
@@ -101,7 +101,7 @@ describe('useActiveDashboard', () => {
     it('returns the dashboard when activeArtifact is an AladdinDashboard', () => {
       mockActiveArtifact = createMockDashboard('test-dash');
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.activeDashboard).toEqual(mockActiveArtifact);
     });
@@ -109,7 +109,7 @@ describe('useActiveDashboard', () => {
     it('returns null when activeArtifact is not an AladdinDashboard', () => {
       mockActiveArtifact = { type: 'code', id: 'test' } as unknown as AladdinDashboard;
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.activeDashboard).toBeNull();
     });
@@ -119,7 +119,7 @@ describe('useActiveDashboard', () => {
     it('returns false when no active dashboard exists', () => {
       mockActiveArtifact = null;
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.hasActiveDashboard).toBe(false);
     });
@@ -127,7 +127,7 @@ describe('useActiveDashboard', () => {
     it('returns true when an active dashboard exists', () => {
       mockActiveArtifact = createMockDashboard('test-dash');
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.hasActiveDashboard).toBe(true);
     });
@@ -135,7 +135,7 @@ describe('useActiveDashboard', () => {
 
   describe('setActiveDashboard', () => {
     it('calls setActiveArtifact with the dashboard', () => {
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const dashboard = createMockDashboard('new-dash');
 
       act(() => {
@@ -146,7 +146,7 @@ describe('useActiveDashboard', () => {
     });
 
     it('opens the canvas', () => {
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const dashboard = createMockDashboard('new-dash');
 
       act(() => {
@@ -159,7 +159,7 @@ describe('useActiveDashboard', () => {
 
   describe('clearActiveDashboard', () => {
     it('calls clearActiveArtifact', () => {
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       act(() => {
         result.current.clearActiveDashboard();
@@ -169,7 +169,7 @@ describe('useActiveDashboard', () => {
     });
 
     it('closes the canvas', () => {
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       act(() => {
         result.current.clearActiveDashboard();
@@ -182,7 +182,7 @@ describe('useActiveDashboard', () => {
   describe('addWidgetToDashboard', () => {
     it('creates a new dashboard when no active dashboard exists', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('test-namespace'));
+      const { result } = renderHook(() => useActiveDashboard('test-namespace', undefined));
       const widget = createMockWidgetArtifact('widget-1', 'My Widget');
       const toolCalls = createMockToolCalls();
 
@@ -207,7 +207,7 @@ describe('useActiveDashboard', () => {
 
     it('adds panel to existing dashboard when one exists', () => {
       mockActiveArtifact = createMockDashboard('existing-dash', 1);
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1', 'My Widget');
       const toolCalls = createMockToolCalls();
 
@@ -231,7 +231,7 @@ describe('useActiveDashboard', () => {
 
     it('uses widget title for panel title', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1', 'CPU Metrics');
       const toolCalls = createMockToolCalls();
 
@@ -252,7 +252,7 @@ describe('useActiveDashboard', () => {
 
     it('uses "Widget" as default title when widget has no title', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1'); // no title
       const toolCalls = createMockToolCalls();
 
@@ -273,7 +273,7 @@ describe('useActiveDashboard', () => {
 
     it('filters to only successful tool calls', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1');
       const toolCalls: ToolCallState[] = [
         { id: 'tc-1', name: 'generate_ui', status: 'success', arguments: {}, result: '{}' },
@@ -294,7 +294,7 @@ describe('useActiveDashboard', () => {
 
     it('only stores result for generate_ui tool calls', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1');
       const toolCalls: ToolCallState[] = [
         {
@@ -326,7 +326,7 @@ describe('useActiveDashboard', () => {
 
     it('sets dashboard as unsaved', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1');
       const toolCalls = createMockToolCalls();
 
@@ -339,7 +339,7 @@ describe('useActiveDashboard', () => {
 
     it('opens the canvas', () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1');
       const toolCalls = createMockToolCalls();
 
@@ -354,7 +354,7 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = createMockDashboard('existing-dash', 2);
       // Existing panels are at y=0 and y=3, each with height=3
       // So max y + height = 3 + 3 = 6
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
       const widget = createMockWidgetArtifact('widget-1');
       const toolCalls = createMockToolCalls();
 
@@ -373,7 +373,7 @@ describe('useActiveDashboard', () => {
   describe('saveDashboard', () => {
     it('throws error when no active dashboard exists', async () => {
       mockActiveArtifact = null;
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       await expect(result.current.saveDashboard()).rejects.toThrow('No active dashboard to save');
     });
@@ -383,7 +383,7 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = dashboard;
       mockCreateDashboard.mockResolvedValue(dashboard);
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       await act(async () => {
         await result.current.saveDashboard();
@@ -401,7 +401,7 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = dashboard;
       mockCreateDashboard.mockResolvedValue(savedDashboard);
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       await act(async () => {
         await result.current.saveDashboard();
@@ -415,7 +415,7 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = dashboard;
       mockCreateDashboard.mockResolvedValue(dashboard);
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       await act(async () => {
         await result.current.saveDashboard();
@@ -433,7 +433,7 @@ describe('useActiveDashboard', () => {
       mockActiveArtifact = dashboard;
       mockCreateDashboard.mockResolvedValue(savedDashboard);
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       let returnedDashboard: AladdinDashboard | undefined;
       await act(async () => {
@@ -448,7 +448,7 @@ describe('useActiveDashboard', () => {
     it('returns the isDashboardSaved state from context', () => {
       mockIsDashboardSaved = true;
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.isDashboardSaved).toBe(true);
     });
@@ -456,7 +456,7 @@ describe('useActiveDashboard', () => {
     it('returns false when dashboard is not saved', () => {
       mockIsDashboardSaved = false;
 
-      const { result } = renderHook(() => useActiveDashboard('default'));
+      const { result } = renderHook(() => useActiveDashboard('default', undefined));
 
       expect(result.current.isDashboardSaved).toBe(false);
     });
@@ -464,7 +464,7 @@ describe('useActiveDashboard', () => {
 
   describe('memoization', () => {
     it('maintains stable function references across re-renders', () => {
-      const { result, rerender } = renderHook(() => useActiveDashboard('default'));
+      const { result, rerender } = renderHook(() => useActiveDashboard('default', undefined));
 
       const firstSetActiveDashboard = result.current.setActiveDashboard;
       const firstClearActiveDashboard = result.current.clearActiveDashboard;

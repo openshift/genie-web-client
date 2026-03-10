@@ -23,12 +23,30 @@ import { ToolCalls } from './ToolCalls';
 import { Sources } from './Sources';
 import { ReferencedDocument } from 'src/hooks/AIState';
 import { useBadResponseModal } from './feedback/BadResponseModal';
+import { ChatDashboardButtons } from '../dashboard/ChatDashboardButtons';
 
 // feedback rating constants to prevent typos
 const FEEDBACK_RATING = {
   GOOD: 'good',
   BAD: 'bad',
 } as const;
+
+/** User message phrases that show "Start with template" / "Start from scratch" after the assistant responds. */
+const DASHBOARD_CTA_TRIGGER_PHRASES = [
+  'create a new dashboard',
+  'create a dashboard',
+  'create dashboard',
+  'new dashboard',
+  'help me create a dashboard',
+  'build a dashboard',
+  'make a dashboard',
+];
+
+function userMessageMatchesDashboardTrigger(userQuestion: string): boolean {
+  if (!userQuestion?.trim()) return false;
+  const lower = userQuestion.toLowerCase();
+  return DASHBOARD_CTA_TRIGGER_PHRASES.some((phrase) => lower.includes(phrase));
+}
 
 type FeedbackRating = (typeof FEEDBACK_RATING)[keyof typeof FEEDBACK_RATING] | null;
 
@@ -233,6 +251,7 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
       // temporary demo mode lets reviewers see canvas cards working before backend integration
       // TODO: remove this once real artifact detection from tool calls is wired up
       const DEMO_MODE = true;
+      // Dashboard phrases overlap with DASHBOARD_CTA_TRIGGER_PHRASES; demo adds deployment/kubernetes.
       const DEMO_TRIGGER_PHRASES = [
         'create a dashboard',
         'create a new dashboard',
@@ -289,11 +308,16 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const hasArtifacts = artifacts.length > 0 && !isStreaming;
     const hasSources = referencedDocuments.length > 0;
     const hasEndContent = hasToolCalls || hasSources;
+    const showDashboardButtons =
+      !isStreaming && content.length > 0 && userMessageMatchesDashboardTrigger(userQuestion);
 
     const extraContent = {
       afterMainContent:
-        hasArtifacts && !isStreaming ? (
-          <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} />
+        hasArtifacts || showDashboardButtons ? (
+          <>
+            {hasArtifacts ? <ArtifactRenderer artifacts={artifacts} toolCalls={toolCalls} /> : null}
+            {showDashboardButtons ? <ChatDashboardButtons /> : null}
+          </>
         ) : null,
       endContent: hasEndContent ? (
         <Flex gap={{ default: 'gapSm' }}>
@@ -321,25 +345,12 @@ export const AIMessage: FunctionComponent<AIMessageProps> = memo(
     const hasContent = content.length > 0;
     const showLoading = isStreaming && !hasContent;
 
-    // visually hidden live region so screen readers hear "response rated good" after thumbs up
-    const screenReaderOnlyStyle: React.CSSProperties = {
-      position: 'absolute',
-      width: 1,
-      height: 1,
-      padding: 0,
-      margin: -1,
-      overflow: 'hidden',
-      clip: 'rect(0, 0, 0, 0)',
-      whiteSpace: 'nowrap',
-      border: 0,
-    };
-
     return (
       <>
         <div
           aria-live="polite"
           role="status"
-          style={screenReaderOnlyStyle}
+          className="pf-v6-u-screen-reader"
           data-testid="feedback-announcement"
         >
           {feedbackAnnouncement}

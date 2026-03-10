@@ -8,16 +8,13 @@ import {
 import { RhUiAiExperienceIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { useCreateNewConversation, useSendStreamMessage } from '../../hooks/AIState';
-import { useNavigate } from 'react-router-dom-v5-compat';
-import { mainGenieRoute, SubRoutes } from '../routeList';
+import { useStartChatWithPrompt } from '../../hooks/useStartChatWithPrompt';
+import { CREATE_DASHBOARD_PROMPT } from '../../constants/prompts';
 
 export const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const { t } = useTranslation('plugin__genie-web-client');
-  const createNewConversation = useCreateNewConversation();
-  const sendStreamMessage = useSendStreamMessage();
-  const navigate = useNavigate();
+  const startChatWithPrompt = useStartChatWithPrompt();
 
   useEffect(() => {
     try {
@@ -34,11 +31,9 @@ export const Home: React.FC = () => {
     ? t('dashboard.emptyState.heading', { name: userName })
     : t('dashboard.emptyState.headingNoName');
 
-  const handleCreateDashboardClick = useCallback(async () => {
-    await createNewConversation();
-    sendStreamMessage('Can you help me create a new dashboard?');
-    navigate(`${mainGenieRoute}/${SubRoutes.Chat}`);
-  }, [createNewConversation, sendStreamMessage, navigate]);
+  const handleCreateDashboardClick = useCallback(() => {
+    startChatWithPrompt(CREATE_DASHBOARD_PROMPT);
+  }, [startChatWithPrompt]);
 
   return (
     <EmptyState className="global-layout-empty-state" variant="xl" titleText={titleText}>

@@ -20,6 +20,8 @@ export interface UseDashboardsResult {
   error: Error | null;
   /** Look up which dashboard/panel contains a given tool call ID */
   getDashboardForToolCall: (toolCallId: string) => DashboardPanelRef | null;
+  /** Get all dashboards for a given conversationId */
+  getDashboardsForConversation: (conversationId: string) => AladdinDashboard[];
 }
 
 /**
@@ -61,10 +63,18 @@ export function useDashboards({ namespace }: UseDashboardsOptions): UseDashboard
     [toolCallLookup],
   );
 
+  const getDashboardsForConversation = useCallback(
+    (conversationId: string): AladdinDashboard[] => {
+      return dashboardList.filter((dashboard) => dashboard.spec?.conversationId === conversationId);
+    },
+    [dashboardList],
+  );
+
   return {
     dashboards: dashboardList,
     loaded,
     error: error as Error | null,
     getDashboardForToolCall,
+    getDashboardsForConversation,
   };
 }
