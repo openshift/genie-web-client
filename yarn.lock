@@ -2315,10 +2315,10 @@
   resolved "https://registry.npmjs.org/@remix-run/router/-/router-1.23.0.tgz#35390d0e7779626c026b11376da6789eb8389242"
   integrity sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==
 
-"@rhngui/patternfly-react-renderer@^1.0.1":
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/@rhngui/patternfly-react-renderer/-/patternfly-react-renderer-1.1.1.tgz#42551111e905f21bcc463092d98454144b5d55b7"
-  integrity sha512-PGUxIExVGBePVwuSP0VCnewELHNbcn9cqfAsR4Z1kaoYjqpg/T8v/XZjfg/J2Gnh054HVU6Ah620s9c6AU1RgQ==
+"@rhngui/patternfly-react-renderer@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@rhngui/patternfly-react-renderer/-/patternfly-react-renderer-1.2.0.tgz#25db72f4aa4559e49834cdd51c33f81f6a7c05da"
+  integrity sha512-7ki70QAxfB88oskwnzIwkJ5875hlk6dRy3ci8HiRmyx0A6wjo61dUCZBRGESXlZsFoV4+/6BQqleEbdmeqMIVA==
   dependencies:
     "@patternfly/react-charts" "^8.4.0"
     "@patternfly/react-core" "^6.3.1"
